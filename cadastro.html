@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro - VARG</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Arial', sans-serif; background: linear-gradient(to bottom, #000000, #333333); color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .container { background: rgba(0,0,0,0.8); padding: 40px; border-radius: 10px; box-shadow: 0 0 20px rgba(255,0,0,0.3); text-align: center; max-width: 400px; width: 90%; }
+    h1 { color: #ff0000; margin-bottom: 30px; font-size: 2.5em; }
+    label { display: block; margin: 15px 0 5px; text-align: left; font-weight: bold; }
+    input { width: 100%; padding: 12px; margin-bottom: 10px; background: #444444; border: 1px solid #666666; color: white; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+    input:focus { outline: none; border-color: #00bfff; box-shadow: 0 0 10px rgba(0,191,255,0.5); }
+    button { width: 100%; padding: 15px; background: #ff0000; color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    button:hover { background: #cc0000; }
+    .login-link { margin-top: 20px; display: block; }
+    a { color: #00bfff; text-decoration: none; font-size: 16px; }
+    a:hover { text-decoration: underline; }
+    .erro { color: #ff4d4d; margin-top: 12px; font-size: 0.9rem; display: none; }
+    .sucesso { color: #00ff88; margin-top: 12px; font-size: 0.9rem; display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>VARG</h1>
+    <form id="formCadastro">
+      <label for="nome">Nome:</label>
+      <input type="text" id="nome" placeholder="Seu nome" required>
+      <label for="email">E-mail:</label>
+      <input type="email" id="email" placeholder="Seu e-mail" required>
+      <label for="senha">Senha:</label>
+      <input type="password" id="senha" placeholder="Crie uma senha" required>
+      <label for="confirma_senha">Confirmação de Senha:</label>
+      <input type="password" id="confirma_senha" placeholder="Repita a senha" required>
+      <button type="submit">Cadastrar</button>
+      <p class="erro" id="erroMsg"></p>
+      <p class="sucesso" id="sucessoMsg"></p>
+    </form>
+    <p class="login-link"><a href="/login.html">Voltar ao Login</a></p>
+  </div>
+  <script>
+    document.getElementById('formCadastro').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById('nome').value;
+      const email = document.getElementById('email').value;
+      const senha = document.getElementById('senha').value;
+      const confirma = document.getElementById('confirma_senha').value;
+      const erroMsg = document.getElementById('erroMsg');
+      const sucessoMsg = document.getElementById('sucessoMsg');
+      erroMsg.style.display = 'none';
+      sucessoMsg.style.display = 'none';
+
+      if (senha !== confirma) {
+        erroMsg.textContent = 'As senhas não coincidem!';
+        erroMsg.style.display = 'block';
+        return;
+      }
+      try {
+        const res = await fetch('/cadastro', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nome, email, senha })
+        });
+        const data = await res.json();
+        if (data.success) {
+          sucessoMsg.textContent = 'Cadastro realizado! Redirecionando...';
+          sucessoMsg.style.display = 'block';
+          setTimeout(() => { window.location.href = '/login.html'; }, 2000);
+        } else {
+          erroMsg.textContent = data.message || 'Erro no cadastro.';
+          erroMsg.style.display = 'block';
+        }
+      } catch (err) {
+        erroMsg.textContent = 'Erro ao conectar com o servidor.';
+        erroMsg.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>

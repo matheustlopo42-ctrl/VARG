@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidade | VARG - A Matilha</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --card-bg: #1a1a1a;
+            --primary-color: #DC143C;
+            --secondary-color: #DC143C;
+            --text-color: #eeeeee;
+            --text-muted: #888888;
+            --transition: all 0.3s ease;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-color: #0a0a0a;
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding-top: 70px;
+        }
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 1px solid #222;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+        nav ul li { position: relative; }
+        nav ul li a {
+            color: #fff;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            display: block;
+            font-size: 15px;
+        }
+        nav ul li a:hover { color: var(--primary-color); }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #111;
+            min-width: 180px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+        }
+        .dropdown-content li a {
+            padding: 12px 15px;
+            font-size: 0.9em;
+            border-bottom: 1px solid #222;
+        }
+        nav ul li:hover .dropdown-content { display: block; }
+        .cart-icon {
+            color: #00BFFF;
+            font-size: 1.4rem;
+            cursor: pointer;
+            position: relative;
+        }
+        .cart-count {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: var(--primary-color);
+            color: #fff;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 50%;
+        }
+        .hero {
+            height: 40vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(rgba(18, 18, 18, 0.85), rgba(18, 18, 18, 0.85)), url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            margin-top: 0;
+        }
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 900;
+            letter-spacing: 5px;
+            margin-bottom: 10px;
+        }
+        .hero p {
+            color: var(--primary-color);
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 80px 5%;
+        }
+        .policy-section {
+            background-color: var(--card-bg);
+            padding: 30px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--primary-color);
+        }
+        .policy-section h3 {
+            color: var(--primary-color);
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .policy-section p {
+            color: #ccc;
+            font-size: 15px;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        .policy-section ul {
+            list-style: none;
+        }
+        .policy-section ul li {
+            color: #ccc;
+            font-size: 15px;
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+        .policy-section ul li::before {
+            content: "\2022";
+            color: var(--primary-color);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        .alert-box {
+            background-color: rgba(220, 20, 60, 0.08);
+            border-left: 5px solid var(--secondary-color);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        .alert-box p { color: #ddd; font-size: 15px; margin: 0; }
+        .alert-box strong { color: #fff; }
+        footer {
+            background: #050505;
+            padding: 60px 20px 20px;
+            border-top: 1px solid #222;
+            color: #888;
+            font-size: 15px;
+        }
+        .footer-grid {
+            max-width: 1200px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            text-align: left;
+            margin-bottom: 40px;
+        }
+        footer .footer-box h4 {
+            color: var(--primary-color);
+            font-size: 1em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 22px;
+        }
+        footer .footer-box ul { list-style: none; padding: 0; }
+        footer .footer-box ul li { margin-bottom: 8px; }
+        footer .footer-box ul li a {
+            color: #888;
+            text-decoration: none;
+            transition: 0.3s;
+            font-size: 15px;
+        }
+        footer .footer-box ul li a:hover { color: var(--primary-color); }
+        footer .footer-box p { color: #888; font-size: 15px; }
+        .footer-bottom {
+            text-align: center;
+            border-top: 1px solid #111;
+            padding-top: 20px;
+            font-size: 14px;
+        }
+        .social-buttons {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 2000;
+        }
+        .social-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            color: #fff;
+            text-decoration: none;
+            transition: transform 0.3s;
+        }
+        .social-btn:hover { transform: scale(1.1); }
+        .social-btn.back-to-top { background: #1a1a1a; border: 1px solid #333; cursor: pointer; }
+        .social-btn.whatsapp { background: #25D366; }
+        .social-btn.instagram {
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+        }
+        /* CARRINHO SIDEBAR — EXATO DO INDEX */
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 350px;
+            height: 100%;
+            background: #111;
+            z-index: 3000;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+            transition: 0.4s ease;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+        .cart-sidebar.active { right: 0; }
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .cart-items { flex-grow: 1; color: #888; text-align: center; padding-top: 50px; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+        .payment-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .pay-btn {
+            padding: 12px;
+            border: 1px solid #444;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: 0.3s;
+        }
+        .pay-btn:hover { background: #333; border-color: var(--primary-color); }
+        .login-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 5000;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-modal-content {
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+        }
+        .login-modal-content .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #888;
+            border: none;
+            background: none;
+        }
+        .login-modal-content .close-modal:hover { color: #fff; }
+        .login-modal-content input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #222;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 4px;
+        }
+        .login-modal-content input:last-of-type { margin-bottom: 20px; }
+        .login-modal-content .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: #DC143C;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 28px; }
+            nav ul { gap: 15px; }
+            .social-buttons { bottom: 20px; right: 20px; gap: 12px; }
+            .social-btn { width: 50px; height: 50px; font-size: 20px; }
+            .container { padding: 40px 5%; }
+            .policy-section { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+      <nav>
+        <ul>
+          <li><a href="index.html">Início</a></li>
+          <li><a href="#" id="authLink" onclick="abrirModalLogin()">Já é cadastrado?</a></li>
+          <li class="dropdown">
+            <a href="#">Produtos <i class="fa-solid fa-chevron-down" style="font-size:0.7em;"></i></a>
+            <ul class="dropdown-content">
+              <li><a href="index.html#smelling-salt">Smelling Salt</a></li>
+              <li><a href="index.html#camisetas">Camisetas</a></li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <div class="cart-icon" onclick="toggleCart()">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span class="cart-count" id="cartCount">0</span>
+      </div>
+    </header>
+
+    <section class="hero">
+        <h1>POLÍTICA DE PRIVACIDADE</h1>
+        <p>Última atualização: 12 de maio de 2026</p>
+    </section>
+
+    <div class="container">
+        <div class="policy-section">
+            <h3><i class="fa-solid fa-shield-halved"></i> 1. Introdução e Compromisso</h3>
+            <p>A <strong>VARG - A Matilha</strong> valoriza a confiança depositada por nossos clientes e parceiros. Esta Política de Privacidade descreve como coletamos, utilizamos, processamos e protegemos suas informações pessoais ao utilizar nosso site e adquirir nossos produtos.</p>
+            <p>Nosso compromisso é garantir a transparência total no tratamento de dados, em conformidade com a <strong>Lei Geral de Proteção de Dados Pessoais (LGPD) - Lei nº 13.709/2018</strong>.</p>
+        </div>
+        <div class="policy-section">
+            <h3><i class="fa-solid fa-database"></i> 2. Coleta de Dados</h3>
+            <p>Coletamos as seguintes informações necessárias para processar seus pedidos e oferecer a melhor experiência de compra:</p>
+            <ul>
+                <li><strong>Dados Cadastrais:</strong> Nome completo, CPF, e-mail, telefone e data de nascimento.</li>
+                <li><strong>Dados de Entrega:</strong> Endereço completo de cobrança e entrega.</li>
+                <li><strong>Dados de Pagamento:</strong> Informações de cartão de crédito (processadas de forma criptografada por gateways seguros) e chaves PIX.</li>
+                <li><strong>Dados de Navegação:</strong> Endereço IP, tipo de navegador, páginas visitadas e tempo de permanência através de cookies.</li>
+            </ul>
+        </div>
+        <div class="alert-box">
+            <p><strong>Atenção:</strong> A VARG nunca solicita senhas ou dados de cartão de crédito por e-mail, WhatsApp ou telefone. Todas as transações são realizadas exclusivamente através do nosso ambiente seguro de checkout.</p>
+        </div>
+        <div class="policy-section">
+            <h3><i class="fa-solid fa-gears"></i> 3. Finalidade do Tratamento</h3>
+            <p>Seus dados são utilizados para processar pedidos, validar pagamentos, coordenar a logística de entrega e enviar atualizações sobre o status da compra.</p>
+            <p>Com seu consentimento, poderemos utilizar seu e-mail para newsletters e lançamentos exclusivos. Você pode cancelar o recebimento a qualquer momento através do link de descadastro presente nos e-mails.</p>
+        </div>
+        <div class="policy-section">
+            <h3><i class="fa-solid fa-lock"></i> 4. Segurança da Informação</h3>
+            <p>Implementamos medidas técnicas e organizacionais rigorosas para proteger seus dados. Utilizamos protocolos SSL (Secure Socket Layer) para criptografar todas as informações transmitidas entre seu navegador e nossos servidores.</p>
+            <p>O acesso às informações pessoais é restrito a funcionários autorizados, todos sujeitos a deveres de confidencialidade contratual.</p>
+        </div>
+        <div class="policy-section">
+            <h3><i class="fa-solid fa-user-check"></i> 5. Direitos do Titular (LGPD)</h3>
+            <p>Em conformidade com a LGPD, você possui os seguintes direitos:</p>
+            <ul>
+                <li>Confirmação da existência de tratamento de dados.</li>
+                <li>Acesso aos dados armazenados.</li>
+                <li>Correção de dados incompletos ou desatualizados.</li>
+                <li>Eliminação de dados pessoais tratados com consentimento.</li>
+                <li>Portabilidade dos dados a outro fornecedor.</li>
+            </ul>
+        </div>
+        <div class="policy-section">
+            <h3><i class="fa-solid fa-envelope"></i> 6. Contato</h3>
+            <p>Para exercer seus direitos ou esclarecer dúvidas, entre em contato conosco pelo e-mail: <strong>contato@vargmatilha.com.br</strong>.</p>
+        </div>
+    </div>
+
+    <footer>
+      <div class="footer-grid">
+        <div class="footer-box">
+          <h4>VARG - A MATILHA</h4>
+          <p>Equipando os mais fortes desde sempre. Junte-se à matilha.</p>
+        </div>
+        <div class="footer-box">
+          <h4>INSTITUCIONAL</h4>
+          <ul>
+            <li><a href="quem-somos.html">Quem somos</a></li>
+            <li><a href="politica-privacidade.html">Política de privacidade</a></li>
+            <li><a href="termos-de-uso.html">Termos de Uso</a></li>
+            <li><a href="envio-e-prazos.html">Envio e prazos</a></li>
+          </ul>
+        </div>
+        <div class="footer-box">
+          <h4>SUPORTE</h4>
+          <ul>
+            <li><a href="trocas-e-devolucoes.html">Trocas e Devoluções</a></li>
+            <li><a href="rastrear-pedido.html">Rastrear Pedido</a></li>
+            <li><a href="duvidas-frequentes.html">Dúvidas Frequentes</a></li>
+          </ul>
+        </div>
+        <div class="footer-box">
+          <h4>CONTATO</h4>
+          <p>Email: contato@vargmatilha.com.br</p>
+          <p>CNPJ: 00.000.000/0001-00</p>
+          <p>São José dos Campos - SP</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2026 VARG - A Matilha. Todos os direitos reservados.
+      </div>
+    </footer>
+
+    <div class="social-buttons">
+      <a href="#hero" class="social-btn back-to-top" title="Voltar ao Topo" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fa-solid fa-arrow-up"></i></a>
+      <a href="https://wa.me/5512988875509" class="social-btn whatsapp" target="_blank" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+      <a href="https://instagram.com/matheusinho_ems" class="social-btn instagram" target="_blank" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+    </div>
+
+    <!-- MODAL DE LOGIN -->
+    <div class="login-modal" id="loginModal">
+      <div class="login-modal-content">
+        <button class="close-modal" onclick="fecharModalLogin()">&times;</button>
+        <h3 style="color:#DC143C; margin-bottom:20px; text-align:center;">Entrar</h3>
+        <input type="text" id="inputNome" placeholder="Seu nome">
+        <input type="email" id="inputEmail" placeholder="Seu e-mail">
+        <button class="btn-login" onclick="fazerLogin()">Entrar</button>
+      </div>
+    </div>
+
+    <!-- CARRINHO SIDEBAR — EXATO DO INDEX -->
+    <div id="cartSidebar" class="cart-sidebar">
+      <div class="cart-header">
+        <h4>Seu Carrinho</h4>
+        <i class="fa-solid fa-xmark" style="cursor:pointer" onclick="toggleCart()"></i>
+      </div>
+      <div class="cart-items">
+        <p>Seu carrinho está vazio.</p>
+      </div>
+    </div>
+
+    <!-- MODAL PAGAMENTO -->
+    <div class="modal" id="paymentModal">
+        <div class="modal-content">
+            <h3>Finalizar Compra</h3>
+            <p>Escolha a forma de pagamento:</p>
+            <div class="payment-options">
+                <button class="pay-btn"><i class="fa-solid fa-pix"></i> PIX (5% de desconto)</button>
+                <button class="pay-btn"><i class="fa-solid fa-credit-card"></i> Cartão de Crédito</button>
+                <button class="pay-btn" onclick="window.open('https://wa.me/5512999999999')"><i class="fa-brands fa-whatsapp"></i> Finalizar via WhatsApp</button>
+            </div>
+            <button onclick="closePaymentModal()" style="margin-top:20px; background:none; border:none; color:#888; cursor:pointer;">Fechar</button>
+        </div>
+    </div>
+
+    <script>
+        // === FUNÇÃO DO INDEX ORIGINAL (verificarUsuario) ===
+        function verificarUsuario() {
+            const nomeLogado = localStorage.getItem('usuarioNome');
+            const authLink = document.getElementById('authLink');
+            if (nomeLogado && authLink) {
+                authLink.parentElement.innerHTML = `
+                    <div style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; vertical-align: middle;">
+                        <span style="color: #00BFFF; font-weight: bold;">
+                            <i class="fa-solid fa-user" style="margin-right: 8px;"></i>Olá, ${nomeLogado}
+                        </span>
+                        <a href="#" id="btnLogout" style="color: #DC143C; font-size: 0.8em; cursor: pointer; font-weight: bold; text-decoration: none;">(Sair)</a>
+                    </div>`;
+                document.getElementById('btnLogout').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    localStorage.removeItem('usuarioNome');
+                    window.location.reload();
+                });
+            }
+        }
+        function abrirModalLogin() { document.getElementById('loginModal').style.display = 'flex'; }
+        function fecharModalLogin() { document.getElementById('loginModal').style.display = 'none'; }
+        function fazerLogin() {
+            const nome = document.getElementById('inputNome').value.trim();
+            const email = document.getElementById('inputEmail').value.trim();
+            if (!nome || !email) { alert("Preencha nome e e-mail!"); return; }
+            localStorage.setItem('usuarioNome', nome);
+            fecharModalLogin();
+            window.location.reload();
+        }
+
+        // === CARRINHO — EXATAMENTE IGUAL AO INDEX ===
+        function toggleCart() {
+            document.getElementById('cartSidebar').classList.toggle('active');
+        }
+
+        function renderizarCarrinho() {
+            const container = document.querySelector('.cart-items');
+            const badge = document.querySelector('.cart-count');
+            if (!container) return;
+            
+            const cart = JSON.parse(localStorage.getItem('carrinho') || '[]');
+            container.innerHTML = "";
+            
+            if (cart.length === 0) {
+                container.innerHTML = `<p style="color: #666; text-align: center; margin-top: 50px;">Carrinho vazio.</p>`;
+                if(badge) badge.innerText = "0";
+                return;
+            }
+            
+            let total = 0;
+            let html = `<div style="display: flex; flex-direction: column; width: 100%; gap: 15px;">`;
+            
+            cart.forEach(item => {
+                const subtotal = item.preco * item.quantidade;
+                total += subtotal;
+                html += `
+                    <div style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #222; padding-bottom: 15px;">
+                        <img src="${item.img}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #333;">
+                        <div style="flex: 1;">
+                            <strong style="color: #fff; display: block; font-size: 0.9em;">${item.nome}</strong>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                                <button class="cart-qty-btn" data-nome="${item.nome}" data-delta="-1" style="background:#444; color:white; border:none; width:20px; height:20px; border-radius:50%; cursor:pointer;">-</button>
+                                <span style="color:#fff; font-size: 0.9em;">${item.quantidade}</span>
+                                <button class="cart-qty-btn" data-nome="${item.nome}" data-delta="1" style="background:#444; color:white; border:none; width:20px; height:20px; border-radius:50%; cursor:pointer;">+</button>
+                                <button class="remove-cart-item" data-nome="${item.nome}" style="background:none; border:none; color:#DC143C; margin-left: auto; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                            <span style="color: #00BFFF; font-weight: bold; font-size: 0.85em;">R$ ${subtotal.toFixed(2)}</span>
+                        </div>
+                    </div>`;
+            });
+            
+            html += `
+                <div style="margin-top: 10px; color: #DC143C; font-weight: bold; text-align: center; font-size: 1.1em;">TOTAL: R$ ${total.toFixed(2)}</div>
+                <button onclick="window.location.href='checkout.html'" style="width: 100%; background: #DC143C; color: white; border: none; padding: 12px; cursor: pointer; font-weight: bold; border-radius: 4px;">FINALIZAR PEDIDO</button>
+            </div>`;
+            
+            container.innerHTML = html;
+            if(badge) badge.innerText = cart.reduce((t, i) => t + i.quantidade, 0);
+        }
+
+        function changeCartQty(nome, delta) {
+            let cart = JSON.parse(localStorage.getItem('carrinho') || '[]');
+            let item = cart.find(i => i.nome === nome);
+            if (item) {
+                item.quantidade += delta;
+                if (item.quantidade <= 0) cart = cart.filter(i => i.nome !== nome);
+                localStorage.setItem('carrinho', JSON.stringify(cart));
+                renderizarCarrinho();
+            }
+        }
+        function removeFromCart(nome) {
+            let cart = JSON.parse(localStorage.getItem('carrinho') || '[]');
+            cart = cart.filter(i => i.nome !== nome);
+            localStorage.setItem('carrinho', JSON.stringify(cart));
+            renderizarCarrinho();
+        }
+
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('.cart-qty-btn')) {
+                changeCartQty(e.target.dataset.nome, parseInt(e.target.dataset.delta));
+            }
+            if (e.target.closest('.remove-cart-item')) {
+                removeFromCart(e.target.closest('.remove-cart-item').dataset.nome);
+            }
+        });
+
+        function openPaymentModal() {
+            const cart = JSON.parse(localStorage.getItem('carrinho') || '[]');
+            if (!cart.length) { alert("Carrinho vazio!"); return; }
+            document.getElementById('paymentModal').style.display = 'flex';
+        }
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+        }
+
+        window.onload = function() {
+            verificarUsuario();
+            renderizarCarrinho();
+        };
+        window.onclick = function(e) {
+            if (e.target == document.getElementById('paymentModal')) closePaymentModal();
+        };
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) fecharModalLogin();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VARG - A Matilha</title>
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <style>
+        html { scroll-behavior: smooth; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        .brand-about {
+            background: #050505;
+            padding: 120px 20px;
+            border-top: 1px solid #111;
+        }
+        .brand-about-grid {
+            max-width: 1200px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 80px;
+            align-items: center;
+        }
+        .brand-image {
+            width: 100%;
+            height: 320px;
+            background: url("img/lobovinho.png") center/contain no-repeat;
+            opacity: 0.35;
+        }
+        .brand-text h3 {
+            color: #DC143C;
+            font-size: 2.2em;
+            font-weight: 900;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+        .brand-text p {
+            color: #bbb;
+            font-size: 0.95em;
+            line-height: 1.9;
+            margin-bottom: 18px;
+        }
+        @media (max-width: 768px) {
+            .brand-about-grid {
+                grid-template-columns: 1fr;
+                gap: 50px;
+                text-align: center;
+            }
+            .brand-image {
+                height: 220px;
+                opacity: 0.25;
+            }
+        }
+        .section-title {
+            font-size: 2.6em;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 70px;
+            color: #ffffff;
+        }
+        footer .footer-box h4 {
+            color: #DC143C;
+            font-size: 0.95em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 22px;
+        }
+        .category-title {
+            font-size: 1.6em;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #ffffff;
+            margin: 80px 0 40px;
+            opacity: 0.9;
+        }
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 1px solid #222;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+        }
+        nav ul li { position: relative; }
+        nav ul li a {
+            color: #fff;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.3s;
+            display: block;
+        }
+        nav ul li a:hover { color: #DC143C; }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #111;
+            min-width: 180px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+        }
+        .dropdown-content li a {
+            padding: 12px 15px;
+            font-size: 0.9em;
+            border-bottom: 1px solid #222;
+        }
+        nav ul li:hover .dropdown-content { display: block; }
+        .cart-icon {
+            color: #00BFFF;
+            font-size: 1.4rem;
+            cursor: pointer;
+            position: relative;
+        }
+        .cart-count {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #DC143C;
+            color: #fff;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 50%;
+        }
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 350px;
+            height: 100%;
+            background: #111;
+            z-index: 3000;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+            transition: 0.4s ease;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+        .cart-sidebar.active { right: 0; }
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .cart-items { flex-grow: 1; color: #888; text-align: center; padding-top: 50px; }
+        .hero {
+            margin-top: 60px;
+            height: 90vh;
+            background-image:
+                linear-gradient(90deg, #0a0a0a 0%, rgba(10,10,10,0.95) 15%, rgba(10,10,10,0.6) 35%, rgba(10,10,10,0.6) 65%, rgba(10,10,10,0.95) 85%, #0a0a0a 100%),
+                radial-gradient(circle, rgba(106,13,23,0.25), rgba(0,0,0,0.95) 70%),
+                url("img/lobovinho.png");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 80%;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            text-align: center;
+            padding: 20px;
+        }
+        .hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+        .hero h2, .hero p { position: relative; z-index: 2; }
+        .hero h2 {
+            font-size: 4.5em;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 16px rgba(106, 13, 23, 0.45), 0 0 32px rgba(106, 13, 23, 0.25);
+        }
+        .section {
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: auto;
+            text-align: center;
+        }
+        .cards {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 35px;
+        }
+        .card {
+            background: radial-gradient(circle at top, rgba(255,255,255,0.05), #0a0a0a 65% );
+            border: 1px solid #252525;
+            border-radius: 16px;
+            width: 320px;
+            padding: 25px;
+            transition: 0.35s ease;
+        }
+        .card:hover {
+            border-color: #DC143C;
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(220, 20, 60, 0.25);
+        }
+        .card img {
+            width: 100%;
+            height: 230px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .price { color: #DC143C; font-size: 1.7em; font-weight: 800; margin: 15px 0; }
+        .btn {
+            background: #DC143C;
+            padding: 14px 28px;
+            display: inline-block;
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            border-radius: 6px;
+            transition: 0.3s;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: none;
+        }
+        .btn:hover { background: #ff1a4a; box-shadow: 0 0 20px rgba(220, 20, 60, 0.5); }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 4000;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            position: relative;
+            border: 1px solid #333;
+        }
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            color: #888;
+            cursor: pointer;
+        }
+        .payment-options { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+        .pay-option {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .pay-pix { background: #32BCAD; }
+        .pay-card { background: #00BFFF; }
+        .pay-wa { background: #25D366; }
+        .testimonials { background: #0f0f0f; }
+        .testimonial-card {
+            background: #1a1a1a;
+            padding: 30px;
+            border-radius: 12px;
+            width: 350px;
+            text-align: left;
+            border-left: 4px solid #00BFFF;
+        }
+        footer {
+            background: #050505;
+            padding: 60px 20px 20px;
+            border-top: 1px solid #222;
+            color: #888;
+        }
+        .footer-grid {
+            max-width: 1200px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            text-align: left;
+            margin-bottom: 40px;
+        }
+        .footer-bottom {
+            text-align: center;
+            border-top: 1px solid #111;
+            padding-top: 20px;
+            font-size: 0.8rem;
+        }
+        .social-buttons {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 2000;
+        }
+        .social-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            color: #fff;
+            text-decoration: none;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            transition: 0.3s;
+        }
+        .whatsapp { background: #25D366; }
+        .instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .back-to-top { background: #333; }
+        /* ===== ESTEIRA INFINITA VARG WEAR CORRIGIDA ===== */
+        .wear-slider-wrapper {
+            max-width: 1100px;
+            margin: auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .wear-slider {
+            overflow: hidden;
+            width: 100%;
+        }
+        .wear-track {
+            display: flex;
+            gap: 35px;
+            transition: transform 0.45s ease;
+            will-change: transform;
+        }
+        .wear-card {
+            flex: 0 0 300px;
+        }
+        .wear-arrow {
+            background: none;
+            border: none;
+            color: #DC143C;
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 10px;
+            transition: 0.3s;
+            z-index: 10;
+        }
+        .wear-arrow:hover { color: #fff; transform: scale(1.2); }
+
+.size-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 8px 0;
+    justify-content: center;
+}
+.size-selector label {
+    color: #00BFFF;
+    font-size: 0.85em;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.size-selector select {
+    background: #1a1a1a;
+    color: #eee;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.85em;
+    cursor: pointer;
+    outline: none;
+    width: 100%;
+    font-family: inherit;
+    transition: border-color 0.3s;
+}
+.size-selector select:hover {
+    border-color: #555;
+}
+.size-selector select:focus {
+    border-color: #00BFFF;
+}
+.size-selector select option {
+    background: #1a1a1a;
+    color: #eee;
+}
+
+.qty-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+.qty-buttons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.qty-buttons .qty-btn {
+    background: #1a1a1a;
+    color: #eee;
+    border: 1px solid #333;
+    border-radius: 4px;
+    width: 32px;
+    height: 32px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.qty-buttons .qty-btn:hover {
+    border-color: #00BFFF;
+    color: #00BFFF;
+}
+.qty-buttons .qty-number {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #eee;
+    min-width: 20px;
+    text-align: center;
+}
+.qty-actions {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+.qty-cancel {
+    flex: 1;
+    background: transparent;
+    color: #ff4444;
+    border: 1px solid #ff4444;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Arial', sans-serif;
+}
+.qty-cancel:hover {
+    background: rgba(255,68,68,0.15);
+}
+.qty-confirm {
+    flex: 1;
+    background: #00BFFF;
+    color: #111;
+    border: none;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 0.85em;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+    font-family: 'Arial', sans-serif;
+}
+.qty-confirm:hover {
+    background: #0099CC;
+}
+
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="#hero">Início</a></li>
+                <!-- TELA 1 (Visitante): "Já é cadastrado?" -->
+                <li><a href="login.html" id="authLink">Já é cadastrado?</a></li>
+                <li class="dropdown">
+                    <a href="#produtos">Produtos <i class="fa-solid fa-chevron-down" style="font-size: 0.7em;"></i></a>
+                    <ul class="dropdown-content">
+                        <li><a href="#smelling-salt">Smelling Salt</a></li>
+                        <li><a href="#camisetas">Camisetas</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        <div class="cart-icon" onclick="toggleCart()">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span class="cart-count">0</span>
+        </div>
+    </header>
+    <div id="cartSidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h4>Seu Carrinho</h4>
+            <i class="fa-solid fa-xmark" style="cursor:pointer" onclick="toggleCart()"></i>
+        </div>
+        <div class="cart-items">
+            <p>Seu carrinho está vazio.</p>
+        </div>
+  
+    </div>
+    <section id="hero" class="hero">
+        <h2>VARG - A Matilha</h2>
+        <p>Smelling salts e equipamentos exclusivos para powerlifters de elite.</p>
+    </section>
+    <section id="produtos" class="section">
+        <h2 class="section-title">Equipamentos</h2>
+     <h3 class="category-title" id="smelling-salt">SMELLING SALT</h3>        
+<div class="cards">
+    <div class="card">
+        <img src="img/smelling.png" alt="Smelling Salt">
+        <h4>VARG Salt • 30g</h4>
+        <div class="price">R$ 39,90</div>
+        <!-- ALTERAÇÃO AQUI: Mudamos de openPaymentModal para addToCart -->
+        <button class="btn" onclick="addToCart('VARG Salt • 30g', 39.90)">Adicionar ao Carrinho</button> 
+    </div>
+</div>
+        <h3 class="category-title" id="camisetas">VARG WEAR</h3>
+        <div class="wear-slider-wrapper">
+            <button class="wear-arrow left" onclick="scrollWear(-1)">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <div class="wear-slider">
+                <div class="wear-track" id="wearTrack">
+                    <div class="card wear-card">
+    <img src="img/1.png" alt="Camiseta VARG">
+    <h4>Camiseta VARG preta com logo branco</h4>
+   <div class="size-selector">
+        <label>Tamanho:</label>
+        <select class="size-option">
+            <option value="P">P</option>
+            <option value="M">M</option>
+            <option value="G">G</option>
+            <option value="GG" selected>GG</option>
+            <option value="XGG">XGG</option>
+            <option value="3GG">3GG</option>
+            <option value="4GG">4GG</option>
+            <option value="5GG">5GG</option>
+        </select>
+    </div>
+<div class="price">R$ 89,90</div>
+    <!-- ALTERAÇÃO AQUI: Repita isso em todos os cards da esteira -->
+    <button class="btn" onclick="addToCart('Camiseta VARG preta com logo branco', 89.90)">Adicionar ao Carrinho</button>
+</div>
+<div class="card wear-card">
+    <img src="img/2.png" alt="Camiseta VARG">
+    <h4>Camiseta VARG preta com logo azul</h4>
+    <div class="size-selector">
+        <label>Tamanho:</label>
+        <select class="size-option">
+            <option value="P">P</option>
+            <option value="M">M</option>
+            <option value="G">G</option>
+            <option value="GG" selected>GG</option>
+            <option value="XGG">XGG</option>
+            <option value="3GG">3GG</option>
+            <option value="4GG">4GG</option>
+            <option value="5GG">5GG</option>
+        </select>
+    </div>
+<div class="price">R$ 89,90</div>
+    <!-- ALTERAÇÃO AQUI: Repita isso em todos os cards da esteira -->
+    <button class="btn" onclick="addToCart('Camiseta VARG preta com logo azul', 89.90)">Adicionar ao Carrinho</button>
+</div>
+<div class="card wear-card">
+    <img src="img/3.png" alt="Camiseta VARG">
+    <h4>Camiseta VARG branca com logo preto</h4>
+   <div class="size-selector">
+        <label>Tamanho:</label>
+        <select class="size-option">
+            <option value="P">P</option>
+            <option value="M">M</option>
+            <option value="G">G</option>
+            <option value="GG" selected>GG</option>
+            <option value="XGG">XGG</option>
+            <option value="3GG">3GG</option>
+            <option value="4GG">4GG</option>
+            <option value="5GG">5GG</option>
+        </select>
+    </div>
+<div class="price">R$ 89,90</div>
+    <!-- ALTERAÇÃO AQUI: Repita isso em todos os cards da esteira -->
+    <button class="btn" onclick="addToCart('Camiseta VARG branca com logo preto', 89.90)">Adicionar ao Carrinho</button>
+</div>
+<div class="card wear-card">
+    <img src="img/4.png" alt="Camiseta VARG">
+    <h4>Camiseta VARG preta com logo dourado</h4>
+    <div class="size-selector">
+        <label>Tamanho:</label>
+        <select class="size-option">
+            <option value="P">P</option>
+            <option value="M">M</option>
+            <option value="G">G</option>
+            <option value="GG" selected>GG</option>
+            <option value="XGG">XGG</option>
+            <option value="3GG">3GG</option>
+            <option value="4GG">4GG</option>
+            <option value="5GG">5GG</option>
+        </select>
+    </div>
+<div class="price">R$ 89,90</div>
+    <!-- ALTERAÇÃO AQUI: Repita isso em todos os cards da esteira -->
+    <button class="btn" onclick="addToCart('Camiseta VARG preta com logo dourado', 89.90)">Adicionar ao Carrinho</button>
+</div>
+<div class="card wear-card">
+    <img src="img/5.png" alt="Camiseta VARG">
+    <h4>Camiseta VARG azul marinho com logo branco</h4>
+   <div class="size-selector">
+        <label>Tamanho:</label>
+        <select class="size-option">
+            <option value="P">P</option>
+            <option value="M">M</option>
+            <option value="G">G</option>
+            <option value="GG" selected>GG</option>
+            <option value="XGG">XGG</option>
+            <option value="3GG">3GG</option>
+            <option value="4GG">4GG</option>
+            <option value="5GG">5GG</option>
+        </select>
+    </div>
+<div class="price">R$ 89,90</div>
+    <!-- ALTERAÇÃO AQUI: Repita isso em todos os cards da esteira -->
+    <button class="btn" onclick="addToCart('Camiseta VARG azul marinho com logo branco', 89.90)">Adicionar ao Carrinho</button>
+</div>
+                </div>
+            </div>
+            <button class="wear-arrow right" onclick="scrollWear(1)">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+    </section>
+    <section class="section testimonials">
+        <h2>A Voz da Matilha</h2>
+        <div class="cards">
+            <div class="testimonial-card">
+                <p>"O Smelling Salt da VARG é o diferencial no meu PR de agachamento. Foco total."</p>
+                <span>— Igor M. (Powerlifter)</span>
+            </div>
+            <div class="testimonial-card">
+                <p>"Camiseta com caimento perfeito para o treino. Estilo e resistência."</p>
+                <span>— Caio R. (Strongman)</span>
+            </div>
+        </div>
+    </section>
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closePaymentModal()">&times;</span>
+            <h4>Formas de Pagamento</h4>
+            <div class="payment-options">
+               <a id="pixLink" href="#" target="_blank" rel="noopener" class="pay-option pay-pix">
+                    <i class="fa-brands fa-pix"></i> Pagar com PIX
+                </a>
+                <a href="#" class="pay-option pay-card"><i class="fa-solid fa-credit-card"></i> Cartão de Crédito</a>
+                <a href="https://wa.me/5512988875509" class="pay-option pay-wa"><i class="fa-brands fa-whatsapp"></i> Finalizar no WhatsApp</a>
+            </div>
+        </div>
+    </div>
+    <section class="brand-about">
+        <div class="brand-about-grid">
+            <div class="brand-image"></div>
+            <div class="brand-text">
+                <h3>VARG — A MATILHA</h3>
+                <p>
+                    A VARG nasceu da força, da disciplina e da mentalidade de quem não recua.
+                    Somos uma marca criada para atletas, praticantes e indivíduos que vivem
+                    a busca constante por evolução física e mental.
+                </p>
+                <p>
+                    Mais do que produtos, criamos símbolos de performance, identidade e pertencimento.
+                    Quem veste VARG não treina sozinho — treina em matilha.
+                </p>
+            </div>
+        </div>
+    </section>
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-box">
+                <h4>VARG - A MATILHA</h4>
+                <p>Equipando os mais fortes desde sempre. Junte-se à matilha.</p>
+            </div>
+            <div class="footer-box">
+                <h4>INSTITUCIONAL</h4>
+                <ul>
+                    <li><a href="quem-somos.html">Quem somos</a></li>
+                    <li><a href="politica-privacidade.html">Política de privacidade</a></li>
+                    <li><a href="termos-de-uso.html">Termos de Uso</a></li>
+                    <li><a href="envio-e-prazos.html">Envio e prazos</a></li>
+                </ul>
+            </div>
+            <div class="footer-box">
+                <h4>SUPORTE</h4>
+                <ul>
+                    <li><a href="trocas-e-devolucoes.html">Trocas e Devoluções</a></li>
+                    <li><a href="rastrear-pedido.html">Rastrear Pedido</a></li>
+                    <li><a href="duvidas-frequentes.html">Dúvidas Frequentes</a></li>
+                </ul>
+            </div>
+            <div class="footer-box">
+                <h4>CONTATO</h4>
+                <p>Email: contato@vargmatilha.com.br</p>
+                <p>CNPJ: 00.000.000/0001-00</p>
+                <p>São José dos Campos - SP</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2026 VARG - A Matilha. Todos os direitos reservados.
+        </div>
+    </footer>
+    <div class="social-buttons">
+        <a href="#hero" class="social-btn back-to-top" title="Voltar ao Topo">
+            <i class="fa-solid fa-arrow-up"></i>
+        </a>
+        <a href="https://wa.me/5512988875509" class="social-btn whatsapp" title="WhatsApp">
+            <i class="fa-brands fa-whatsapp"></i>
+        </a>
+        <a href="https://instagram.com/matheusinho_ems" class="social-btn instagram" title="Instagram">
+            <i class="fa-brands fa-instagram"></i>
+        </a>
+    </div>
+<script>
+/* 
+   LÓGICA DE ESTADOS DINÂMICOS (VISITANTE / LOGADO)
+*/
+document.addEventListener('DOMContentLoaded', () => {
+    verificarUsuario();
+    renderizarCarrinho();
+});
+
+function verificarUsuario() {
+    const nomeLogado = localStorage.getItem('usuarioNome');
+    const authLink = document.getElementById('authLink');
+    if (nomeLogado && authLink) {
+        authLink.parentElement.innerHTML = `
+            <div style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; vertical-align: middle;">
+                <span style="color: #00BFFF; font-weight: bold;">
+                    <i class="fa-solid fa-user" style="margin-right: 8px;"></i>Olá, ${nomeLogado}
+                </span>
+                <a href="#" id="btnLogout" style="color: #DC143C; font-size: 0.8em; cursor: pointer; font-weight: bold; text-decoration: none;">(Sair)</a>
+            </div>`;
+        document.getElementById('btnLogout').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('usuarioNome');
+            window.location.reload(); 
+        });
+    }
+}
+
+/* 
+   ESTEIRA INFINITA VARG WEAR
+*/
+const track = document.getElementById("wearTrack");
+if (track) {
+    let originalCards = Array.from(track.children);
+    const step = 335; 
+    for(let i = 0; i < 3; i++) {
+        track.appendChild(originalCards[i].cloneNode(true));
+        track.insertBefore(originalCards[originalCards.length - 1 - i].cloneNode(true), track.firstChild);
+    }
+    let index = 3;
+    track.style.transform = `translateX(-${index * step}px)`;
+
+    window.scrollWear = function(direction) {
+        index += direction;
+        track.style.transition = "transform 0.4s ease";
+        track.style.transform = `translateX(-${index * step}px)`;
+        track.addEventListener("transitionend", function reset() {
+            if (index >= originalCards.length + 3) {
+                track.style.transition = "none";
+                index = 3;
+                track.style.transform = `translateX(-${index * step}px)`;
+            } else if (index <= 0) {
+                track.style.transition = "none";
+                index = originalCards.length;
+                track.style.transform = `translateX(-${index * step}px)`;
+            }
+            track.removeEventListener("transitionend", reset);
+        }, { once: true });
+    }
+}
+
+/* 
+   LÓGICA DO CARRINHO (SOMA CORRIGIDA E IMAGENS)
+*/
+let localQtys = {};
+
+document.addEventListener('click', (e) => {
+    // 1. Iniciar adição (Botão original)
+    if (e.target.matches('.btn') && e.target.getAttribute('onclick')?.includes('addToCart')) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const onclickAttr = e.target.getAttribute('onclick');
+        const match = onclickAttr.match(/addToCart\('(.+?)',\s*(.+?)\)/);
+        if (!match) return;
+
+        const nome = match[1];
+        const preco = match[2];
+        localQtys[nome] = 1;
+
+        e.target.outerHTML = `
+            <div class="card-selector" style="display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                    <button class="qty-btn-card" data-nome="${nome}" data-delta="-1" style="background:#333; color:white; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">-</button>
+                    <span id="display-${nome.replace(/\s+/g, '')}" style="color:white; font-weight:bold; font-size:1.2em;">1</span>
+                    <button class="qty-btn-card" data-nome="${nome}" data-delta="1" style="background:#333; color:white; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">+</button>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="cancel-card" data-nome="${nome}" style="background:none; border:none; color:#DC143C; text-decoration:underline; cursor:pointer; font-size:0.8em;">Cancelar</button>
+                    <button class="confirm-card" data-nome="${nome}" data-preco="${preco}" style="background:#00BFFF; color:white; border:none; padding: 5px 15px; border-radius:4px; cursor:pointer; font-weight:bold;">Confirmar</button>
+                </div>
+            </div>`;
+    }
+
+    // 2. Ajuste visual rápido no card
+    if (e.target.matches('.qty-btn-card')) {
+        const nome = e.target.dataset.nome;
+        const delta = parseInt(e.target.dataset.delta);
+        localQtys[nome] = Math.max(1, (localQtys[nome] || 1) + delta);
+        document.getElementById(`display-${nome.replace(/\s+/g, '')}`).innerText = localQtys[nome];
+    }
+
+    // 3. CONFIRMAR (AQUI OCORRE A SOMA REAL)
+    if (e.target.matches('.confirm-card')) {
+        const nome = e.target.dataset.nome;
+        const preco = parseFloat(e.target.dataset.preco);
+        const qtdAdicionada = localQtys[nome] || 1;
+        
+        const card = e.target.closest('.card');
+        const imgSrc = card.querySelector('img').src;
+        
+        let cart = JSON.parse(localStorage.getItem('carrinho') || '[]');
+        let itemExistente = cart.find(i => i.nome === nome);
+        
+        if (itemExistente) { 
+            // CORREÇÃO: Agora soma ao que já existia no carrinho
+            itemExistente.quantidade += qtdAdicionada; 
+            itemExistente.img = imgSrc; // Atualiza imagem se necessário
+        } else { 
+            cart.push({ nome, preco, quantidade: qtdAdicionada, img: imgSrc }); 
+        }
+        
+        localStorage.setItem('carrinho', JSON.stringify(cart));
+        delete localQtys[nome]; // Limpa escolha temporária
+        renderizarCarrinho();
+        window.location.reload(); // Volta o botão ao normal
+    }
+
+    if (e.target.matches('.cancel-card')) { window.location.reload(); }
+
+    // 4. Controles da Sidebar
+    if (e.target.matches('.cart-qty-btn')) {
+        changeCartQty(e.target.dataset.nome, parseInt(e.target.dataset.delta));
+    }
+    if (e.target.closest('.remove-cart-item')) {
+        removeFromCart(e.target.closest('.remove-cart-item').dataset.nome);
+    }
+});
+
+function renderizarCarrinho() {
+    const container = document.querySelector('.cart-items');
+    const badge = document.querySelector('.cart-count');
+    if (!container) return;
+
+    const cart = JSON.parse(localStorage.getItem('carrinho') || '[]');
+    container.innerHTML = "";
+
+    if (cart.length === 0) {
+        container.innerHTML = `<p style="color: #666; text-align: center; margin-top: 50px;">Carrinho vazio.</p>`;
+        if(badge) badge.innerText = "0";
+        return;
+    }
+
+    let total = 0;
+    let html = `<div style="display: flex; flex-direction: column; width: 100%; gap: 15px;">`;
+    
+    cart.forEach(item => {
+        const subtotal = item.preco * item.quantidade;
+        total += subtotal;
+        html += `
+            <div style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #222; padding-bottom: 15px;">
+                <img src="${item.img}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #333;">
+                <div style="flex: 1;">
+                    <strong style="color: #fff; display: block; font-size: 0.9em;">${item.nome}</strong>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                        <button class="cart-qty-btn" data-nome="${item.nome}" data-delta="-1" style="background:#444; color:white; border:none; width:20px; height:20px; border-radius:50%; cursor:pointer;">-</button>
+                        <span style="color:#fff; font-size: 0.9em;">${item.quantidade}</span>
+                        <button class="cart-qty-btn" data-nome="${item.nome}" data-delta="1" style="background:#444; color:white; border:none; width:20px; height:20px; border-radius:50%; cursor:pointer;">+</button>
+                        <button class="remove-cart-item" data-nome="${item.nome}" style="background:none; border:none; color:#DC143C; margin-left: auto; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                    <span style="color: #00BFFF; font-weight: bold; font-size: 0.85em;">R$ ${subtotal.toFixed(2)}</span>
+                </div>
+            </div>`;
+    });
+
+    html += `
+        <div style="margin-top: 10px; color: #DC143C; font-weight: bold; text-align: center; font-size: 1.1em;">TOTAL: R$ ${total.toFixed(2)}</div>
+        <button onclick="window.location.href='checkout.html'" style="width: 100%; background: #DC143C; color: white; border: none; padding: 12px; cursor: pointer; font-weight: bold; border-radius: 4px;">FINALIZAR PEDIDO</button>
+    </div>`;
+
+    container.innerHTML = html;
+    if(badge) badge.innerText = cart.reduce((t, i) => t + i.quantidade, 0);
+}
+
+function changeCartQty(nome, delta) {
+    let cart = JSON.parse(localStorage.getItem('carrinho') || '[]');
+    let item = cart.find(i => i.nome === nome);
+    if (item) {
+        item.quantidade += delta;
+        if (item.quantidade <= 0) cart = cart.filter(i => i.nome !== nome);
+        localStorage.setItem('carrinho', JSON.stringify(cart));
+        renderizarCarrinho();
+    }
+}
+
+function removeFromCart(nome) {
+    let cart = JSON.parse(localStorage.getItem('carrinho') || '[]');
+    cart = cart.filter(i => i.nome !== nome);
+    localStorage.setItem('carrinho', JSON.stringify(cart));
+    renderizarCarrinho();
+}
+
+function toggleCart() {
+    document.getElementById('cartSidebar').classList.toggle('active');
+}
+
+// Seleção de tamanho nas camisetas
+document.querySelectorAll('.size-options-list').forEach(group => {
+    group.querySelectorAll('.size-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            group.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+});
+
+// Captura tamanho e abre controle de quantidade nas camisetas
+document.querySelectorAll('.wear-card .btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.stopImmediatePropagation();
+        const card = this.closest('.wear-card');
+        const name = card.querySelector('h4').textContent.trim();
+        const price = 89.90;
+        const size = card.querySelector('.size-option').value;
+
+        // Esconde o botão original e mostra o controle de quantidade
+        this.style.display = 'none';
+        
+        // Cria o controle de quantidade
+        const qtyControl = document.createElement('div');
+        qtyControl.className = 'qty-control';
+        qtyControl.innerHTML = `
+            <div class="qty-buttons">
+                <button class="qty-btn minus">-</button>
+                <span class="qty-number">1</span>
+                <button class="qty-btn plus">+</button>
+            </div>
+            <div class="qty-actions">
+                <button class="qty-cancel">Cancelar</button>
+                <button class="qty-confirm">Confirmar</button>
+            </div>
+        `;
+        
+        // Insere o controle depois do botão
+        this.parentNode.insertBefore(qtyControl, this.nextSibling);
+        
+        // Lógica dos botões + e -
+        const minusBtn = qtyControl.querySelector('.minus');
+        const plusBtn = qtyControl.querySelector('.plus');
+        const qtyNum = qtyControl.querySelector('.qty-number');
+        let qty = 1;
+        
+        minusBtn.addEventListener('click', function() {
+            if (qty > 1) {
+                qty--;
+                qtyNum.textContent = qty;
+            }
+        });
+        
+        plusBtn.addEventListener('click', function() {
+            qty++;
+            qtyNum.textContent = qty;
+        });
+        
+        // Cancelar - volta ao estado original
+        qtyControl.querySelector('.qty-cancel').addEventListener('click', function() {
+            qtyControl.remove();
+            btn.style.display = 'block';
+        });
+        
+        // Confirmar - adiciona ao carrinho com a quantidade
+        qtyControl.querySelector('.qty-confirm').addEventListener('click', function() {
+            const fullName = name + ' - Tam. ' + size;
+            let cart = JSON.parse(localStorage.getItem('carrinho')) || [];
+            
+            const existente = cart.find(item => item.nome === fullName);
+            if (existente) {
+                existente.quantidade += qty;
+            } else {
+                cart.push({ nome: fullName, preco: price, quantidade: qty, img: card.querySelector('img').src });
+            }
+            
+            localStorage.setItem('carrinho', JSON.stringify(cart));
+            renderizarCarrinho();
+            
+            qtyControl.remove();
+            btn.style.display = 'block';
+        });
+    });
+});
+</script>
+</body>
+</html>

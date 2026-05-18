@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - VARG</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background-image: radial-gradient(circle at center, rgba(0,191,255,0.08), transparent 35%);
+    }
+    .login-container {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(20, 20, 20, 0.95);
+      border: 1px solid #222;
+      border-radius: 16px;
+      padding: 35px 30px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+    }
+    .logo-title { text-align: center; margin-bottom: 30px; }
+    .logo-title h1 { font-size: 2.2rem; margin-bottom: 8px; text-transform: uppercase; color: #fff; text-shadow: 0 0 15px rgba(0,191,255,0.35); }
+    .logo-title p { color: #bbb; font-size: 0.95rem; }
+    .input-group { margin-bottom: 18px; }
+    .input-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #ddd; }
+    .input-box { position: relative; }
+    .input-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #00BFFF; }
+    .input-box input { width: 100%; padding: 14px 14px 14px 42px; border: 1px solid #333; border-radius: 10px; background: #111; color: #fff; outline: none; font-size: 1rem; transition: 0.3s; }
+    .input-box input:focus { border-color: #00BFFF; box-shadow: 0 0 10px rgba(0,191,255,0.2); }
+    .login-btn { width: 100%; background: #DC143C; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+    .login-btn:hover { background: #b01030; box-shadow: 0 0 15px rgba(220,20,60,0.3); }
+    .extra-links { margin-top: 20px; text-align: center; }
+    .extra-links a { color: #00BFFF; text-decoration: none; font-size: 0.95rem; }
+    .extra-links a:hover { color: #fff; }
+    .divider { margin: 20px 0; border-top: 1px solid #222; }
+    .register-text { text-align: center; color: #aaa; font-size: 0.95rem; }
+    .register-text a { color: #DC143C; text-decoration: none; font-weight: bold; }
+    .register-text a:hover { color: #fff; }
+    .erro { color: #ff4d4d; text-align: center; margin-top: 12px; font-size: 0.9rem; display: none; }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo-title">
+      <h1>VARG</h1>
+      <p>Acesse sua conta</p>
+    </div>
+    <form id="loginForm">
+      <div class="input-group">
+        <label for="email">E-mail</label>
+        <div class="input-box">
+          <i class="fa-solid fa-envelope"></i>
+          <input type="email" id="email" placeholder="Digite seu e-mail" required>
+        </div>
+      </div>
+      <div class="input-group">
+        <label for="senha">Senha</label>
+        <div class="input-box">
+          <i class="fa-solid fa-lock"></i>
+          <input type="password" id="senha" placeholder="Digite sua senha" required>
+        </div>
+      </div>
+      <button type="submit" class="login-btn">Entrar</button>
+      <p class="erro" id="erroMsg"></p>
+    </form>
+    <div class="extra-links"><a href="#">Esqueci minha senha</a></div>
+    <div class="divider"></div>
+    <div class="register-text">Não tem conta? <a href="/cadastro.html">Criar cadastro</a></div>
+  </div>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const senha = document.getElementById('senha').value;
+      const erroMsg = document.getElementById('erroMsg');
+      erroMsg.style.display = 'none';
+      try {
+        const response = await fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, senha })
+        });
+        const data = await response.json();
+        if (data.success) {
+          localStorage.setItem('usuarioNome', data.nome);
+          window.location.href = '/painel.html';
+        } else {
+          erroMsg.textContent = data.message || 'E-mail ou senha incorretos.';
+          erroMsg.style.display = 'block';
+        }
+      } catch (error) {
+        erroMsg.textContent = 'Erro ao conectar com o servidor.';
+        erroMsg.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>

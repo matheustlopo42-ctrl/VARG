@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - VARG</title>
+    <style>
+        body{background:#111;color:#eee;font-family:sans-serif;margin:0;padding:0;}
+        .container{max-width:900px;margin:0 auto;padding:20px;}
+        .section{background:#222;border-radius:15px;padding:25px;margin-bottom:25px;border:1px solid #00BFFF;}
+        h2{color:#00BFFF;text-align:center;}
+        .item{display:flex;align-items:center;gap:15px;padding:15px;margin-bottom:15px;background:rgba(0,191,255,0.05);border-left:4px solid #00BFFF;border-radius:10px;}
+        .item img{width:80px;height:80px;border-radius:10px;object-fit:cover;}
+        .item-info h4{color:#00BFFF;margin-bottom:5px;}
+        .item-price{font-weight:bold;color:#DC143C;font-size:1.2em;margin-left:auto;}
+        .qr-container{display:flex;justify-content:center;margin:30px 0;}
+        #qrCode{max-width:300px;border-radius:15px;border:5px solid #fff;display:none;}
+        #pixKey{background:#333;padding:15px;border-radius:5px;color:#00BFFF;word-break:break-all;text-align:center;margin:10px auto;font-family:monospace;font-size:0.9em;}
+        .btn-group{display:flex;gap:15px;justify-content:center;flex-wrap:wrap;}
+        .btn-pix{background:#25D366;color:white;padding:15px 30px;border:none;border-radius:30px;cursor:pointer;font-weight:bold;font-size:1em;}
+        .btn-copy{background:#00BFFF;color:white;padding:15px 30px;border:none;border-radius:30px;cursor:pointer;font-weight:bold;font-size:1em;}
+        .btn-card{background:#009EE3;color:white;padding:18px 35px;border:none;border-radius:30px;cursor:pointer;font-weight:bold;font-size:1.05em;width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:12px;transition:0.3s;}
+        .btn-card:hover{background:#007bb5;transform:translateY(-2px);box-shadow:0 5px 20px rgba(0,158,227,0.4);}
+        .btn-card:disabled{background:#444;cursor:not-allowed;transform:none;}
+        #status{text-align:center;margin-top:10px;font-size:0.9em;color:#aaa;}
+        .spinner{display:inline-block;width:18px;height:18px;border:3px solid #444;border-top-color:#00BFFF;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:8px;}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .checkout-back-btn{display:inline-block;color:#DC143C;background:transparent;border:1px solid transparent;padding:12px 20px;text-decoration:none;margin:0 0 24px 0;font-size:16px;cursor:pointer;border-radius:4px;opacity:0.8;transition:all 0.3s ease;font-weight:500;font-family:inherit;}
+        .checkout-back-btn:hover{background:#222;border-color:rgba(220,20,60,0.3);color:#ff4444;opacity:1;}
+        .divider{display:flex;align-items:center;gap:15px;margin:25px 0;}
+        .divider::before,.divider::after{content:'';flex:1;border-top:1px solid #444;}
+        .divider span{color:#888;font-size:0.9em;white-space:nowrap;}
+        .mp-logo{width:20px;height:20px;}
+        #cardStatus{text-align:center;margin-top:12px;font-size:0.9em;color:#aaa;}
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <section class="section">
+        <a href="/index.html" class="checkout-back-btn">← Voltar ao Carrinho</a>
+        <h2>🛒 Itens do Carrinho</h2>
+        <div id="itemsList"></div>
+        <p style="text-align:right;font-size:1.1em;color:#00BFFF;margin-top:10px;">
+            Total: <strong id="totalLabel">R$ 0,00</strong>
+        </p>
+    </section>
+
+    <!-- PIX -->
+    <section class="section">
+        <h2>💚 Pagar com PIX</h2>
+        <div class="qr-container">
+            <img id="qrCode" src="" alt="QR Code PIX">
+        </div>
+        <div id="pixKey">Aguardando geração do código...</div>
+        <div id="status"></div>
+        <div class="btn-group" style="margin-top:15px;">
+            <button id="btnPix" class="btn-pix" disabled>Pagar no App do Banco</button>
+            <button id="copyPix" class="btn-copy" disabled>Copiar Código PIX</button>
+        </div>
+    </section>
+
+    <!-- CARTÃO -->
+    <section class="section">
+        <h2>💳 Pagar com Cartão</h2>
+        <p style="text-align:center;color:#aaa;font-size:0.95em;margin-bottom:20px;">
+            Pagamento seguro via Mercado Pago — crédito, débito e parcelamento
+        </p>
+        <button id="btnCard" class="btn-card" disabled>
+            <svg class="mp-logo" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="16" fill="#009EE3"/>
+                <path d="M8 13h16v6H8z" fill="white" opacity="0.9"/>
+                <path d="M8 13h16v2H8z" fill="white"/>
+            </svg>
+            Pagar com Cartão via Mercado Pago
+        </button>
+        <div id="cardStatus"></div>
+    </section>
+
+</div>
+<script>
+const formatPrice = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);
+
+function setStatus(msg, loading = false) {
+    document.getElementById('status').innerHTML = loading
+        ? '<span class="spinner"></span>'+msg : msg;
+}
+
+function setCardStatus(msg) {
+    document.getElementById('cardStatus').innerHTML = msg;
+}
+
+let totalCarrinho = 0;
+
+async function loadCart() {
+    let cart;
+    try { cart = JSON.parse(localStorage.getItem('carrinho')) || null; }
+    catch(e) { cart = null; }
+
+    if (!cart || cart.length === 0) {
+        cart = [{ nome: 'VARG Salt • 30g', preco: 39.90, quantidade: 1, img: 'https://via.placeholder.com/80?text=VARG' }];
+    }
+
+    let html = '';
+    let totalGeral = 0;
+    cart.forEach(i => {
+        let price = parseFloat(i.preco || 0);
+        let qtd = parseInt(i.quantidade || 1);
+        totalGeral += price * qtd;
+        html += `<div class="item">
+            <img src="${i.img}" alt="${i.nome}">
+            <div class="item-info">
+                <h4>${i.nome}</h4>
+                <p>Quantidade: ${qtd}x</p>
+                <p>Unidade: ${formatPrice(price)}</p>
+            </div>
+            <div class="item-price">${formatPrice(price * qtd)}</div>
+        </div>`;
+    });
+
+    document.getElementById('itemsList').innerHTML = html;
+    document.getElementById('totalLabel').textContent = formatPrice(totalGeral);
+    totalCarrinho = totalGeral;
+
+    await generatePix(totalGeral);
+    await prepareCard(cart, totalGeral);
+}
+
+// PIX
+async function generatePix(valor) {
+    setStatus('Gerando QR Code PIX...', true);
+    try {
+        const res = await fetch('/pix', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: Math.round(valor * 100) })
+        });
+        const data = await res.json();
+        if (data.success && data.pix_code) {
+            const qr = document.getElementById('qrCode');
+            if (data.qr_image) { qr.src = data.qr_image; qr.style.display = 'block'; }
+            document.getElementById('pixKey').textContent = data.pix_code;
+            window.pixCode = data.pix_code;
+            document.getElementById('btnPix').disabled = false;
+            document.getElementById('copyPix').disabled = false;
+            setStatus('✅ PIX gerado! Escaneie o QR Code ou copie o código.');
+        } else {
+            const msg = data.error || 'Resposta inesperada da API.';
+            setStatus('❌ Erro: '+msg);
+            document.getElementById('pixKey').textContent = msg;
+        }
+    } catch(e) {
+        setStatus('❌ Não foi possível conectar ao servidor.');
+        document.getElementById('pixKey').textContent = 'Erro de conexão.';
+    }
+}
+
+// CARTÃO via Mercado Pago Checkout Pro
+async function prepareCard(cart, total) {
+    try {
+        const res = await fetch('/mp-preference', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cart, total })
+        });
+        const data = await res.json();
+        if (data.init_point) {
+            window.mpInitPoint = data.init_point;
+            document.getElementById('btnCard').disabled = false;
+            setCardStatus('✅ Pronto para pagar com cartão.');
+        } else {
+            setCardStatus('❌ Erro ao preparar pagamento com cartão.');
+        }
+    } catch(e) {
+        setCardStatus('❌ Erro ao conectar com Mercado Pago.');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadCart);
+
+document.getElementById('copyPix').addEventListener('click', async () => {
+    if (window.pixCode) { await navigator.clipboard.writeText(window.pixCode); alert('Código PIX copiado!'); }
+});
+
+document.getElementById('btnPix').addEventListener('click', () => {
+    if (window.pixCode) { window.location.href = 'https://nubank.com.br/cobrar/pix?payload='+encodeURIComponent(window.pixCode); }
+});
+
+document.getElementById('btnCard').addEventListener('click', () => {
+    if (window.mpInitPoint) { window.open(window.mpInitPoint, '_blank'); }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel VARG - A Matilha</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    html { scroll-behavior: smooth; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; line-height: 1.6; overflow-x: hidden; }
+    header { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.95); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 1px solid #222; }
+    nav ul { list-style: none; display: flex; gap: 25px; }
+    nav ul li a { color: #fff; font-weight: 600; text-decoration: none; transition: 0.3s; }
+    nav ul li a:hover { color: #DC143C; }
+    .hero { margin-top: 60px; height: 90vh; display: flex; justify-content: center; align-items: center; text-align: center; background: radial-gradient(circle, rgba(106,13,23,0.2), #0a0a0a); }
+    .hero h2 { font-size: 4.5em; font-weight: 900; text-transform: uppercase; }
+    .hero p { color: #aaa; margin-top: 15px; font-size: 1.1em; }
+    .user-badge { color: #00BFFF; font-weight: bold; }
+    .sair-btn { color: #DC143C !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <ul>
+        <li><a href="/index.html">Início</a></li>
+        <li><a href="#" class="user-badge"><i class="fa-solid fa-user"></i> Olá, <span id="userName">Membro</span></a></li>
+        <li><a href="#" class="sair-btn" id="btnSair">Sair</a></li>
+      </ul>
+    </nav>
+  </header>
+  <section id="hero" class="hero">
+    <div>
+      <h2>Bem-vindo à Matilha</h2>
+      <p>Acesse seus conteúdos exclusivos e equipamentos de elite.</p>
+      <p style="color:#555;margin-top:20px;font-size:0.9em;">Redirecionando para o site principal...</p>
+    </div>
+  </section>
+  <script>
+    const nomeSalvo = localStorage.getItem('usuarioNome');
+    if (!nomeSalvo) {
+      window.location.href = '/login.html';
+    } else {
+      document.getElementById('userName').textContent = nomeSalvo;
+      setTimeout(() => { window.location.href = '/index.html'; }, 3000);
+    }
+    document.getElementById('btnSair').addEventListener('click', (e) => {
+      e.preventDefault();
+      localStorage.removeItem('usuarioNome');
+      window.location.href = '/login.html';
+    });
+  </script>
+</body>
+</html>
