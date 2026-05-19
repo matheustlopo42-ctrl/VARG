@@ -91,6 +91,7 @@ function setCardStatus(msg) {
 }
 
 let totalCarrinho = 0;
+let cartGlobal = [];
 
 async function loadCart() {
     let cart;
@@ -100,6 +101,8 @@ async function loadCart() {
     if (!cart || cart.length === 0) {
         cart = [{ nome: 'VARG Salt • 30g', preco: 2.00, quantidade: 1, img: 'https://via.placeholder.com/80?text=VARG' }];
     }
+
+    cartGlobal = cart;
 
     let html = '';
     let totalGeral = 0;
@@ -122,18 +125,18 @@ async function loadCart() {
     document.getElementById('totalLabel').textContent = formatPrice(totalGeral);
     totalCarrinho = totalGeral;
 
-    await generatePix(totalGeral);
+    await generatePix(totalGeral, cart);
     await prepareCard(cart, totalGeral);
 }
 
 // PIX
-async function generatePix(valor) {
+async function generatePix(valor, cart) {
     setStatus('Gerando QR Code PIX...', true);
     try {
         const res = await fetch('/pix', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: Math.round(valor * 100) })
+            body: JSON.stringify({ amount: Math.round(valor * 100), cart })
         });
         const data = await res.json();
         if (data.success && data.pix_code) {

@@ -155,10 +155,23 @@ app.post("/cadastro", async (req, res) => {
 app.post("/pix", async (req, res) => {
   const amountCents = parseInt(req.body.amount ?? 3990);
   const valor = amountCents / 100;
+  const cart = req.body.cart || [];
+  const externalId = "VARG_" + Date.now();
+
+  // Salva o carrinho temporariamente para uso no webhook
+  if (cart.length > 0) {
+    await pool.query(
+      `INSERT INTO pedidos (payment_id, external_id, cliente_nome, cliente_email, valor, status, itens)
+       VALUES ($1, $2, $3, $4, $5, 'pendente', $6)
+       ON CONFLICT (payment_id) DO NOTHING`,
+      ["PIX_PENDING_" + externalId, externalId, "", "", valor, JSON.stringify(cart)]
+    ).catch(() => {});
+  }
+
   const payload = JSON.stringify({
     amount: valor,
     description: "Pedido VARG",
-    external_id: "VARG_" + Date.now(),
+    external_id: externalId,
     webhook_url: BASE_URL + "/webhook/pixgo",
   });
   const options = {
@@ -295,11 +308,23 @@ app.post("/webhook/pixgo", async (req, res) => {
     console.log(`💰 PAGO via PIX! ${pid} | ${nome} | R$ ${valor}`);
 
     try {
+      // Busca itens do pedido pendente
+      let itens = "[]";
+      try {
+        const pedidoPendente = await pool.query(
+          "SELECT itens FROM pedidos WHERE external_id = $1 LIMIT 1",
+          [pedido]
+        );
+        if (pedidoPendente.rows.length > 0 && pedidoPendente.rows[0].itens) {
+          itens = pedidoPendente.rows[0].itens;
+        }
+      } catch(e) {}
+
       await pool.query(
-        `INSERT INTO pedidos (payment_id, external_id, cliente_nome, cliente_email, valor, status)
-         VALUES ($1, $2, $3, $4, $5, 'pago')
-         ON CONFLICT (payment_id) DO NOTHING`,
-        [pid, pedido, nome, data.data?.customer?.email || "", valor],
+        `INSERT INTO pedidos (payment_id, external_id, cliente_nome, cliente_email, valor, status, itens)
+         VALUES ($1, $2, $3, $4, $5, 'pago', $6)
+         ON CONFLICT (payment_id) DO UPDATE SET status = 'pago', itens = $6`,
+        [pid, pedido, nome, data.data?.customer?.email || "", valor, itens],
       );
       console.log("✅ Pedido salvo no banco!");
     } catch (err) {
@@ -307,6 +332,12 @@ app.post("/webhook/pixgo", async (req, res) => {
     }
 
     try {
+      let itensPix = [];
+      try { itensPix = JSON.parse(itens); } catch(e) {}
+      const itensHtmlPix = itensPix.length > 0
+        ? `<p><b>Produtos:</b></p><ul>${itensPix.map(i => `<li>${i.quantidade}x ${i.nome} — R$ ${parseFloat(i.preco).toFixed(2)}</li>`).join("")}</ul>`
+        : "";
+
       await enviarEmail({
         to: EMAIL_DESTINO,
         subject: `💰 Nova venda PIX - R$ ${valor}`,
@@ -314,6 +345,7 @@ app.post("/webhook/pixgo", async (req, res) => {
                <p><b>Método:</b> PIX</p>
                <p><b>Cliente:</b> ${nome}</p>
                <p><b>Valor:</b> R$ ${valor}</p>
+               ${itensHtmlPix}
                <p><b>Pedido:</b> ${pedido}</p>
                <p><b>ID Pagamento:</b> ${pid}</p>`,
       });
@@ -323,8 +355,12 @@ app.post("/webhook/pixgo", async (req, res) => {
     }
 
     try {
+      const itensWaPix = itensPix.length > 0
+        ? "\nProdutos:\n" + itensPix.map(i => `  - ${i.quantidade}x ${i.nome}`).join("\n")
+        : "";
+
       await enviarWhatsApp(
-        `🐺 VARG - Nova venda PIX!\nCliente: ${nome}\nValor: R$ ${valor}\nPedido: ${pedido}`,
+        `🐺 VARG - Nova venda PIX!\nCliente: ${nome}\nValor: R$ ${valor}${itensWaPix}\nPedido: ${pedido}`,
       );
     } catch (err) {
       console.error("❌ Erro WhatsApp:", err.message);
@@ -371,9 +407,12 @@ app.post("/webhook/mercadopago", async (req, res) => {
       console.log(`💳 MP APROVADO! ${pid} | ${nome} | R$ ${valor}`);
 
       try {
+        const cartMp = paymentData.additional_info?.items || [];
+        const itensMp = cartMp.map(i => ({ nome: i.title, quantidade: i.quantity, preco: i.unit_price }));
+
         await pool.query(
-          `INSERT INTO pedidos (payment_id, external_id, cliente_nome, cliente_email, valor, status)
-           VALUES ($1, $2, $3, $4, $5, 'pago')
+          `INSERT INTO pedidos (payment_id, external_id, cliente_nome, cliente_email, valor, status, itens)
+           VALUES ($1, $2, $3, $4, $5, 'pago', $6)
            ON CONFLICT (payment_id) DO NOTHING`,
           [
             pid,
@@ -381,6 +420,7 @@ app.post("/webhook/mercadopago", async (req, res) => {
             nome.trim(),
             paymentData.payer?.email || "",
             valor,
+            JSON.stringify(itensMp),
           ],
         );
       } catch (err) {
@@ -403,8 +443,12 @@ app.post("/webhook/mercadopago", async (req, res) => {
       }
 
       try {
+        const itensWaMp = itensMp.length > 0
+          ? "\nProdutos:\n" + itensMp.map(i => `  - ${i.quantidade}x ${i.nome}`).join("\n")
+          : "";
+
         await enviarWhatsApp(
-          `🐺 VARG - Nova venda cartão!\nCliente: ${nome.trim()}\nValor: R$ ${valor}\nID: ${pid}`,
+          `🐺 VARG - Nova venda cartão!\nCliente: ${nome.trim()}\nValor: R$ ${valor}${itensWaMp}\nID: ${pid}`,
         );
       } catch (err) {
         console.error("❌ Erro WhatsApp MP:", err.message);
