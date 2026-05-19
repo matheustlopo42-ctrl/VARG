@@ -341,7 +341,7 @@ app.post("/webhook/pixgo", async (req, res) => {
       await enviarEmail({
         to: EMAIL_DESTINO,
         subject: `💰 Nova venda PIX - R$ ${valor}`,
-        html: `<img src="https://varg-bnlz.onrender.com/img/lobovinho.png" style="width:120px;margin-bottom:10px;" /><br/><h2 style="color:#DC143C">🐺 Nova venda confirmada!</h2>
+        html: `<h2 style="color:#DC143C">🐺 Nova venda confirmada!</h2>
                <p><b>Método:</b> PIX</p>
                <p><b>Cliente:</b> ${nome}</p>
                <p><b>Valor:</b> R$ ${valor}</p>
@@ -431,7 +431,7 @@ app.post("/webhook/mercadopago", async (req, res) => {
         await enviarEmail({
         to: EMAIL_DESTINO,
         subject: `💳 Nova venda Cartão - R$ ${valor}`,
-        html: `<img src="https://varg-bnlz.onrender.com/img/lobovinho.png" style="width:120px;margin-bottom:10px;" /><br/><h2 style="color:#009EE3">🐺 Nova venda no cartão!</h2>
+        html: `<h2 style="color:#009EE3">🐺 Nova venda no cartão!</h2>
                  <p><b>Método:</b> Cartão (Mercado Pago)</p>
                  <p><b>Cliente:</b> ${nome.trim()}</p>
                  <p><b>Valor:</b> R$ ${valor}</p>
@@ -526,7 +526,7 @@ app.get("/teste-email-pedido", async (req, res) => {
     const pedido = result.rows[0];
 
     const html = `
-      <img src="https://varg-bnlz.onrender.com/img/lobovinho.png" style="width:120px;margin-bottom:10px;" /><br/><h2 style="color:#DC143C">🐺 Nova venda confirmada!</h2>
+      <h2 style="color:#DC143C">🐺 Nova venda confirmada!</h2>
       <p><b>Cliente:</b> ${pedido.cliente_nome || "-"}</p>
       <p><b>Email:</b> ${pedido.cliente_email || "-"}</p>
       <p><b>Valor:</b> R$ ${parseFloat(pedido.valor).toFixed(2)}</p>
