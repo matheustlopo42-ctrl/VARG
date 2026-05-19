@@ -1,27 +1,3 @@
-async function sendWhatsAppMessage(msg) {
-  const apiKey = process.env.CALLMEBOT_APIKEY;
-  const phone = process.env.CALLMEBOT_PHONE;
-
-  if (!apiKey || !phone) {
-    console.error("CallMeBot: Variáveis de ambiente ausentes.");
-    return;
-  }
-
-  const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(msg)}&apikey=${apiKey}`;
-
-  try {
-    const response = await axios.get(url);
-    console.log("WhatsApp enviado:", response.data);
-  } catch (err) {
-    console.error("Erro ao enviar WhatsApp:", err.message);
-  }
-}
-
-app.get("/test-whatsapp", async (req, res) => {
-  await sendWhatsAppMessage("🚀 Teste de WhatsApp pelo servidor!");
-  res.send("Mensagem enviada (ou tentativa feita). Veja logs.");
-});
-
 const express = require("express");
 const bcrypt = require("bcrypt");
 const { Pool } = require("pg");
@@ -521,6 +497,49 @@ app.get("/teste-email-pedido", async (req, res) => {
     res.status(500).send("Erro ao enviar email: " + err.message);
   }
 });
+
+// ===== INÍCIO DO INCREMENTO =====
+
+// Importação do axios (caso o projeto use require)
+const axios = require("axios");
+
+// Função para enviar mensagem WhatsApp via CallMeBot
+async function sendWhatsAppMessage(msg) {
+  const apiKey = process.env.CALLMEBOT_APIKEY;
+  const phone = process.env.CALLMEBOT_PHONE;
+
+  if (!apiKey || !phone) {
+    console.error("CallMeBot: Variáveis de ambiente não configuradas.");
+    return;
+  }
+
+  const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(msg)}&apikey=${apiKey}`;
+
+  try {
+    const response = await axios.get(url);
+    console.log("WhatsApp enviado:", response.data);
+  } catch (err) {
+    console.error("Erro ao enviar WhatsApp:", err.message);
+  }
+}
+
+// Rota PARA TESTE manual no navegador
+app.get("/test-whatsapp", async (req, res) => {
+  await sendWhatsAppMessage("🚀 Teste de WhatsApp pelo servidor!");
+  res.send("Mensagem enviada (ou tentativa)! Veja os logs no Render.");
+});
+
+// Rota do Webhook (quando o PixGo enviar)
+app.post("/webhook/pixgo", async (req, res) => {
+  console.log("Webhook recebido:", req.body);
+
+  const msg = `💰 Pagamento recebido!\nValor: ${req.body.amount}\nCliente: ${req.body.customer}`;
+  await sendWhatsAppMessage(msg);
+
+  res.sendStatus(200);
+});
+
+// ===== FIM DO INCREMENTO =====
 
 // ==================== INICIAR ====================
 pool
