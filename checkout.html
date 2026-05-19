@@ -27,11 +27,23 @@
         @keyframes spin{to{transform:rotate(360deg)}}
         .checkout-back-btn{display:inline-block;color:#DC143C;background:transparent;border:1px solid transparent;padding:12px 20px;text-decoration:none;margin:0 0 24px 0;font-size:16px;cursor:pointer;border-radius:4px;opacity:0.8;transition:all 0.3s ease;font-weight:500;font-family:inherit;}
         .checkout-back-btn:hover{background:#222;border-color:rgba(220,20,60,0.3);color:#ff4444;opacity:1;}
-        .divider{display:flex;align-items:center;gap:15px;margin:25px 0;}
-        .divider::before,.divider::after{content:'';flex:1;border-top:1px solid #444;}
-        .divider span{color:#888;font-size:0.9em;white-space:nowrap;}
         .mp-logo{width:20px;height:20px;}
         #cardStatus{text-align:center;margin-top:12px;font-size:0.9em;color:#aaa;}
+
+        /* Formulário de entrega */
+        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
+        .form-grid .full{grid-column:1/-1;}
+        .form-group{display:flex;flex-direction:column;gap:6px;}
+        .form-group label{font-size:0.85em;color:#00BFFF;font-weight:bold;}
+        .form-group input{background:#333;border:1px solid #444;border-radius:8px;padding:10px 14px;color:#eee;font-size:0.95em;outline:none;transition:border 0.2s;}
+        .form-group input:focus{border-color:#00BFFF;}
+        .form-group input::placeholder{color:#666;}
+        .cep-row{display:flex;gap:10px;align-items:flex-end;}
+        .cep-row input{flex:1;}
+        .btn-cep{background:#00BFFF;color:#111;border:none;border-radius:8px;padding:10px 16px;cursor:pointer;font-weight:bold;font-size:0.9em;white-space:nowrap;}
+        .btn-cep:hover{background:#00a8d8;}
+        #cepStatus{font-size:0.8em;color:#aaa;margin-top:4px;}
+        .entrega-ok{color:#00ff88;font-size:0.9em;text-align:center;margin-top:10px;display:none;}
     </style>
 </head>
 <body>
@@ -44,6 +56,58 @@
         <p style="text-align:right;font-size:1.1em;color:#00BFFF;margin-top:10px;">
             Total: <strong id="totalLabel">R$ 0,00</strong>
         </p>
+    </section>
+
+    <!-- ENTREGA -->
+    <section class="section">
+        <h2>📦 Dados de Entrega</h2>
+        <div class="form-grid">
+            <div class="form-group full">
+                <label>Nome completo *</label>
+                <input id="e-nome" type="text" placeholder="Seu nome completo" />
+            </div>
+            <div class="form-group">
+                <label>CPF *</label>
+                <input id="e-cpf" type="text" placeholder="000.000.000-00" maxlength="14" />
+            </div>
+            <div class="form-group">
+                <label>Telefone / WhatsApp *</label>
+                <input id="e-telefone" type="text" placeholder="(00) 00000-0000" maxlength="15" />
+            </div>
+            <div class="form-group full">
+                <label>CEP *</label>
+                <div class="cep-row">
+                    <input id="e-cep" type="text" placeholder="00000-000" maxlength="9" />
+                    <button class="btn-cep" onclick="buscarCep()">Buscar</button>
+                </div>
+                <span id="cepStatus"></span>
+            </div>
+            <div class="form-group full">
+                <label>Rua / Logradouro *</label>
+                <input id="e-rua" type="text" placeholder="Rua, Avenida..." />
+            </div>
+            <div class="form-group">
+                <label>Número *</label>
+                <input id="e-numero" type="text" placeholder="123" />
+            </div>
+            <div class="form-group">
+                <label>Complemento</label>
+                <input id="e-complemento" type="text" placeholder="Apto, Bloco..." />
+            </div>
+            <div class="form-group">
+                <label>Bairro *</label>
+                <input id="e-bairro" type="text" placeholder="Bairro" />
+            </div>
+            <div class="form-group">
+                <label>Cidade *</label>
+                <input id="e-cidade" type="text" placeholder="Cidade" />
+            </div>
+            <div class="form-group">
+                <label>Estado *</label>
+                <input id="e-estado" type="text" placeholder="SP" maxlength="2" />
+            </div>
+        </div>
+        <div class="entrega-ok" id="entregaOk">✅ Dados de entrega preenchidos!</div>
     </section>
 
     <!-- PIX -->
@@ -85,9 +149,78 @@ function setStatus(msg, loading = false) {
     document.getElementById('status').innerHTML = loading
         ? '<span class="spinner"></span>'+msg : msg;
 }
-
 function setCardStatus(msg) {
     document.getElementById('cardStatus').innerHTML = msg;
+}
+
+// Máscara CPF
+document.getElementById('e-cpf').addEventListener('input', function() {
+    let v = this.value.replace(/\D/g,'');
+    v = v.replace(/(\d{3})(\d)/,'$1.$2');
+    v = v.replace(/(\d{3})(\d)/,'$1.$2');
+    v = v.replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+    this.value = v;
+});
+
+// Máscara Telefone
+document.getElementById('e-telefone').addEventListener('input', function() {
+    let v = this.value.replace(/\D/g,'');
+    if(v.length <= 10) v = v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{4})(\d)/,'$1-$2');
+    else v = v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d)/,'$1-$2');
+    this.value = v;
+});
+
+// Máscara CEP
+document.getElementById('e-cep').addEventListener('input', function() {
+    let v = this.value.replace(/\D/g,'');
+    v = v.replace(/(\d{5})(\d)/,'$1-$2');
+    this.value = v;
+});
+
+// Buscar CEP
+async function buscarCep() {
+    const cep = document.getElementById('e-cep').value.replace(/\D/g,'');
+    const status = document.getElementById('cepStatus');
+    if(cep.length !== 8) { status.textContent = '⚠️ CEP inválido.'; return; }
+    status.textContent = 'Buscando...';
+    try {
+        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const data = await res.json();
+        if(data.erro) { status.textContent = '❌ CEP não encontrado. Preencha manualmente.'; return; }
+        document.getElementById('e-rua').value = data.logradouro || '';
+        document.getElementById('e-bairro').value = data.bairro || '';
+        document.getElementById('e-cidade').value = data.localidade || '';
+        document.getElementById('e-estado').value = data.uf || '';
+        status.textContent = '✅ Endereço preenchido!';
+        document.getElementById('e-numero').focus();
+    } catch(e) {
+        status.textContent = '❌ Erro ao buscar CEP. Preencha manualmente.';
+    }
+}
+
+// Enter no CEP busca automaticamente
+document.getElementById('e-cep').addEventListener('keypress', function(e) {
+    if(e.key === 'Enter') buscarCep();
+});
+
+function getEntrega() {
+    return {
+        nome: document.getElementById('e-nome').value.trim(),
+        cpf: document.getElementById('e-cpf').value.trim(),
+        telefone: document.getElementById('e-telefone').value.trim(),
+        cep: document.getElementById('e-cep').value.trim(),
+        rua: document.getElementById('e-rua').value.trim(),
+        numero: document.getElementById('e-numero').value.trim(),
+        complemento: document.getElementById('e-complemento').value.trim(),
+        bairro: document.getElementById('e-bairro').value.trim(),
+        cidade: document.getElementById('e-cidade').value.trim(),
+        estado: document.getElementById('e-estado').value.trim(),
+    };
+}
+
+function validarEntrega() {
+    const e = getEntrega();
+    return e.nome && e.cpf && e.telefone && e.cep && e.rua && e.numero && e.bairro && e.cidade && e.estado;
 }
 
 let totalCarrinho = 0;
@@ -97,13 +230,10 @@ async function loadCart() {
     let cart;
     try { cart = JSON.parse(localStorage.getItem('carrinho')) || null; }
     catch(e) { cart = null; }
-
     if (!cart || cart.length === 0) {
         cart = [{ nome: 'VARG Salt • 30g', preco: 2.00, quantidade: 1, img: 'https://via.placeholder.com/80?text=VARG' }];
     }
-
     cartGlobal = cart;
-
     let html = '';
     let totalGeral = 0;
     cart.forEach(i => {
@@ -120,23 +250,21 @@ async function loadCart() {
             <div class="item-price">${formatPrice(price * qtd)}</div>
         </div>`;
     });
-
     document.getElementById('itemsList').innerHTML = html;
     document.getElementById('totalLabel').textContent = formatPrice(totalGeral);
     totalCarrinho = totalGeral;
-
     await generatePix(totalGeral, cart);
     await prepareCard(cart, totalGeral);
 }
 
-// PIX
 async function generatePix(valor, cart) {
     setStatus('Gerando QR Code PIX...', true);
     try {
+        const entrega = getEntrega();
         const res = await fetch('/pix', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: Math.round(valor * 100), cart })
+            body: JSON.stringify({ amount: Math.round(valor * 100), cart, entrega, nome: entrega.nome })
         });
         const data = await res.json();
         if (data.success && data.pix_code) {
@@ -148,17 +276,14 @@ async function generatePix(valor, cart) {
             document.getElementById('copyPix').disabled = false;
             setStatus('✅ PIX gerado! Escaneie o QR Code ou copie o código.');
         } else {
-            const msg = data.error || 'Resposta inesperada da API.';
-            setStatus('❌ Erro: '+msg);
-            document.getElementById('pixKey').textContent = msg;
+            setStatus('❌ Erro: '+(data.error || 'Resposta inesperada.'));
+            document.getElementById('pixKey').textContent = data.error || 'Erro';
         }
     } catch(e) {
         setStatus('❌ Não foi possível conectar ao servidor.');
-        document.getElementById('pixKey').textContent = 'Erro de conexão.';
     }
 }
 
-// CARTÃO via Mercado Pago Checkout Pro
 async function prepareCard(cart, total) {
     try {
         const res = await fetch('/mp-preference', {
@@ -182,14 +307,17 @@ async function prepareCard(cart, total) {
 document.addEventListener('DOMContentLoaded', loadCart);
 
 document.getElementById('copyPix').addEventListener('click', async () => {
+    if(!validarEntrega()) { alert('Por favor, preencha todos os dados de entrega antes de pagar.'); return; }
     if (window.pixCode) { await navigator.clipboard.writeText(window.pixCode); alert('Código PIX copiado!'); }
 });
 
 document.getElementById('btnPix').addEventListener('click', () => {
+    if(!validarEntrega()) { alert('Por favor, preencha todos os dados de entrega antes de pagar.'); return; }
     if (window.pixCode) { window.location.href = 'https://nubank.com.br/cobrar/pix?payload='+encodeURIComponent(window.pixCode); }
 });
 
 document.getElementById('btnCard').addEventListener('click', () => {
+    if(!validarEntrega()) { alert('Por favor, preencha todos os dados de entrega antes de pagar.'); return; }
     if (window.mpInitPoint) { window.open(window.mpInitPoint, '_blank'); }
 });
 </script>

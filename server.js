@@ -158,15 +158,15 @@ app.post("/pix", async (req, res) => {
   const cart = req.body.cart || [];
   const externalId = "VARG_" + Date.now();
 
+  const entrega = req.body.entrega || null;
+
   // Salva o carrinho temporariamente para uso no webhook
-  if (cart.length > 0) {
-    await pool.query(
-      `INSERT INTO pedidos (payment_id, external_id, cliente_nome, cliente_email, valor, status, itens)
-       VALUES ($1, $2, $3, $4, $5, 'pendente', $6)
-       ON CONFLICT (payment_id) DO NOTHING`,
-      ["PIX_PENDING_" + externalId, externalId, "", "", valor, JSON.stringify(cart)]
-    ).catch(() => {});
-  }
+  await pool.query(
+    `INSERT INTO pedidos (payment_id, external_id, cliente_nome, cliente_email, valor, status, itens, entrega)
+     VALUES ($1, $2, $3, $4, $5, 'pendente', $6, $7)
+     ON CONFLICT (payment_id) DO NOTHING`,
+    ["PIX_PENDING_" + externalId, externalId, req.body.nome || "", "", valor, JSON.stringify(cart), entrega ? JSON.stringify(entrega) : null]
+  ).catch(() => {});
 
   const payload = JSON.stringify({
     amount: valor,
@@ -320,11 +320,21 @@ app.post("/webhook/pixgo", async (req, res) => {
         }
       } catch(e) {}
 
+      // Busca entrega do pedido pendente
+      let entrega = null;
+      try {
+        const entregaRow = await pool.query(
+          "SELECT entrega FROM pedidos WHERE external_id = $1 LIMIT 1",
+          [pedido]
+        );
+        if (entregaRow.rows.length > 0) entrega = entregaRow.rows[0].entrega;
+      } catch(e) {}
+
       await pool.query(
-        `INSERT INTO pedidos (payment_id, external_id, cliente_nome, cliente_email, valor, status, itens)
-         VALUES ($1, $2, $3, $4, $5, 'pago', $6)
-         ON CONFLICT (payment_id) DO UPDATE SET status = 'pago', itens = $6`,
-        [pid, pedido, nome, data.data?.customer?.email || "", valor, itens],
+        `INSERT INTO pedidos (payment_id, external_id, cliente_nome, cliente_email, valor, status, itens, entrega)
+         VALUES ($1, $2, $3, $4, $5, 'pago', $6, $7)
+         ON CONFLICT (payment_id) DO UPDATE SET status = 'pago', itens = $6, entrega = $7`,
+        [pid, pedido, nome, data.data?.customer?.email || "", valor, itens, entrega],
       );
       console.log("✅ Pedido salvo no banco!");
     } catch (err) {
@@ -338,6 +348,15 @@ app.post("/webhook/pixgo", async (req, res) => {
         ? `<p><b>Produtos:</b></p><ul>${itensPix.map(i => `<li>${i.quantidade}x ${i.nome} — R$ ${parseFloat(i.preco).toFixed(2)}</li>`).join("")}</ul>`
         : "";
 
+      let entregaPix = null;
+      try { entregaPix = entrega ? JSON.parse(entrega) : null; } catch(e) {}
+      const entregaHtmlPix = entregaPix
+        ? `<p><b>Entrega:</b></p>
+           <p>${entregaPix.nome} | ${entregaPix.telefone} | CPF: ${entregaPix.cpf}</p>
+           <p>${entregaPix.rua}, ${entregaPix.numero}${entregaPix.complemento ? " " + entregaPix.complemento : ""} — ${entregaPix.bairro}</p>
+           <p>${entregaPix.cidade}/${entregaPix.estado} — CEP: ${entregaPix.cep}</p>`
+        : "";
+
       await enviarEmail({
         to: EMAIL_DESTINO,
         subject: `💰 Nova venda PIX - R$ ${valor}`,
@@ -346,6 +365,7 @@ app.post("/webhook/pixgo", async (req, res) => {
                <p><b>Cliente:</b> ${nome}</p>
                <p><b>Valor:</b> R$ ${valor}</p>
                ${itensHtmlPix}
+               ${entregaHtmlPix}
                <p><b>Pedido:</b> ${pedido}</p>
                <p><b>ID Pagamento:</b> ${pid}</p>`,
       });
@@ -358,9 +378,12 @@ app.post("/webhook/pixgo", async (req, res) => {
       const itensWaPix = itensPix.length > 0
         ? "\nProdutos:\n" + itensPix.map(i => `  - ${i.quantidade}x ${i.nome}`).join("\n")
         : "";
+      const entregaWaPix = entregaPix
+        ? `\nEntrega: ${entregaPix.rua}, ${entregaPix.numero} — ${entregaPix.bairro}, ${entregaPix.cidade}/${entregaPix.estado} CEP: ${entregaPix.cep}`
+        : "";
 
       await enviarWhatsApp(
-        `🐺 VARG - Nova venda PIX!\nCliente: ${nome}\nValor: R$ ${valor}${itensWaPix}\nPedido: ${pedido}`,
+        `🐺 VARG - Nova venda PIX!\nCliente: ${nome}\nValor: R$ ${valor}${itensWaPix}${entregaWaPix}\nPedido: ${pedido}`,
       );
     } catch (err) {
       console.error("❌ Erro WhatsApp:", err.message);
@@ -423,6 +446,19 @@ app.post("/webhook/mercadopago", async (req, res) => {
             JSON.stringify(itensMp),
           ],
         );
+        // Busca entrega se existir pedido pendente com mesmo external_reference
+        try {
+          const entregaRow = await pool.query(
+            "SELECT entrega FROM pedidos WHERE external_id = $1 AND entrega IS NOT NULL LIMIT 1",
+            [paymentData.external_reference || ""]
+          );
+          if (entregaRow.rows.length > 0 && entregaRow.rows[0].entrega) {
+            await pool.query(
+              "UPDATE pedidos SET entrega = $1 WHERE payment_id = $2",
+              [entregaRow.rows[0].entrega, pid]
+            );
+          }
+        } catch(e) {}
       } catch (err) {
         console.error("❌ Erro ao salvar pedido MP:", err.message);
       }
@@ -493,7 +529,7 @@ app.get("/admin", async (req, res) => {
     <p>Total: ${result.rows.length} pedido(s)</p>
     <table><tr>
       <th>ID Pagamento</th><th>Cliente</th><th>Email</th>
-      <th>Produtos</th><th>Valor</th><th>Status</th><th>Data</th>
+      <th>Produtos</th><th>Valor</th><th>Entrega</th><th>Status</th><th>Data</th>
     </tr>`;
     result.rows.forEach((p) => {
       let itens = [];
@@ -501,12 +537,18 @@ app.get("/admin", async (req, res) => {
       const itensHtml = itens.length > 0
         ? itens.map(i => `${i.quantidade}x ${i.nome}`).join("<br>")
         : "-";
+      let entrega = null;
+      try { entrega = p.entrega ? JSON.parse(p.entrega) : null; } catch(e) {}
+      const entregaHtml = entrega
+        ? `${entrega.nome}<br>${entrega.telefone}<br>${entrega.cpf}<br>${entrega.rua}, ${entrega.numero}${entrega.complemento ? " " + entrega.complemento : ""}<br>${entrega.bairro}<br>${entrega.cidade}/${entrega.estado}<br>CEP: ${entrega.cep}`
+        : "-";
       html += `<tr>
         <td style="font-size:0.75em">${p.payment_id || "-"}</td>
         <td>${p.cliente_nome || "-"}</td>
         <td>${p.cliente_email || "-"}</td>
         <td>${itensHtml}</td>
         <td>R$ ${parseFloat(p.valor || 0).toFixed(2)}</td>
+        <td>${entregaHtml}</td>
         <td class="${p.status}">${p.status}</td>
         <td>${new Date(p.criado_em).toLocaleString("pt-BR")}</td>
       </tr>`;
