@@ -1,3 +1,27 @@
+async function sendWhatsAppMessage(msg) {
+  const apiKey = process.env.CALLMEBOT_APIKEY;
+  const phone = process.env.CALLMEBOT_PHONE;
+
+  if (!apiKey || !phone) {
+    console.error("CallMeBot: Variáveis de ambiente ausentes.");
+    return;
+  }
+
+  const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(msg)}&apikey=${apiKey}`;
+
+  try {
+    const response = await axios.get(url);
+    console.log("WhatsApp enviado:", response.data);
+  } catch (err) {
+    console.error("Erro ao enviar WhatsApp:", err.message);
+  }
+}
+
+app.get("/test-whatsapp", async (req, res) => {
+  await sendWhatsAppMessage("🚀 Teste de WhatsApp pelo servidor!");
+  res.send("Mensagem enviada (ou tentativa feita). Veja logs.");
+});
+
 const express = require("express");
 const bcrypt = require("bcrypt");
 const { Pool } = require("pg");
