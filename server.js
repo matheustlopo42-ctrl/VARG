@@ -560,6 +560,35 @@ app.get("/test-whatsapp", async (req, res) => {
   }
 });
 
+// ==================== TESTE WHATSAPP COM PEDIDO ====================
+app.get("/test-whatsapp-pedido", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM pedidos ORDER BY criado_em DESC LIMIT 1"
+    );
+
+    if (result.rows.length === 0) {
+      return res.send("Nenhum pedido encontrado no banco.");
+    }
+
+    const pedido = result.rows[0];
+    let itens = [];
+    try { itens = JSON.parse(pedido.itens || "[]"); } catch(e) {}
+
+    const itensTexto = itens.length > 0
+      ? "\nProdutos:\n" + itens.map(i => `  - ${i.quantidade}x ${i.nome}`).join("\n")
+      : "";
+
+    const msg = `🐺 VARG - Nova venda!\nCliente: ${pedido.cliente_nome || "-"}\nValor: R$ ${parseFloat(pedido.valor).toFixed(2)}${itensTexto}\nPedido: ${pedido.external_id}\nData: ${new Date(pedido.criado_em).toLocaleString("pt-BR")}`;
+
+    await enviarWhatsApp(msg);
+    res.send("WhatsApp enviado com dados do último pedido!");
+  } catch (err) {
+    console.error("❌ Erro test-whatsapp-pedido:", err.message);
+    res.status(500).send("Erro: " + err.message);
+  }
+});
+
 // ==================== INICIAR ====================
 pool
   .connect()
