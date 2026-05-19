@@ -3,21 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel VARG - A Matilha</title>
+  <title>Painel - VARG</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    html { scroll-behavior: smooth; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; line-height: 1.6; overflow-x: hidden; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; }
     header { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.95); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 1px solid #222; }
     nav ul { list-style: none; display: flex; gap: 25px; }
     nav ul li a { color: #fff; font-weight: 600; text-decoration: none; transition: 0.3s; }
     nav ul li a:hover { color: #DC143C; }
-    .hero { margin-top: 60px; height: 90vh; display: flex; justify-content: center; align-items: center; text-align: center; background: radial-gradient(circle, rgba(106,13,23,0.2), #0a0a0a); }
-    .hero h2 { font-size: 4.5em; font-weight: 900; text-transform: uppercase; }
-    .hero p { color: #aaa; margin-top: 15px; font-size: 1.1em; }
-    .user-badge { color: #00BFFF; font-weight: bold; }
     .sair-btn { color: #DC143C !important; }
+    .main { max-width: 900px; margin: 0 auto; padding: 100px 20px 40px; }
+    .welcome { margin-bottom: 30px; }
+    .welcome h2 { font-size: 2em; color: #00BFFF; }
+    .welcome p { color: #888; margin-top: 5px; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
+    .card { background: #1a1a1a; border-radius: 12px; padding: 25px; border: 1px solid #333; text-align: center; cursor: pointer; transition: 0.3s; text-decoration: none; color: #fff; display: block; }
+    .card:hover { border-color: #00BFFF; transform: translateY(-3px); }
+    .card i { font-size: 2.5em; margin-bottom: 15px; color: #00BFFF; }
+    .card h3 { font-size: 1.1em; margin-bottom: 5px; }
+    .card p { color: #888; font-size: 0.85em; }
+    .card.red i { color: #DC143C; }
+    .card.red:hover { border-color: #DC143C; }
+    .card.green i { color: #25D366; }
+    .card.green:hover { border-color: #25D366; }
   </style>
 </head>
 <body>
@@ -25,29 +34,55 @@
     <nav>
       <ul>
         <li><a href="/index.html">Início</a></li>
-        <li><a href="#" class="user-badge"><i class="fa-solid fa-user"></i> Olá, <span id="userName">Membro</span></a></li>
+        <li><a href="#" style="color:#00BFFF;"><i class="fa-solid fa-user"></i> <span id="userName">Membro</span></a></li>
         <li><a href="#" class="sair-btn" id="btnSair">Sair</a></li>
       </ul>
     </nav>
   </header>
-  <section id="hero" class="hero">
-    <div>
-      <h2>Bem-vindo à Matilha</h2>
-      <p>Acesse seus conteúdos exclusivos e equipamentos de elite.</p>
-      <p style="color:#555;margin-top:20px;font-size:0.9em;">Redirecionando para o site principal...</p>
+
+  <div class="main">
+    <div class="welcome">
+      <h2>Bem-vindo, <span id="nomeUsuario">Membro</span>! 🐺</h2>
+      <p>O que você quer fazer hoje?</p>
     </div>
-  </section>
+
+    <div class="cards">
+      <a href="/meus-pedidos.html" class="card">
+        <i class="fa-solid fa-box"></i>
+        <h3>Meus Pedidos</h3>
+        <p>Acompanhe suas compras</p>
+      </a>
+      <a href="/perfil.html" class="card">
+        <i class="fa-solid fa-user"></i>
+        <h3>Meu Perfil</h3>
+        <p>Veja seus dados</p>
+      </a>
+      <a href="/rastrear-pedido.html" class="card green">
+        <i class="fa-solid fa-truck"></i>
+        <h3>Rastrear Pedido</h3>
+        <p>Acompanhe a entrega</p>
+      </a>
+      <a href="/index.html" class="card red">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <h3>Continuar Comprando</h3>
+        <p>Ver produtos da loja</p>
+      </a>
+    </div>
+  </div>
+
   <script>
-    const nomeSalvo = localStorage.getItem('usuarioNome');
-    if (!nomeSalvo) {
+    const nome = localStorage.getItem('usuarioNome');
+    if (!nome) {
       window.location.href = '/login.html';
     } else {
-      document.getElementById('userName').textContent = nomeSalvo;
-      setTimeout(() => { window.location.href = '/index.html'; }, 3000);
+      document.getElementById('userName').textContent = nome;
+      document.getElementById('nomeUsuario').textContent = nome;
     }
+
     document.getElementById('btnSair').addEventListener('click', (e) => {
       e.preventDefault();
       localStorage.removeItem('usuarioNome');
+      localStorage.removeItem('usuarioEmail');
       window.location.href = '/login.html';
     });
   </script>

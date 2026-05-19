@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meus Pedidos - VARG</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; }
+    header { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.95); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 1px solid #222; }
+    nav ul { list-style: none; display: flex; gap: 25px; }
+    nav ul li a { color: #fff; font-weight: 600; text-decoration: none; transition: 0.3s; }
+    nav ul li a:hover { color: #DC143C; }
+    .sair-btn { color: #DC143C !important; }
+    .main { max-width: 900px; margin: 0 auto; padding: 100px 20px 40px; }
+    h2 { color: #00BFFF; margin-bottom: 25px; font-size: 1.8em; }
+    .pedido-card { background: #1a1a1a; border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid #333; }
+    .pedido-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #333; }
+    .pedido-id { color: #00BFFF; font-weight: bold; font-size: 0.9em; }
+    .pedido-data { color: #888; font-size: 0.85em; }
+    .pedido-status { padding: 5px 12px; border-radius: 20px; font-size: 0.85em; font-weight: bold; }
+    .status-pago { background: rgba(0,255,136,0.15); color: #00ff88; border: 1px solid #00ff88; }
+    .status-pendente { background: rgba(255,165,0,0.15); color: orange; border: 1px solid orange; }
+    .pedido-itens { margin-bottom: 15px; }
+    .pedido-item { display: flex; justify-content: space-between; padding: 8px 0; color: #ccc; font-size: 0.9em; border-bottom: 1px solid #222; }
+    .pedido-item:last-child { border-bottom: none; }
+    .pedido-total { text-align: right; color: #DC143C; font-weight: bold; font-size: 1.1em; }
+    .pedido-entrega { background: #111; border-radius: 8px; padding: 12px; margin-top: 10px; font-size: 0.85em; color: #aaa; }
+    .pedido-entrega strong { color: #00BFFF; display: block; margin-bottom: 5px; }
+    .vazio { text-align: center; padding: 60px 20px; color: #555; }
+    .vazio i { font-size: 4em; margin-bottom: 20px; display: block; }
+    .vazio a { color: #00BFFF; text-decoration: none; }
+    .spinner { text-align: center; padding: 60px; color: #555; font-size: 1.1em; }
+    .erro { text-align: center; padding: 40px; color: #ff4d4d; }
+    .busca { margin-bottom: 20px; }
+    .busca input { width: 100%; padding: 12px 16px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 0.95em; outline: none; }
+    .busca input:focus { border-color: #00BFFF; }
+    .busca input::placeholder { color: #555; }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <ul>
+        <li><a href="/index.html">Início</a></li>
+        <li><a href="/painel.html" style="color:#00BFFF;"><i class="fa-solid fa-user"></i> <span id="userName">Membro</span></a></li>
+        <li><a href="#" class="sair-btn" id="btnSair">Sair</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="main">
+    <h2><i class="fa-solid fa-box" style="margin-right:10px;"></i>Meus Pedidos</h2>
+
+    <div class="busca">
+      <input type="text" id="busca" placeholder="🔍 Buscar por ID do pedido..." oninput="filtrar()" />
+    </div>
+
+    <div id="listaPedidos">
+      <div class="spinner"><i class="fa-solid fa-spinner fa-spin"></i> Carregando pedidos...</div>
+    </div>
+  </div>
+
+  <script>
+    const nome = localStorage.getItem('usuarioNome');
+    const email = localStorage.getItem('usuarioEmail');
+
+    if (!nome) {
+      window.location.href = '/login.html';
+    } else {
+      document.getElementById('userName').textContent = nome;
+    }
+
+    document.getElementById('btnSair').addEventListener('click', (e) => {
+      e.preventDefault();
+      localStorage.removeItem('usuarioNome');
+      localStorage.removeItem('usuarioEmail');
+      window.location.href = '/login.html';
+    });
+
+    const formatPrice = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+    let todosPedidos = [];
+
+    async function carregarPedidos() {
+      try {
+        const res = await fetch('/api/pedidos');
+        const todos = await res.json();
+
+        // Filtra apenas pedidos deste usuário pelo email ou nome
+        todosPedidos = todos.filter(p =>
+          (email && p.cliente_email && p.cliente_email.toLowerCase() === email.toLowerCase()) ||
+          (nome && p.cliente_nome && p.cliente_nome.toLowerCase() === nome.toLowerCase())
+        ).filter(p => p.status === 'pago');
+
+        renderizarPedidos(todosPedidos);
+      } catch (err) {
+        document.getElementById('listaPedidos').innerHTML = `<div class="erro"><i class="fa-solid fa-circle-exclamation"></i> Erro ao carregar pedidos. Tente novamente.</div>`;
+      }
+    }
+
+    function renderizarPedidos(pedidos) {
+      const container = document.getElementById('listaPedidos');
+      if (pedidos.length === 0) {
+        container.innerHTML = `
+          <div class="vazio">
+            <i class="fa-solid fa-box-open"></i>
+            <p>Você ainda não tem pedidos.</p>
+            <p style="margin-top:10px;"><a href="/index.html">Ir às compras →</a></p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = pedidos.map(p => {
+        let itens = [];
+        try { itens = JSON.parse(p.itens || '[]'); } catch(e) {}
+
+        let entrega = null;
+        try { entrega = p.entrega ? JSON.parse(p.entrega) : null; } catch(e) {}
+
+        const itensHtml = itens.length > 0
+          ? itens.map(i => `<div class="pedido-item"><span>${i.quantidade}x ${i.nome}</span><span>${formatPrice(i.preco * i.quantidade)}</span></div>`).join('')
+          : `<div class="pedido-item"><span>Produto VARG</span><span>${formatPrice(p.valor)}</span></div>`;
+
+        const entregaHtml = entrega
+          ? `<div class="pedido-entrega"><strong><i class="fa-solid fa-truck"></i> Endereço de Entrega</strong>${entrega.rua}, ${entrega.numero}${entrega.complemento ? ' ' + entrega.complemento : ''} — ${entrega.bairro}, ${entrega.cidade}/${entrega.estado} — CEP: ${entrega.cep}</div>`
+          : '';
+
+        return `
+          <div class="pedido-card">
+            <div class="pedido-header">
+              <div>
+                <div class="pedido-id"># ${p.external_id || p.payment_id?.slice(0,16) || '—'}</div>
+                <div class="pedido-data">${new Date(p.criado_em).toLocaleString('pt-BR')}</div>
+              </div>
+              <span class="pedido-status status-${p.status}">${p.status === 'pago' ? '✅ Pago' : '⏳ Pendente'}</span>
+            </div>
+            <div class="pedido-itens">${itensHtml}</div>
+            <div class="pedido-total">Total: ${formatPrice(p.valor)}</div>
+            ${entregaHtml}
+          </div>`;
+      }).join('');
+    }
+
+    function filtrar() {
+      const termo = document.getElementById('busca').value.toLowerCase();
+      const filtrados = todosPedidos.filter(p =>
+        (p.external_id || '').toLowerCase().includes(termo) ||
+        (p.payment_id || '').toLowerCase().includes(termo)
+      );
+      renderizarPedidos(filtrados);
+    }
+
+    carregarPedidos();
+  </script>
+</body>
+</html>

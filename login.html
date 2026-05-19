@@ -7,26 +7,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #0a0a0a;
-      color: #fff;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      background-image: radial-gradient(circle at center, rgba(0,191,255,0.08), transparent 35%);
-    }
-    .login-container {
-      width: 100%;
-      max-width: 420px;
-      background: rgba(20, 20, 20, 0.95);
-      border: 1px solid #222;
-      border-radius: 16px;
-      padding: 35px 30px;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
-    }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; background-image: radial-gradient(circle at center, rgba(0,191,255,0.08), transparent 35%); }
+    .login-container { width: 100%; max-width: 420px; background: rgba(20,20,20,0.95); border: 1px solid #222; border-radius: 16px; padding: 35px 30px; box-shadow: 0 0 30px rgba(0,0,0,0.6); }
     .logo-title { text-align: center; margin-bottom: 30px; }
     .logo-title h1 { font-size: 2.2rem; margin-bottom: 8px; text-transform: uppercase; color: #fff; text-shadow: 0 0 15px rgba(0,191,255,0.35); }
     .logo-title p { color: #bbb; font-size: 0.95rem; }
@@ -72,7 +54,7 @@
       <button type="submit" class="login-btn">Entrar</button>
       <p class="erro" id="erroMsg"></p>
     </form>
-    <div class="extra-links"><a href="#">Esqueci minha senha</a></div>
+    <div class="extra-links"><a href="#" id="linkEsqueceuSenha">Esqueci minha senha</a></div>
     <div class="divider"></div>
     <div class="register-text">Não tem conta? <a href="/cadastro.html">Criar cadastro</a></div>
   </div>
@@ -92,7 +74,8 @@
         const data = await response.json();
         if (data.success) {
           localStorage.setItem('usuarioNome', data.nome);
-          window.location.href = '/painel.html';
+          localStorage.setItem('usuarioEmail', email);
+          window.location.href = '/index.html';
         } else {
           erroMsg.textContent = data.message || 'E-mail ou senha incorretos.';
           erroMsg.style.display = 'block';
@@ -101,6 +84,11 @@
         erroMsg.textContent = 'Erro ao conectar com o servidor.';
         erroMsg.style.display = 'block';
       }
+    });
+
+    document.getElementById('linkEsqueceuSenha').addEventListener('click', function(e) {
+      e.preventDefault();
+      alert('Para redefinir sua senha, entre em contato pelo e-mail: contato@vargmatilha.com.br');
     });
   </script>
 </body>
