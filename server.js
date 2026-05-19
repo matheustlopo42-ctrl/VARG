@@ -4,7 +4,6 @@ const { Pool } = require("pg");
 const path = require("path");
 const https = require("https");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
 const cors = require("cors");
 
 const app = express();
@@ -55,17 +54,19 @@ const EMAIL_DESTINO = process.env.EMAIL_DESTINO || "matheustlopo42@gmail.com";
 const WA_PHONE = process.env.WA_PHONE || "5512988875509";
 const WA_APIKEY = process.env.WA_APIKEY || "";
 
-// ==================== NODEMAILER ====================
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  requireTLS: true,
-  auth: {
-    user: EMAIL_USER,
-    pass: EMAIL_PASS,
-  },
-});
+// ==================== RESEND ====================
+const RESEND_API_KEY = process.env.RESEND_API_KEY || "re_CXKhrcy7_MFUfaFauEFkj6iMYPgeEF3jo";
+const resend = new (require("resend").Resend)(RESEND_API_KEY);
+
+async function enviarEmail({ to, subject, html }) {
+  const { error } = await resend.emails.send({
+    from: "VARG <onboarding@resend.dev>",
+    to,
+    subject,
+    html,
+  });
+  if (error) throw new Error(JSON.stringify(error));
+}
 
 // ==================== WHATSAPP (CallMeBot) ====================
 async function enviarWhatsApp(mensagem) {
@@ -306,8 +307,7 @@ app.post("/webhook/pixgo", async (req, res) => {
     }
 
     try {
-      await transporter.sendMail({
-        from: `"VARG" <${EMAIL_USER}>`,
+      await enviarEmail({
         to: EMAIL_DESTINO,
         subject: `💰 Nova venda PIX - R$ ${valor}`,
         html: `<h2 style="color:#DC143C">🐺 Nova venda confirmada!</h2>
@@ -388,16 +388,15 @@ app.post("/webhook/mercadopago", async (req, res) => {
       }
 
       try {
-        await transporter.sendMail({
-          from: `"VARG" <${EMAIL_USER}>`,
-          to: EMAIL_DESTINO,
-          subject: `💳 Nova venda Cartão - R$ ${valor}`,
-          html: `<h2 style="color:#009EE3">🐺 Nova venda no cartão!</h2>
+        await enviarEmail({
+        to: EMAIL_DESTINO,
+        subject: `💳 Nova venda Cartão - R$ ${valor}`,
+        html: `<h2 style="color:#009EE3">🐺 Nova venda no cartão!</h2>
                  <p><b>Método:</b> Cartão (Mercado Pago)</p>
                  <p><b>Cliente:</b> ${nome.trim()}</p>
                  <p><b>Valor:</b> R$ ${valor}</p>
                  <p><b>ID:</b> ${pid}</p>`,
-        });
+      });
         console.log("📧 Email MP enviado!");
       } catch (err) {
         console.error("❌ Erro email MP:", err.message);
@@ -493,12 +492,11 @@ app.get("/teste-email-pedido", async (req, res) => {
       <p><b>Data:</b> ${new Date(pedido.criado_em).toLocaleString("pt-BR")}</p>
     `;
 
-    await transporter.sendMail({
-      from: `"VARG" <${EMAIL_USER}>`,
-      to: EMAIL_DESTINO,
-      subject: `🐺 VARG – Teste de Email com Pedido Real`,
-      html: html,
-    });
+    await enviarEmail({
+        to: EMAIL_DESTINO,
+        subject: `🐺 VARG – Teste de Email com Pedido Real`,
+        html: html,
+      });
 
     console.log("📧 Email TESTE com pedido real enviado!");
     res.send("Email enviado com dados reais do último pedido!");
