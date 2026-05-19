@@ -493,13 +493,19 @@ app.get("/admin", async (req, res) => {
     <p>Total: ${result.rows.length} pedido(s)</p>
     <table><tr>
       <th>ID Pagamento</th><th>Cliente</th><th>Email</th>
-      <th>Valor</th><th>Status</th><th>Data</th>
+      <th>Produtos</th><th>Valor</th><th>Status</th><th>Data</th>
     </tr>`;
     result.rows.forEach((p) => {
+      let itens = [];
+      try { itens = JSON.parse(p.itens || "[]"); } catch(e) {}
+      const itensHtml = itens.length > 0
+        ? itens.map(i => `${i.quantidade}x ${i.nome}`).join("<br>")
+        : "-";
       html += `<tr>
         <td style="font-size:0.75em">${p.payment_id || "-"}</td>
         <td>${p.cliente_nome || "-"}</td>
         <td>${p.cliente_email || "-"}</td>
+        <td>${itensHtml}</td>
         <td>R$ ${parseFloat(p.valor || 0).toFixed(2)}</td>
         <td class="${p.status}">${p.status}</td>
         <td>${new Date(p.criado_em).toLocaleString("pt-BR")}</td>
