@@ -55,8 +55,7 @@ const WA_PHONE = process.env.WA_PHONE || "5512988875509";
 const WA_APIKEY = process.env.WA_APIKEY || "";
 
 // ==================== RESEND ====================
-const RESEND_API_KEY =
-  process.env.RESEND_API_KEY || "re_CXKhrcy7_MFUfaFauEFkj6iMYPgeEF3jo";
+const RESEND_API_KEY = process.env.RESEND_API_KEY || "re_H34dbCvj_JYsUmRBKpMNXbCaLf6ZKeEM3";
 const resend = new (require("resend").Resend)(RESEND_API_KEY);
 
 async function enviarEmail({ to, subject, html }) {
@@ -161,21 +160,12 @@ app.post("/pix", async (req, res) => {
 
   // Salva o carrinho temporariamente para uso no webhook
   if (cart.length > 0) {
-    await pool
-      .query(
-        `INSERT INTO pedidos (payment_id, external_id, cliente_nome, cliente_email, valor, status, itens)
+    await pool.query(
+      `INSERT INTO pedidos (payment_id, external_id, cliente_nome, cliente_email, valor, status, itens)
        VALUES ($1, $2, $3, $4, $5, 'pendente', $6)
        ON CONFLICT (payment_id) DO NOTHING`,
-        [
-          "PIX_PENDING_" + externalId,
-          externalId,
-          "",
-          "",
-          valor,
-          JSON.stringify(cart),
-        ],
-      )
-      .catch(() => {});
+      ["PIX_PENDING_" + externalId, externalId, "", "", valor, JSON.stringify(cart)]
+    ).catch(() => {});
   }
 
   const payload = JSON.stringify({
@@ -323,12 +313,12 @@ app.post("/webhook/pixgo", async (req, res) => {
       try {
         const pedidoPendente = await pool.query(
           "SELECT itens FROM pedidos WHERE external_id = $1 LIMIT 1",
-          [pedido],
+          [pedido]
         );
         if (pedidoPendente.rows.length > 0 && pedidoPendente.rows[0].itens) {
           itens = pedidoPendente.rows[0].itens;
         }
-      } catch (e) {}
+      } catch(e) {}
 
       await pool.query(
         `INSERT INTO pedidos (payment_id, external_id, cliente_nome, cliente_email, valor, status, itens)
@@ -343,13 +333,10 @@ app.post("/webhook/pixgo", async (req, res) => {
 
     try {
       let itensPix = [];
-      try {
-        itensPix = JSON.parse(itens);
-      } catch (e) {}
-      const itensHtmlPix =
-        itensPix.length > 0
-          ? `<p><b>Produtos:</b></p><ul>${itensPix.map((i) => `<li>${i.quantidade}x ${i.nome} — R$ ${parseFloat(i.preco).toFixed(2)}</li>`).join("")}</ul>`
-          : "";
+      try { itensPix = JSON.parse(itens); } catch(e) {}
+      const itensHtmlPix = itensPix.length > 0
+        ? `<p><b>Produtos:</b></p><ul>${itensPix.map(i => `<li>${i.quantidade}x ${i.nome} — R$ ${parseFloat(i.preco).toFixed(2)}</li>`).join("")}</ul>`
+        : "";
 
       await enviarEmail({
         to: EMAIL_DESTINO,
@@ -368,11 +355,9 @@ app.post("/webhook/pixgo", async (req, res) => {
     }
 
     try {
-      const itensWaPix =
-        itensPix.length > 0
-          ? "\nProdutos:\n" +
-            itensPix.map((i) => `  - ${i.quantidade}x ${i.nome}`).join("\n")
-          : "";
+      const itensWaPix = itensPix.length > 0
+        ? "\nProdutos:\n" + itensPix.map(i => `  - ${i.quantidade}x ${i.nome}`).join("\n")
+        : "";
 
       await enviarWhatsApp(
         `🐺 VARG - Nova venda PIX!\nCliente: ${nome}\nValor: R$ ${valor}${itensWaPix}\nPedido: ${pedido}`,
@@ -423,11 +408,7 @@ app.post("/webhook/mercadopago", async (req, res) => {
 
       try {
         const cartMp = paymentData.additional_info?.items || [];
-        const itensMp = cartMp.map((i) => ({
-          nome: i.title,
-          quantidade: i.quantity,
-          preco: i.unit_price,
-        }));
+        const itensMp = cartMp.map(i => ({ nome: i.title, quantidade: i.quantity, preco: i.unit_price }));
 
         await pool.query(
           `INSERT INTO pedidos (payment_id, external_id, cliente_nome, cliente_email, valor, status, itens)
@@ -448,25 +429,23 @@ app.post("/webhook/mercadopago", async (req, res) => {
 
       try {
         await enviarEmail({
-          to: EMAIL_DESTINO,
-          subject: `💳 Nova venda Cartão - R$ ${valor}`,
-          html: `<h2 style="color:#009EE3">🐺 Nova venda no cartão!</h2>
+        to: EMAIL_DESTINO,
+        subject: `💳 Nova venda Cartão - R$ ${valor}`,
+        html: `<h2 style="color:#009EE3">🐺 Nova venda no cartão!</h2>
                  <p><b>Método:</b> Cartão (Mercado Pago)</p>
                  <p><b>Cliente:</b> ${nome.trim()}</p>
                  <p><b>Valor:</b> R$ ${valor}</p>
                  <p><b>ID:</b> ${pid}</p>`,
-        });
+      });
         console.log("📧 Email MP enviado!");
       } catch (err) {
         console.error("❌ Erro email MP:", err.message);
       }
 
       try {
-        const itensWaMp =
-          itensMp.length > 0
-            ? "\nProdutos:\n" +
-              itensMp.map((i) => `  - ${i.quantidade}x ${i.nome}`).join("\n")
-            : "";
+        const itensWaMp = itensMp.length > 0
+          ? "\nProdutos:\n" + itensMp.map(i => `  - ${i.quantidade}x ${i.nome}`).join("\n")
+          : "";
 
         await enviarWhatsApp(
           `🐺 VARG - Nova venda cartão!\nCliente: ${nome.trim()}\nValor: R$ ${valor}${itensWaMp}\nID: ${pid}`,
@@ -558,10 +537,10 @@ app.get("/teste-email-pedido", async (req, res) => {
     `;
 
     await enviarEmail({
-      to: EMAIL_DESTINO,
-      subject: `🐺 VARG – Teste de Email com Pedido Real`,
-      html: html,
-    });
+        to: EMAIL_DESTINO,
+        subject: `🐺 VARG – Teste de Email com Pedido Real`,
+        html: html,
+      });
 
     console.log("📧 Email TESTE com pedido real enviado!");
     res.send("Email enviado com dados reais do último pedido!");
@@ -585,7 +564,7 @@ app.get("/test-whatsapp", async (req, res) => {
 app.get("/test-whatsapp-pedido", async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT * FROM pedidos ORDER BY criado_em DESC LIMIT 1",
+      "SELECT * FROM pedidos ORDER BY criado_em DESC LIMIT 1"
     );
 
     if (result.rows.length === 0) {
@@ -594,15 +573,11 @@ app.get("/test-whatsapp-pedido", async (req, res) => {
 
     const pedido = result.rows[0];
     let itens = [];
-    try {
-      itens = JSON.parse(pedido.itens || "[]");
-    } catch (e) {}
+    try { itens = JSON.parse(pedido.itens || "[]"); } catch(e) {}
 
-    const itensTexto =
-      itens.length > 0
-        ? "\nProdutos:\n" +
-          itens.map((i) => `  - ${i.quantidade}x ${i.nome}`).join("\n")
-        : "";
+    const itensTexto = itens.length > 0
+      ? "\nProdutos:\n" + itens.map(i => `  - ${i.quantidade}x ${i.nome}`).join("\n")
+      : "";
 
     const msg = `🐺 VARG - Nova venda!\nCliente: ${pedido.cliente_nome || "-"}\nValor: R$ ${parseFloat(pedido.valor).toFixed(2)}${itensTexto}\nPedido: ${pedido.external_id}\nData: ${new Date(pedido.criado_em).toLocaleString("pt-BR")}`;
 
