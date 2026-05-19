@@ -55,6 +55,15 @@ const EMAIL_DESTINO = process.env.EMAIL_DESTINO || "matheustlopo42@gmail.com";
 const WA_PHONE = process.env.WA_PHONE || "5512988875509";
 const WA_APIKEY = process.env.WA_APIKEY || "";
 
+// ==================== NODEMAILER ====================
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: EMAIL_USER,
+    pass: EMAIL_PASS,
+  },
+});
+
 // ==================== WHATSAPP (CallMeBot) ====================
 async function enviarWhatsApp(mensagem) {
   if (!WA_APIKEY)
@@ -386,6 +395,7 @@ app.post("/webhook/mercadopago", async (req, res) => {
                  <p><b>Valor:</b> R$ ${valor}</p>
                  <p><b>ID:</b> ${pid}</p>`,
         });
+        console.log("📧 Email MP enviado!");
       } catch (err) {
         console.error("❌ Erro email MP:", err.message);
       }
@@ -456,10 +466,9 @@ app.get("/admin", async (req, res) => {
   }
 });
 
-// ==================== TESTE EMAIL COM PEDIDO REAL ====================
+// ==================== TESTE EMAIL ====================
 app.get("/teste-email-pedido", async (req, res) => {
   try {
-    // pega o pedido mais recente
     const result = await pool.query(
       "SELECT * FROM pedidos ORDER BY criado_em DESC LIMIT 1",
     );
@@ -470,7 +479,6 @@ app.get("/teste-email-pedido", async (req, res) => {
 
     const pedido = result.rows[0];
 
-    // monta o HTML bonito
     const html = `
       <h2 style="color:#DC143C">🐺 Nova venda confirmada!</h2>
       <p><b>Cliente:</b> ${pedido.cliente_nome || "-"}</p>
@@ -482,7 +490,6 @@ app.get("/teste-email-pedido", async (req, res) => {
       <p><b>Data:</b> ${new Date(pedido.criado_em).toLocaleString("pt-BR")}</p>
     `;
 
-    // envia o e-mail
     await transporter.sendMail({
       from: `"VARG" <${EMAIL_USER}>`,
       to: EMAIL_DESTINO,
@@ -498,48 +505,15 @@ app.get("/teste-email-pedido", async (req, res) => {
   }
 });
 
-// ===== INÍCIO DO INCREMENTO =====
-
-// Importação do axios (caso o projeto use require)
-const axios = require("axios");
-
-// Função para enviar mensagem WhatsApp via CallMeBot
-async function sendWhatsAppMessage(msg) {
-  const apiKey = process.env.CALLMEBOT_APIKEY;
-  const phone = process.env.CALLMEBOT_PHONE;
-
-  if (!apiKey || !phone) {
-    console.error("CallMeBot: Variáveis de ambiente não configuradas.");
-    return;
-  }
-
-  const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(msg)}&apikey=${apiKey}`;
-
-  try {
-    const response = await axios.get(url);
-    console.log("WhatsApp enviado:", response.data);
-  } catch (err) {
-    console.error("Erro ao enviar WhatsApp:", err.message);
-  }
-}
-
-// Rota PARA TESTE manual no navegador
+// ==================== TESTE WHATSAPP ====================
 app.get("/test-whatsapp", async (req, res) => {
-  await sendWhatsAppMessage("🚀 Teste de WhatsApp pelo servidor!");
-  res.send("Mensagem enviada (ou tentativa)! Veja os logs no Render.");
+  try {
+    await enviarWhatsApp("🚀 VARG - Teste de WhatsApp funcionando!");
+    res.send("Mensagem enviada! Verifique os logs e seu WhatsApp.");
+  } catch (err) {
+    res.status(500).send("Erro: " + err.message);
+  }
 });
-
-// Rota do Webhook (quando o PixGo enviar)
-app.post("/webhook/pixgo", async (req, res) => {
-  console.log("Webhook recebido:", req.body);
-
-  const msg = `💰 Pagamento recebido!\nValor: ${req.body.amount}\nCliente: ${req.body.customer}`;
-  await sendWhatsAppMessage(msg);
-
-  res.sendStatus(200);
-});
-
-// ===== FIM DO INCREMENTO =====
 
 // ==================== INICIAR ====================
 pool
