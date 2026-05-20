@@ -653,6 +653,11 @@ app.get("/api/pedidos", async (req, res) => {
   }
 });
 
+// ==================== ADMIN CUPONS PAGE ====================
+app.get("/admin-cupons.html", adminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, "admin-cupons.html"));
+});
+
 // ==================== ADMIN LOGIN ====================
 app.get("/admin-login", (req, res) => {
   res.sendFile(path.join(__dirname, "admin-login.html"));
