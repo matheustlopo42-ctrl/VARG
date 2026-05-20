@@ -86,6 +86,8 @@
       }
     });
 
+    document.addEventListener('DOMContentLoaded', function() {
+
     document.getElementById('linkEsqueceuSenha').addEventListener('click', function(e) {
       e.preventDefault();
       document.getElementById('modalEsqueceuSenha').style.display = 'flex';
@@ -129,6 +131,8 @@
     document.getElementById('fecharModalReset').addEventListener('click', function() {
       document.getElementById('modalEsqueceuSenha').style.display = 'none';
     });
+
+    }); // end DOMContentLoaded
   </script>
 
   <!-- MODAL ESQUECI SENHA -->
