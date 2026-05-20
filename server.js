@@ -607,16 +607,37 @@ app.get("/admin", async (req, res) => {
       p{color:#888;margin-bottom:20px;}
       table{width:100%;border-collapse:collapse;background:#1a1a1a;}
       th{background:#DC143C;color:white;padding:12px;text-align:left;}
-      td{padding:10px 12px;border-bottom:1px solid #333;font-size:0.9em;}
+      td{padding:10px 12px;border-bottom:1px solid #333;font-size:0.9em;vertical-align:top;}
       tr:hover{background:#222;}
       .pago{color:#00ff88;font-weight:bold;}
       .pendente{color:orange;}
-    </style></head><body>
+      .btn-enviar{background:#DC143C;color:white;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:0.8em;margin-top:5px;display:block;}
+      .btn-enviar:hover{background:#b01030;}
+      .input-rastreio{background:#222;border:1px solid #444;color:#eee;padding:5px 8px;border-radius:4px;font-size:0.8em;width:160px;margin-bottom:5px;display:block;}
+      .tag-enviado{background:rgba(0,191,255,0.15);color:#00BFFF;border:1px solid #00BFFF;padding:3px 8px;border-radius:12px;font-size:0.8em;}
+      .tag-aguardando{background:rgba(255,165,0,0.15);color:orange;border:1px solid orange;padding:3px 8px;border-radius:12px;font-size:0.8em;}
+    </style>
+    <script>
+      async function marcarEnviado(id) {
+        const input = document.getElementById('rastreio_' + id);
+        const codigo = input ? input.value.trim() : '';
+        if (!codigo) { alert('Digite o código de rastreio!'); return; }
+        const res = await fetch('/api/pedidos/' + id + '/envio', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ codigo_rastreio: codigo, status_envio: 'enviado' })
+        });
+        const data = await res.json();
+        if (data.success) { location.reload(); }
+        else { alert('Erro ao atualizar!'); }
+      }
+    </script>
+    </head><body>
     <h1>🐺 Pedidos VARG</h1>
     <p>Total: ${result.rows.length} pedido(s)</p>
     <table><tr>
       <th>ID Pagamento</th><th>Cliente</th><th>Email</th>
-      <th>Produtos</th><th>Valor</th><th>Entrega</th><th>Status</th><th>Data</th>
+      <th>Produtos</th><th>Valor</th><th>Entrega</th><th>Status Pgto</th><th>Envio</th><th>Data</th>
     </tr>`;
     result.rows.forEach((p) => {
       let itens = [];
@@ -629,6 +650,13 @@ app.get("/admin", async (req, res) => {
       const entregaHtml = entrega
         ? `${entrega.nome}<br>${entrega.telefone}<br>${entrega.cpf}<br>${entrega.rua}, ${entrega.numero}${entrega.complemento ? " " + entrega.complemento : ""}<br>${entrega.bairro}<br>${entrega.cidade}/${entrega.estado}<br>CEP: ${entrega.cep}`
         : "-";
+      const envioHtml = p.status_envio === 'enviado'
+        ? `<span class="tag-enviado">✅ Enviado</span><br><small style="color:#aaa;margin-top:4px;display:block;">${p.codigo_rastreio || ""}</small>`
+        : p.status === 'pago'
+          ? `<span class="tag-aguardando">⏳ Aguardando</span><br>
+             <input class="input-rastreio" id="rastreio_${p.id}" placeholder="Código dos Correios" /><br>
+             <button class="btn-enviar" onclick="marcarEnviado(${p.id})">Marcar como Enviado</button>`
+          : "-";
       html += `<tr>
         <td style="font-size:0.75em">${p.payment_id || "-"}</td>
         <td>${p.cliente_nome || "-"}</td>
@@ -636,7 +664,8 @@ app.get("/admin", async (req, res) => {
         <td>${itensHtml}</td>
         <td>R$ ${parseFloat(p.valor || 0).toFixed(2)}</td>
         <td>${entregaHtml}</td>
-        <td class="${p.status}">${p.status}</td>
+        <td class="${p.status}">${p.status === 'pago' ? '✅ Pago' : p.status}</td>
+        <td>${envioHtml}</td>
         <td>${new Date(p.criado_em).toLocaleString("pt-BR")}</td>
       </tr>`;
     });
