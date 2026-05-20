@@ -343,27 +343,37 @@
             .terms-section { padding: 20px; }
         }
     </style>
+  <style>
+    header { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.95); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 1px solid #222; }
+    nav ul { list-style: none; display: flex; gap: 25px; align-items: center; flex-wrap: wrap; }
+    nav ul li a { color: #fff; font-weight: 600; text-decoration: none; transition: 0.3s; font-size: 15px; }
+    nav ul li a:hover { color: #DC143C; }
+    nav ul li { position: relative; }
+    .dropdown-content { display: none; position: absolute; top: 100%; left: 0; background-color: #111; min-width: 180px; border: 1px solid #333; border-radius: 4px; box-shadow: 0 8px 16px rgba(0,0,0,0.6); list-style: none; padding: 0; }
+    .dropdown-content li a { padding: 12px 15px; font-size: 0.9em; border-bottom: 1px solid #222; display: block; }
+    nav ul li:hover .dropdown-content { display: block; }
+    .cart-icon { color: #00BFFF; font-size: 1.4rem; cursor: pointer; }
+  </style>
 </head>
 <body>
-    <header>
-      <nav>
-        <ul>
-          <li><a href="index.html">Início</a></li>
-          <li><a href="#" id="authLink" onclick="abrirModalLogin()">Já é cadastrado?</a></li>
-          <li class="dropdown">
-            <a href="#">Produtos <i class="fa-solid fa-chevron-down" style="font-size:0.7em;"></i></a>
-            <ul class="dropdown-content">
-              <li><a href="index.html#smelling-salt">Smelling Salt</a></li>
-              <li><a href="index.html#camisetas">Camisetas</a></li>
-            </ul>
-          </li>
-        </ul>
-      </nav>
-      <div class="cart-icon" onclick="toggleCart()">
-        <i class="fa-solid fa-bag-shopping"></i>
-        <span class="cart-count" id="cartCount">0</span>
-      </div>
-    </header>
+      <header>
+    <nav>
+      <ul>
+        <li><a href="/index.html">Início</a></li>
+        <li id="authArea"><a href="/login.html">Já é cadastrado?</a></li>
+        <li class="dropdown">
+          <a href="#">Produtos <i class="fa-solid fa-chevron-down" style="font-size:0.7em;"></i></a>
+          <ul class="dropdown-content">
+            <li><a href="/index.html#smelling-salt">Smelling Salt</a></li>
+            <li><a href="/index.html#camisetas">Camisetas</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+    <div class="cart-icon" onclick="window.location.href='/index.html'">
+      <i class="fa-solid fa-bag-shopping"></i>
+    </div>
+  </header>
 
     <section class="hero">
         <h1>TERMOS DE USO</h1>
@@ -626,5 +636,26 @@
             if (e.target === this) fecharModalLogin();
         });
     </script>
+  <script>
+    (function() {
+      const nome = localStorage.getItem('usuarioNome');
+      const authArea = document.getElementById('authArea');
+      if (nome && authArea) {
+        authArea.innerHTML = `
+          <div style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <span style="color:#00BFFF;font-weight:bold;"><i class="fa-solid fa-user" style="margin-right:6px;"></i>Olá, ${nome}</span>
+            <a href="#" id="btnSairNav" style="color:#DC143C;font-weight:bold;text-decoration:none;">(Sair)</a>
+            <a href="/meus-pedidos.html" style="color:#fff;font-weight:600;text-decoration:none;transition:0.2s;" onmouseover="this.style.color='#DC143C'" onmouseout="this.style.color='#fff'"><i class="fa-solid fa-box" style="margin-right:5px;"></i>Meus Pedidos</a>
+            <a href="/rastrear-pedido.html" style="color:#fff;font-weight:600;text-decoration:none;transition:0.2s;" onmouseover="this.style.color='#DC143C'" onmouseout="this.style.color='#fff'"><i class="fa-solid fa-truck" style="margin-right:5px;"></i>Rastrear</a>
+          </div>`;
+        document.getElementById('btnSairNav').addEventListener('click', function(e) {
+          e.preventDefault();
+          localStorage.removeItem('usuarioNome');
+          localStorage.removeItem('usuarioEmail');
+          window.location.href = '/index.html';
+        });
+      }
+    })();
+  </script>
 </body>
 </html>
