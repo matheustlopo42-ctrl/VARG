@@ -989,3 +989,5 @@ pool
     console.error("❌ Erro ao conectar no banco:", err.message);
     process.exit(1);
   });
+   
+ 
