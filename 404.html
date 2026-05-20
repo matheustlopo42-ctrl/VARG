@@ -7,12 +7,33 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; display: flex; justify-content: center; align-items: center; text-align: center; padding: 20px; }
-    .container { max-width: 500px; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      background-image: url('https://varg-bnlz.onrender.com/img/lobovinho.png');
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 400px;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(10,10,10,0.82);
+      z-index: 0;
+    }
+    .container { max-width: 500px; position: relative; z-index: 1; }
     .code { font-size: 8rem; font-weight: 900; color: #DC143C; line-height: 1; text-shadow: 0 0 40px rgba(220,20,60,0.4); }
-    .wolf { font-size: 4rem; margin: 20px 0; }
-    h1 { font-size: 1.8rem; margin-bottom: 10px; color: #fff; }
-    p { color: #666; font-size: 1rem; margin-bottom: 30px; line-height: 1.6; }
+    h1 { font-size: 1.8rem; margin: 20px 0 10px; color: #fff; }
+    p { color: #888; font-size: 1rem; margin-bottom: 30px; line-height: 1.6; }
     .buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
     .btn { padding: 12px 25px; border-radius: 25px; text-decoration: none; font-weight: bold; font-size: 0.95rem; transition: 0.3s; }
     .btn-primary { background: #DC143C; color: white; }
@@ -24,9 +45,8 @@
 <body>
   <div class="container">
     <div class="code">404</div>
-    <div class="wolf">🐺</div>
     <h1>Página não encontrada</h1>
-    <p>Esta página não existe ou foi removida. A matilha não encontrou o que você procura.</p>
+    <p>Esta página não existe ou foi removida.<br>A matilha não encontrou o que você procura.</p>
     <div class="buttons">
       <a href="/index.html" class="btn btn-primary"><i class="fa-solid fa-house" style="margin-right:8px;"></i>Voltar ao início</a>
       <a href="/rastrear-pedido.html" class="btn btn-secondary"><i class="fa-solid fa-truck" style="margin-right:8px;"></i>Rastrear pedido</a>
