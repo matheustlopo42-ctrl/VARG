@@ -126,6 +126,20 @@
           ? `<div class="pedido-entrega"><strong><i class="fa-solid fa-truck"></i> Endereço de Entrega</strong>${entrega.rua}, ${entrega.numero}${entrega.complemento ? ' ' + entrega.complemento : ''} — ${entrega.bairro}, ${entrega.cidade}/${entrega.estado} — CEP: ${entrega.cep}</div>`
           : '';
 
+        const envioStatusHtml = p.status_envio === 'enviado' && p.codigo_rastreio
+          ? `<div class="pedido-entrega" style="border-left-color:#00BFFF;margin-top:10px;">
+               <strong style="color:#00BFFF;"><i class="fa-solid fa-box"></i> Envio</strong>
+               <span style="color:#00ff88;font-weight:bold;">✅ Enviado</span><br>
+               <span>Código de rastreio: <b style="color:#fff;">${p.codigo_rastreio}</b></span><br>
+               <a href="https://rastreamento.correios.com.br/app/index.php?numero=${p.codigo_rastreio}" target="_blank" style="color:#00BFFF;font-size:0.9em;">🔍 Rastrear nos Correios →</a>
+             </div>`
+          : p.status === 'pago'
+            ? `<div class="pedido-entrega" style="margin-top:10px;">
+                 <strong><i class="fa-solid fa-box"></i> Envio</strong>
+                 <span style="color:orange;">⏳ Aguardando envio</span>
+               </div>`
+            : '';
+
         return `
           <div class="pedido-card">
             <div class="pedido-header">
@@ -138,6 +152,7 @@
             <div class="pedido-itens">${itensHtml}</div>
             <div class="pedido-total">Total: ${formatPrice(p.valor)}</div>
             ${entregaHtml}
+            ${envioStatusHtml}
           </div>`;
       }).join('');
     }

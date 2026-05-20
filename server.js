@@ -741,6 +741,11 @@ app.get("/admin", adminAuth, async (req, res) => {
              <input class="input-rastreio" id="rastreio_${p.id}" placeholder="Código dos Correios" /><br>
              <button class="btn-enviar" onclick="marcarEnviado(${p.id})">Marcar como Enviado</button>`
           : "-";
+      const envioFinalHtml = p.status_envio === 'enviado' && p.codigo_rastreio
+        ? `<span class="tag-enviado">✅ Enviado</span><br>
+           <small style="color:#aaa;margin-top:4px;display:block;">${p.codigo_rastreio}</small>
+           <a href="https://rastreamento.correios.com.br/app/index.php?numero=${p.codigo_rastreio}" target="_blank" style="color:#00BFFF;font-size:0.8em;text-decoration:none;display:block;margin-top:4px;">🔍 Rastrear nos Correios</a>`
+        : envioHtml;
       html += `<tr>
         <td style="font-size:0.75em">${p.payment_id || "-"}</td>
         <td>${p.cliente_nome || "-"}</td>
@@ -749,7 +754,7 @@ app.get("/admin", adminAuth, async (req, res) => {
         <td>R$ ${parseFloat(p.valor || 0).toFixed(2)}</td>
         <td>${entregaHtml}</td>
         <td class="${p.status}">${p.status === 'pago' ? '✅ Pago' : p.status}</td>
-        <td>${envioHtml}</td>
+        <td>${p.status_envio === 'enviado' && p.codigo_rastreio ? envioFinalHtml : envioHtml}</td>
         <td>${new Date(p.criado_em).toLocaleString("pt-BR")}</td>
       </tr>`;
     });
@@ -836,6 +841,24 @@ app.get("/test-whatsapp-pedido", async (req, res) => {
     res.status(500).send("Erro: " + err.message);
   }
 });
+
+// ==================== LIMPEZA PEDIDOS PENDENTES ====================
+// Roda a cada 6 horas para limpar pedidos PIX_PENDING com mais de 24h
+setInterval(async () => {
+  try {
+    const result = await pool.query(
+      `DELETE FROM pedidos 
+       WHERE payment_id LIKE 'PIX_PENDING_%' 
+       AND status = 'pendente' 
+       AND criado_em < NOW() - INTERVAL '24 hours'`
+    );
+    if (result.rowCount > 0) {
+      console.log(`🧹 ${result.rowCount} pedido(s) pendente(s) removido(s)`);
+    }
+  } catch (err) {
+    console.error("Erro na limpeza de pendentes:", err.message);
+  }
+}, 6 * 60 * 60 * 1000);
 
 // ==================== 404 ====================
 app.use((req, res) => {
