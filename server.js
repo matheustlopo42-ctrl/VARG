@@ -739,13 +739,31 @@ app.get("/admin", adminAuth, async (req, res) => {
 
       function exportarExcel() {
         const table = document.getElementById('tabelaPedidos');
+        if (!table) { alert('Tabela nao encontrada'); return; }
         let csv = [];
         const rows = table.querySelectorAll('tr');
-        rows.forEach(row => {
+        rows.forEach(function(row) {
           const cols = row.querySelectorAll('th, td');
-          const rowData = Array.from(cols).map(col => '"' + col.innerText.replace(/"/g, '""').replace(/\n/g, ' ') + '"');
+          const rowData = [];
+          cols.forEach(function(col) {
+            let txt = col.innerText || '';
+            txt = txt.split('"').join('""');
+            txt = txt.split(String.fromCharCode(10)).join(' ');
+            rowData.push('"' + txt + '"');
+          });
           csv.push(rowData.join(','));
         });
+        const bom = String.fromCharCode(0xFEFF);
+        const csvStr = bom + csv.join('\n');
+        const blob = new Blob([csvStr], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'pedidos_varg.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
         const blob = new Blob(['﻿' + csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
@@ -989,5 +1007,3 @@ pool
     console.error("❌ Erro ao conectar no banco:", err.message);
     process.exit(1);
   });
-   
- 
