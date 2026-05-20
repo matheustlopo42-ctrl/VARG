@@ -837,6 +837,11 @@ app.get("/test-whatsapp-pedido", async (req, res) => {
   }
 });
 
+// ==================== 404 ====================
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname, "404.html"));
+});
+
 // ==================== INICIAR ====================
 pool
   .connect()
