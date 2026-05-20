@@ -151,6 +151,77 @@ app.post("/cadastro", async (req, res) => {
   }
 });
 
+// ==================== ESQUECI MINHA SENHA ====================
+app.post("/esqueci-senha", async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.json({ success: false, message: "Informe o e-mail." });
+
+  try {
+    const result = await pool.query("SELECT * FROM usuarios WHERE email = $1", [email]);
+    if (result.rows.length === 0)
+      return res.json({ success: false, message: "E-mail não encontrado." });
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+
+    await pool.query(
+      "UPDATE usuarios SET reset_token = $1, reset_expires = $2 WHERE email = $3",
+      [token, expires, email]
+    );
+
+    const resetLink = `${BASE_URL}/redefinir-senha.html?token=${token}`;
+
+    await enviarEmail({
+      to: email,
+      subject: "🐺 VARG — Redefinição de senha",
+      html: `
+        <h2 style="color:#DC143C">🐺 Redefinição de Senha</h2>
+        <p>Olá, ${result.rows[0].nome}!</p>
+        <p>Recebemos uma solicitação para redefinir sua senha.</p>
+        <p>Clique no botão abaixo para criar uma nova senha:</p>
+        <p style="margin:25px 0;">
+          <a href="${resetLink}" style="background:#DC143C;color:white;padding:12px 25px;border-radius:25px;text-decoration:none;font-weight:bold;">
+            Redefinir Senha
+          </a>
+        </p>
+        <p style="color:#888;font-size:0.9em;">Este link expira em 1 hora. Se você não solicitou, ignore este email.</p>
+      `,
+    });
+
+    res.json({ success: true, message: "Email enviado! Verifique sua caixa de entrada." });
+  } catch (err) {
+    console.error("Erro esqueci-senha:", err);
+    res.json({ success: false, message: "Erro interno do servidor." });
+  }
+});
+
+app.post("/redefinir-senha", async (req, res) => {
+  const { token, novaSenha } = req.body;
+  if (!token || !novaSenha)
+    return res.json({ success: false, message: "Dados incompletos." });
+
+  try {
+    const result = await pool.query(
+      "SELECT * FROM usuarios WHERE reset_token = $1 AND reset_expires > NOW()",
+      [token]
+    );
+
+    if (result.rows.length === 0)
+      return res.json({ success: false, message: "Link inválido ou expirado." });
+
+    const hash = await bcrypt.hash(novaSenha, 10);
+    await pool.query(
+      "UPDATE usuarios SET senha = $1, reset_token = NULL, reset_expires = NULL WHERE reset_token = $2",
+      [hash, token]
+    );
+
+    res.json({ success: true, message: "Senha redefinida com sucesso!" });
+  } catch (err) {
+    console.error("Erro redefinir-senha:", err);
+    res.json({ success: false, message: "Erro interno do servidor." });
+  }
+});
+
 // ==================== PIX (PixGo) ====================
 app.post("/pix", async (req, res) => {
   const amountCents = parseInt(req.body.amount ?? 3990);

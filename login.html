@@ -88,8 +88,59 @@
 
     document.getElementById('linkEsqueceuSenha').addEventListener('click', function(e) {
       e.preventDefault();
-      alert('Para redefinir sua senha, entre em contato pelo e-mail: contato@vargmatilha.com.br');
+      document.getElementById('modalEsqueceuSenha').style.display = 'flex';
+    });
+
+    document.getElementById('btnEnviarReset').addEventListener('click', async function() {
+      const email = document.getElementById('emailReset').value.trim();
+      const msg = document.getElementById('msgReset');
+      msg.style.display = 'none';
+
+      if (!email) { msg.textContent = 'Digite seu e-mail.'; msg.style.color = '#ff4d4d'; msg.style.display = 'block'; return; }
+
+      this.disabled = true;
+      this.textContent = 'Enviando...';
+
+      try {
+        const res = await fetch('/esqueci-senha', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        msg.textContent = data.message;
+        msg.style.color = data.success ? '#00ff88' : '#ff4d4d';
+        msg.style.display = 'block';
+        if (data.success) {
+          this.textContent = 'Enviado!';
+        } else {
+          this.disabled = false;
+          this.textContent = 'Enviar Link';
+        }
+      } catch(err) {
+        msg.textContent = 'Erro ao conectar com o servidor.';
+        msg.style.color = '#ff4d4d';
+        msg.style.display = 'block';
+        this.disabled = false;
+        this.textContent = 'Enviar Link';
+      }
+    });
+
+    document.getElementById('fecharModalReset').addEventListener('click', function() {
+      document.getElementById('modalEsqueceuSenha').style.display = 'none';
     });
   </script>
+
+  <!-- MODAL ESQUECI SENHA -->
+  <div id="modalEsqueceuSenha" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;justify-content:center;align-items:center;">
+    <div style="background:#141414;border:1px solid #333;border-radius:16px;padding:35px 30px;width:90%;max-width:400px;position:relative;">
+      <button id="fecharModalReset" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#888;font-size:1.5rem;cursor:pointer;">&times;</button>
+      <h3 style="color:#DC143C;margin-bottom:8px;font-size:1.3rem;">Esqueci minha senha</h3>
+      <p style="color:#aaa;font-size:0.9rem;margin-bottom:20px;">Digite seu e-mail e enviaremos um link para redefinir sua senha.</p>
+      <input id="emailReset" type="email" placeholder="Seu e-mail" style="width:100%;padding:12px 14px;background:#111;border:1px solid #333;border-radius:10px;color:#fff;font-size:1rem;outline:none;margin-bottom:12px;" />
+      <button id="btnEnviarReset" style="width:100%;background:#DC143C;color:#fff;border:none;padding:12px;border-radius:10px;font-size:1rem;font-weight:bold;cursor:pointer;">Enviar Link</button>
+      <p id="msgReset" style="display:none;margin-top:12px;font-size:0.9rem;text-align:center;"></p>
+    </div>
+  </div>
 </body>
 </html>
