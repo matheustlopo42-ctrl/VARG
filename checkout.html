@@ -261,10 +261,14 @@ async function generatePix(valor, cart) {
     setStatus('Gerando QR Code PIX...', true);
     try {
         const entrega = getEntrega();
+        const pedidoId = Date.now();
+        localStorage.setItem('pedidoId', String(pedidoId).slice(-6));
+        localStorage.setItem('metodoPagamento', 'PIX');
+
         const res = await fetch('/pix', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: Math.round(valor * 100), cart, entrega, nome: entrega.nome })
+            body: JSON.stringify({ amount: Math.round(valor * 100), cart, entrega, nome: entrega.nome, pedidoId })
         });
         const data = await res.json();
         if (data.success && data.pix_code) {

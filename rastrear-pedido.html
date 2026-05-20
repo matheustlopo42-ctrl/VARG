@@ -413,10 +413,15 @@
         <div class="search-box">
             <label><i class="fa-solid fa-magnifying-glass"></i> Digite o código de rastreio</label>
             <div class="search-input-group">
-                <input type="text" id="trackingCode" placeholder="Ex: VARG-0000 ou código dos Correios">
+                <input type="text" id="trackingCode" placeholder="Ex: 203411 (número do pedido)" onkeypress="if(event.key==='Enter') buscarRastreio()">
                 <button onclick="buscarRastreio()"><i class="fa-solid fa-arrow-right"></i></button>
             </div>
         </div>
+        <div id="resultadoRastreio" style="display:none; background:#1a1a1a; border-left:5px solid #DC143C; padding:25px; margin-bottom:30px;">
+            <h3 style="color:#fff; margin-bottom:15px; text-transform:uppercase; letter-spacing:1px;">📦 Resultado da Busca</h3>
+            <div id="rastreioConteudo"></div>
+        </div>
+
         <div class="info-cards">
             <div class="info-card">
                 <h3><i class="fa-solid fa-envelope"></i> Não tem o código?</h3>
@@ -625,13 +630,62 @@
         function closePaymentModal() {
             document.getElementById('paymentModal').style.display = 'none';
         }
-        function buscarRastreio() {
+        async function buscarRastreio() {
             const codigo = document.getElementById('trackingCode').value.trim();
-            if (!codigo) {
-                alert("Digite um código de rastreio!");
-                return;
+            if (!codigo) { alert("Digite um número de pedido!"); return; }
+
+            const resultado = document.getElementById('resultadoRastreio');
+            const conteudo = document.getElementById('rastreioConteudo');
+            resultado.style.display = 'block';
+            conteudo.innerHTML = '<p style="color:#888;">Buscando...</p>';
+
+            try {
+                const res = await fetch('/api/pedidos');
+                const todos = await res.json();
+
+                // Busca por pedidoId (últimos 6 dígitos do external_id) ou external_id completo
+                const pedido = todos.find(p =>
+                    p.external_id && (
+                        p.external_id.slice(-6) === codigo.replace('#','') ||
+                        p.external_id === codigo ||
+                        p.external_id.toLowerCase().includes(codigo.toLowerCase())
+                    )
+                );
+
+                if (!pedido) {
+                    conteudo.innerHTML = '<p style="color:#ff4d4d;">❌ Pedido não encontrado. Verifique o número e tente novamente.</p>';
+                    return;
+                }
+
+                const formatPrice = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);
+                let itens = [];
+                try { itens = JSON.parse(pedido.itens || '[]'); } catch(e) {}
+                let entrega = null;
+                try { entrega = pedido.entrega ? JSON.parse(pedido.entrega) : null; } catch(e) {}
+
+                const statusColor = pedido.status === 'pago' ? '#00ff88' : 'orange';
+                const statusTexto = pedido.status === 'pago' ? '✅ Pago — Aguardando envio' : '⏳ Pendente';
+
+                const itensHtml = itens.length > 0
+                    ? itens.map(i => `<li>${i.quantidade}x ${i.nome}</li>`).join('')
+                    : '<li>Produto VARG</li>';
+
+                const entregaHtml = entrega
+                    ? `<p style="margin-top:10px;color:#aaa;"><b style="color:#fff;">Endereço:</b> ${entrega.rua}, ${entrega.numero}${entrega.complemento ? ' ' + entrega.complemento : ''} — ${entrega.bairro}, ${entrega.cidade}/${entrega.estado} — CEP: ${entrega.cep}</p>`
+                    : '';
+
+                conteudo.innerHTML = `
+                    <p><b style="color:#aaa;">Pedido:</b> <span style="color:#DC143C;font-weight:bold;">#${pedido.external_id.slice(-6)}</span></p>
+                    <p style="margin-top:8px;"><b style="color:#aaa;">Status:</b> <span style="color:${statusColor};font-weight:bold;">${statusTexto}</span></p>
+                    <p style="margin-top:8px;"><b style="color:#aaa;">Data:</b> ${new Date(pedido.criado_em).toLocaleString('pt-BR')}</p>
+                    <p style="margin-top:8px;"><b style="color:#aaa;">Valor:</b> ${formatPrice(pedido.valor)}</p>
+                    <p style="margin-top:8px;"><b style="color:#aaa;">Produtos:</b></p>
+                    <ul style="margin-left:20px;color:#ccc;">${itensHtml}</ul>
+                    ${entregaHtml}
+                `;
+            } catch(e) {
+                conteudo.innerHTML = '<p style="color:#ff4d4d;">❌ Erro ao buscar pedido. Tente novamente.</p>';
             }
-            alert("Pedido " + codigo + " encontrado! O status atual será exibido em breve.\n\nEnquanto isso, verifique seu e-mail para mais detalhes.");
         }
 
         window.onload = function() {

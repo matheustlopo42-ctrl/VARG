@@ -13,8 +13,9 @@
         .success-check { font-size: 4em; display: block; color: #00ff00; margin-bottom: 20px; }
         .success-section h1 { color: #00BFFF; margin: 20px 0; font-size: 2.5em; }
         .success-section p.subtitle { color: #ccc; font-size: 1.1em; margin-bottom: 10px; }
-        .success-section p.order-number { color: #00BFFF; font-size: 1.2em; font-weight: bold; margin: 10px 0; }
+        .success-section p.order-number { color: #00BFFF; font-size: 1.4em; font-weight: bold; margin: 15px 0; background: rgba(0,191,255,0.1); padding: 10px 20px; border-radius: 10px; display: inline-block; }
         .success-section p.message { color: #aaa; font-size: 1em; }
+        .rastrear-hint { color: #888; font-size: 0.9em; margin-top: 8px; }
         h2 { color: #eee; margin-top: 0; margin-bottom: 20px; font-size: 1.8em; }
         .item-card { display: flex; align-items: center; gap: 15px; padding: 15px; border-left: 4px solid #00BFFF; background: rgba(0,191,255,0.05); border-radius: 10px; margin-bottom: 15px; }
         .item-img { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; }
@@ -30,6 +31,7 @@
         .btn:hover { opacity: 0.9; }
         .btn-continue { background: #00BFFF; }
         .btn-orders { background: #25D366; }
+        .btn-rastrear { background: #DC143C; }
         .footer { text-align: center; color: #555; padding: 20px; font-size: 0.9em; border-top: 1px solid #333; margin-top: 30px; }
     </style>
 </head>
@@ -39,13 +41,14 @@
             <span class="success-check">✅</span>
             <h1>Pedido Confirmado!</h1>
             <p class="subtitle">Seu pagamento foi aprovado com sucesso.</p>
-            <p class="order-number" id="orderNumber">Pedido #VARG-0000</p>
-            <p class="message">Em breve você receberá uma confirmação com os detalhes do seu pedido.</p>
+            <p class="order-number" id="orderNumber">Pedido #000000</p>
+            <p class="rastrear-hint">Guarde este número para rastrear seu pedido.</p>
+            <p class="message" style="margin-top:10px;">Em breve você receberá uma confirmação com os detalhes do seu pedido.</p>
         </div>
 
-        <div class="section" id="resumo">
+        <div class="section">
             <h2>Resumo do Pedido</h2>
-            <div class="resumo-items" id="resumo-items"></div>
+            <div id="resumo-items"></div>
             <div class="total-line">Total: <strong id="total-value">R$ 0,00</strong></div>
         </div>
 
@@ -60,7 +63,8 @@
 
         <div class="button-group">
             <a href="index.html" class="btn btn-continue">Continuar Comprando</a>
-            <a href="meus-pedidos.html" class="btn btn-orders">Ver Meus Pedidos</a>
+            <a href="meus-pedidos.html" class="btn btn-orders">Meus Pedidos</a>
+            <a href="rastrear-pedido.html" class="btn btn-rastrear">Rastrear Pedido</a>
         </div>
 
         <div class="footer">© 2026 VARG - A Matilha. Todos os direitos reservados.</div>
@@ -72,11 +76,9 @@
             const formatPrice = (num) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(num);
             const total = cart.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
 
-            // Número do pedido baseado no timestamp
-            const pedidoNum = localStorage.getItem('ultimoPedidoId') || ('VARG-' + Date.now().toString().slice(-6));
-            document.getElementById('orderNumber').textContent = 'Pedido #' + pedidoNum;
+            const pedidoId = localStorage.getItem('pedidoId') || '000000';
+            document.getElementById('orderNumber').textContent = 'Pedido #' + pedidoId;
 
-            // Método de pagamento
             const metodo = localStorage.getItem('metodoPagamento') || 'PIX';
             document.getElementById('metodoPagamento').textContent = metodo;
 
@@ -100,10 +102,9 @@
                 `).join('');
             }
 
-            // Limpa o carrinho após exibir
             localStorage.removeItem('carrinho');
             localStorage.removeItem('metodoPagamento');
-            localStorage.removeItem('ultimoPedidoId');
+            localStorage.removeItem('pedidoId');
         });
     </script>
 </body>
