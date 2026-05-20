@@ -149,6 +149,7 @@ const formatPrice = v => new Intl.NumberFormat('pt-BR',{style:'currency',currenc
 const usuarioLogado = localStorage.getItem('usuarioNome');
 if (!usuarioLogado) {
     localStorage.setItem('redirectAposLogin', 'checkout.html');
+    localStorage.setItem('mensagemLogin', 'Para finalizar sua compra, faça login ou crie uma conta.');
     window.location.href = '/login.html';
 }
 
