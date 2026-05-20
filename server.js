@@ -688,11 +688,24 @@ app.get("/admin", adminAuth, async (req, res) => {
     const result = await pool.query(
       "SELECT * FROM pedidos ORDER BY criado_em DESC",
     );
+    const tk = req.query.token || '';
     let html = `<html><head><title>Admin VARG</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-      body{font-family:Arial;padding:40px;background:#0a0a0a;color:#eee;}
+      *{margin:0;padding:0;box-sizing:border-box;}
+      body{font-family:Arial;background:#0a0a0a;color:#eee;padding-top:70px;}
+      header{position:fixed;top:0;width:100%;background:rgba(0,0,0,0.95);padding:12px 25px;display:flex;justify-content:space-between;align-items:center;z-index:1000;border-bottom:1px solid #222;font-size:15px;}
+      nav ul{list-style:none;display:flex;gap:25px;align-items:center;}
+      nav ul li a{color:#fff;font-weight:600;text-decoration:none;transition:0.3s;font-size:15px;}
+      nav ul li a:hover{color:#DC143C;}
+      .main{padding:30px 40px;}
       h1{color:#DC143C;margin-bottom:5px;}
-      p{color:#888;margin-bottom:20px;}
+      .top-bar{display:flex;align-items:center;gap:20px;margin-bottom:20px;flex-wrap:wrap;}
+      .top-bar p{color:#888;font-size:0.9em;}
+      .btn-cupons{background:#00BFFF;color:#111;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:0.85em;text-decoration:none;display:inline-block;}
+      .btn-cupons:hover{background:#00a8d8;}
+      .btn-excel{background:#1D6F42;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:0.85em;}
+      .btn-excel:hover{background:#155232;}
       table{width:100%;border-collapse:collapse;background:#1a1a1a;}
       th{background:#DC143C;color:white;padding:12px;text-align:left;}
       td{padding:10px 12px;border-bottom:1px solid #333;font-size:0.9em;vertical-align:top;}
@@ -704,6 +717,9 @@ app.get("/admin", adminAuth, async (req, res) => {
       .input-rastreio{background:#222;border:1px solid #444;color:#eee;padding:5px 8px;border-radius:4px;font-size:0.8em;width:160px;margin-bottom:5px;display:block;}
       .tag-enviado{background:rgba(0,191,255,0.15);color:#00BFFF;border:1px solid #00BFFF;padding:3px 8px;border-radius:12px;font-size:0.8em;}
       .tag-aguardando{background:rgba(255,165,0,0.15);color:orange;border:1px solid orange;padding:3px 8px;border-radius:12px;font-size:0.8em;}
+      footer{background:#050505;padding:30px 40px;border-top:1px solid #222;color:#888;font-size:0.85em;text-align:center;margin-top:40px;}
+      footer a{color:#333;text-decoration:none;font-size:0.75em;}
+      footer a:hover{color:#555;}
     </style>
     <script>
       const adminToken = new URLSearchParams(window.location.search).get('token') || localStorage.getItem('adminToken') || '';
@@ -720,11 +736,40 @@ app.get("/admin", adminAuth, async (req, res) => {
         if (data.success) { location.reload(); }
         else { alert('Erro ao atualizar!'); }
       }
+
+      function exportarExcel() {
+        const table = document.getElementById('tabelaPedidos');
+        let csv = [];
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(row => {
+          const cols = row.querySelectorAll('th, td');
+          const rowData = Array.from(cols).map(col => '"' + col.innerText.replace(/"/g, '""').replace(/\n/g, ' ') + '"');
+          csv.push(rowData.join(','));
+        });
+        const blob = new Blob(['﻿' + csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'pedidos_varg.csv';
+        link.click();
+      }
     </script>
     </head><body>
+    <header>
+      <nav><ul>
+        <li><a href="/index.html">Início</a></li>
+        <li><a href="/admin?token=${tk}" style="color:#DC143C;font-weight:bold;">Pedidos</a></li>
+        <li><a href="/admin-cupons.html?token=${tk}" style="color:#00BFFF;">🏷️ Cupons</a></li>
+      </ul></nav>
+      <a href="/admin-login" style="color:#888;font-size:0.85em;text-decoration:none;">Sair</a>
+    </header>
+    <div class="main">
     <h1>🐺 Pedidos VARG</h1>
-    <p>Total: ${result.rows.length} pedido(s) &nbsp;|&nbsp; <a href="/admin-cupons.html?token=${req.query.token || ''}" style="color:#00BFFF;font-size:0.9em;">🏷️ Gerenciar Cupons</a></p>
-    <table><tr>
+    <div class="top-bar">
+      <p>Total: ${result.rows.length} pedido(s)</p>
+      <a href="/admin-cupons.html?token=${tk}" class="btn-cupons">🏷️ Gerenciar Cupons</a>
+      <button class="btn-excel" onclick="exportarExcel()">📊 Exportar Excel</button>
+    </div>
+    <table id="tabelaPedidos"><tr>
       <th>ID Pagamento</th><th>Cliente</th><th>Email</th>
       <th>Produtos</th><th>Valor</th><th>Entrega</th><th>Status Pgto</th><th>Envio</th><th>Data</th>
     </tr>`;
@@ -763,7 +808,12 @@ app.get("/admin", adminAuth, async (req, res) => {
         <td>${new Date(p.criado_em).toLocaleString("pt-BR")}</td>
       </tr>`;
     });
-    html += `</table></body></html>`;
+    html += `</table></div>
+    <footer>
+      © 2026 VARG - A Matilha. Todos os direitos reservados. &nbsp;|&nbsp;
+      <a href="/admin-login">Sair do Admin</a>
+    </footer>
+    </body></html>`;
     res.send(html);
   } catch (err) {
     res.status(500).send("Erro ao carregar pedidos: " + err.message);
