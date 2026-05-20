@@ -43,11 +43,20 @@
   </style>
 </head>
 <body>
+  <header style="position:fixed;top:0;width:100%;background:rgba(0,0,0,0.95);padding:12px 25px;display:flex;justify-content:space-between;align-items:center;z-index:1000;border-bottom:1px solid #222;font-size:15px;">
+    <nav><ul style="list-style:none;display:flex;gap:25px;align-items:center;">
+      <li><a href="/index.html" style="color:#fff;font-weight:600;text-decoration:none;">Início</a></li>
+      <li><a href="#" id="linkPedidos" style="color:#fff;font-weight:600;text-decoration:none;">Pedidos</a></li>
+      <li><a href="#" style="color:#00BFFF;font-weight:600;text-decoration:none;">🏷️ Cupons</a></li>
+    </ul></nav>
+    <a href="/admin-login" style="color:#888;font-size:0.85em;text-decoration:none;">Sair</a>
+  </header>
+
+  <div style="padding:90px 40px 40px;">
   <h1>🐺 Cupons de Desconto</h1>
   <p class="subtitle">Gerencie os cupons de parceiros e promoções</p>
-
-  <div class="nav-links">
-    <a href="/admin?token=${getToken()}">← Voltar aos Pedidos</a>
+  <div class="nav-links" style="margin-bottom:20px;">
+    <a href="#" id="linkPedidos2">← Voltar aos Pedidos</a>
   </div>
 
   <div class="form-card">
@@ -89,8 +98,9 @@
 
     function getToken() { return token; }
 
-    // Fix nav link
-    document.querySelector('.nav-links a').href = '/admin?token=' + token;
+    // Fix nav links
+    document.getElementById('linkPedidos').href = '/admin?token=' + token;
+    document.getElementById('linkPedidos2').href = '/admin?token=' + token;
 
     async function carregarCupons() {
       try {
@@ -160,5 +170,10 @@
 
     carregarCupons();
   </script>
+  </div>
+  <footer style="background:#050505;padding:30px 40px;border-top:1px solid #222;color:#888;font-size:0.85em;text-align:center;margin-top:40px;">
+    © 2026 VARG - A Matilha. Todos os direitos reservados. &nbsp;|&nbsp;
+    <a href="/admin-login" style="color:#333;text-decoration:none;">Sair do Admin</a>
+  </footer>
 </body>
 </html>
