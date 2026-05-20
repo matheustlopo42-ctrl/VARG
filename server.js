@@ -721,56 +721,7 @@ app.get("/admin", adminAuth, async (req, res) => {
       footer a{color:#333;text-decoration:none;font-size:0.75em;}
       footer a:hover{color:#555;}
     </style>
-    <script>
-      const adminToken = new URLSearchParams(window.location.search).get('token') || localStorage.getItem('adminToken') || '';
-      async function marcarEnviado(id) {
-        const input = document.getElementById('rastreio_' + id);
-        const codigo = input ? input.value.trim() : '';
-        if (!codigo) { alert('Digite o código de rastreio!'); return; }
-        const res = await fetch('/api/pedidos/' + id + '/envio', {
-          method: 'POST',
-          headers: {'Content-Type':'application/json', 'x-admin-token': adminToken},
-          body: JSON.stringify({ codigo_rastreio: codigo, status_envio: 'enviado' })
-        });
-        const data = await res.json();
-        if (data.success) { location.reload(); }
-        else { alert('Erro ao atualizar!'); }
-      }
-
-      function exportarExcel() {
-        const table = document.getElementById('tabelaPedidos');
-        if (!table) { alert('Tabela nao encontrada'); return; }
-        let csv = [];
-        const rows = table.querySelectorAll('tr');
-        rows.forEach(function(row) {
-          const cols = row.querySelectorAll('th, td');
-          const rowData = [];
-          cols.forEach(function(col) {
-            let txt = col.innerText || '';
-            txt = txt.split('"').join('""');
-            txt = txt.split(String.fromCharCode(10)).join(' ');
-            rowData.push('"' + txt + '"');
-          });
-          csv.push(rowData.join(','));
-        });
-        const bom = String.fromCharCode(0xFEFF);
-        const csvStr = bom + csv.join('\n');
-        const blob = new Blob([csvStr], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.setAttribute('href', url);
-        link.setAttribute('download', 'pedidos_varg.csv');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
-        const blob = new Blob(['﻿' + csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'pedidos_varg.csv';
-        link.click();
-      }
-    </script>
+    <script src="/admin-scripts.js"></script>
     </head><body>
     <header>
       <nav><ul>
