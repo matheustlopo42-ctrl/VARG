@@ -68,15 +68,30 @@
         <p>Ver produtos da loja</p>
       </a>
     </div>
+
+    <div id="adminArea" style="display:none; margin-top:30px; padding-top:30px; border-top:1px solid #222;">
+      <p style="color:#555; font-size:0.85em; margin-bottom:15px; text-transform:uppercase; letter-spacing:1px;">Área Restrita</p>
+      <a href="/admin-login" style="color:#DC143C; text-decoration:none; font-size:0.9em; font-weight:bold;">
+        <i class="fa-solid fa-lock" style="margin-right:6px;"></i>Painel Administrativo
+      </a>
+    </div>
+    <div style="display:none">
+    </div>
   </div>
 
   <script>
     const nome = localStorage.getItem('usuarioNome');
+    const email = localStorage.getItem('usuarioEmail');
     if (!nome) {
       window.location.href = '/login.html';
     } else {
       document.getElementById('userName').textContent = nome;
       document.getElementById('nomeUsuario').textContent = nome;
+      // Mostra área admin para emails autorizados
+      const admins = ['matheustlopo42@gmail.com', 'varg.oficialstore@gmail.com', 'varg.oficial@outlook.com'];
+      if (email && admins.includes(email.toLowerCase())) {
+        document.getElementById('adminArea').style.display = 'block';
+      }
     }
 
     document.getElementById('btnSair').addEventListener('click', (e) => {

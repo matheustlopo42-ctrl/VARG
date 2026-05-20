@@ -68,6 +68,8 @@ async function enviarEmail({ to, subject, html }) {
   if (error) throw new Error(JSON.stringify(error));
 }
 
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "159357456258";
+
 // ==================== WHATSAPP (CallMeBot) ====================
 async function enviarWhatsApp(mensagem) {
   if (!WA_APIKEY)
@@ -567,7 +569,7 @@ app.post("/webhook/mercadopago", async (req, res) => {
 });
 
 // ==================== ATUALIZAR ENVIO ====================
-app.post("/api/pedidos/:id/envio", async (req, res) => {
+app.post("/api/pedidos/:id/envio", adminAuth, async (req, res) => {
   const { id } = req.params;
   const { codigo_rastreio, status_envio } = req.body;
   try {
@@ -594,8 +596,32 @@ app.get("/api/pedidos", async (req, res) => {
   }
 });
 
+// ==================== ADMIN LOGIN ====================
+app.get("/admin-login", (req, res) => {
+  res.sendFile(path.join(__dirname, "admin-login.html"));
+});
+
+app.post("/admin-login", (req, res) => {
+  const { senha } = req.body;
+  if (senha === ADMIN_PASSWORD) {
+    res.json({ success: true, token: Buffer.from("admin:" + ADMIN_PASSWORD).toString("base64") });
+  } else {
+    res.json({ success: false, message: "Senha incorreta." });
+  }
+});
+
+function adminAuth(req, res, next) {
+  const auth = req.headers["x-admin-token"];
+  const expected = Buffer.from("admin:" + ADMIN_PASSWORD).toString("base64");
+  if (auth === expected) return next();
+  // Check query param for direct browser access
+  const tokenQuery = req.query.token;
+  if (tokenQuery === expected) return next();
+  res.redirect("/admin-login");
+}
+
 // ==================== PAINEL ADMIN ====================
-app.get("/admin", async (req, res) => {
+app.get("/admin", adminAuth, async (req, res) => {
   try {
     const result = await pool.query(
       "SELECT * FROM pedidos ORDER BY criado_em DESC",
@@ -618,13 +644,14 @@ app.get("/admin", async (req, res) => {
       .tag-aguardando{background:rgba(255,165,0,0.15);color:orange;border:1px solid orange;padding:3px 8px;border-radius:12px;font-size:0.8em;}
     </style>
     <script>
+      const adminToken = new URLSearchParams(window.location.search).get('token') || localStorage.getItem('adminToken') || '';
       async function marcarEnviado(id) {
         const input = document.getElementById('rastreio_' + id);
         const codigo = input ? input.value.trim() : '';
         if (!codigo) { alert('Digite o código de rastreio!'); return; }
         const res = await fetch('/api/pedidos/' + id + '/envio', {
           method: 'POST',
-          headers: {'Content-Type':'application/json'},
+          headers: {'Content-Type':'application/json', 'x-admin-token': adminToken},
           body: JSON.stringify({ codigo_rastreio: codigo, status_envio: 'enviado' })
         });
         const data = await res.json();
