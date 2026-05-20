@@ -757,17 +757,17 @@ function verificarUsuario() {
     const authLink = document.getElementById('authLink');
     if (nomeLogado && authLink) {
         authLink.parentElement.innerHTML = `
-            <div style="display: inline-flex; align-items: center; gap: 12px; white-space: nowrap; vertical-align: middle; flex-wrap: wrap;">
+            <div style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; vertical-align: middle; flex-wrap: wrap;">
                 <span style="color: #00BFFF; font-weight: bold;">
                     <i class="fa-solid fa-user" style="margin-right: 6px;"></i>Olá, ${nomeLogado}
                 </span>
-                <a href="/meus-pedidos.html" style="color: #fff; font-size: 0.9em; font-weight: bold; text-decoration: none; border: 1px solid #444; padding: 4px 10px; border-radius: 20px; transition: 0.2s;" onmouseover="this.style.borderColor='#00BFFF'" onmouseout="this.style.borderColor='#444'">
+                <a href="#" id="btnLogout" style="color: #DC143C; font-size: 0.85em; cursor: pointer; font-weight: bold; text-decoration: none;">(Sair)</a>
+                <a href="/meus-pedidos.html" style="color: #fff; font-size: 0.85em; font-weight: bold; text-decoration: none; border: 1px solid #333; padding: 4px 10px; border-radius: 20px; transition: 0.2s;" onmouseover="this.style.borderColor='#00BFFF'" onmouseout="this.style.borderColor='#333'">
                     <i class="fa-solid fa-box" style="margin-right: 5px;"></i>Meus Pedidos
                 </a>
-                <a href="/rastrear-pedido.html" style="color: #fff; font-size: 0.9em; font-weight: bold; text-decoration: none; border: 1px solid #444; padding: 4px 10px; border-radius: 20px; transition: 0.2s;" onmouseover="this.style.borderColor='#25D366'" onmouseout="this.style.borderColor='#444'">
+                <a href="/rastrear-pedido.html" style="color: #fff; font-size: 0.85em; font-weight: bold; text-decoration: none; border: 1px solid #333; padding: 4px 10px; border-radius: 20px; transition: 0.2s;" onmouseover="this.style.borderColor='#25D366'" onmouseout="this.style.borderColor='#333'">
                     <i class="fa-solid fa-truck" style="margin-right: 5px;"></i>Rastrear
                 </a>
-                <a href="#" id="btnLogout" style="color: #DC143C; font-size: 0.85em; cursor: pointer; font-weight: bold; text-decoration: none;">(Sair)</a>
             </div>`;
         document.getElementById('btnLogout').addEventListener('click', (e) => {
             e.preventDefault();
