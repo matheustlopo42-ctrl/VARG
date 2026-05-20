@@ -145,6 +145,13 @@
 <script>
 const formatPrice = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);
 
+// Verifica se está logado
+const usuarioLogado = localStorage.getItem('usuarioNome');
+if (!usuarioLogado) {
+    localStorage.setItem('redirectAposLogin', 'checkout.html');
+    window.location.href = '/login.html';
+}
+
 function setStatus(msg, loading = false) {
     document.getElementById('status').innerHTML = loading
         ? '<span class="spinner"></span>'+msg : msg;
