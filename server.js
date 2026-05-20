@@ -566,6 +566,22 @@ app.post("/webhook/mercadopago", async (req, res) => {
   }
 });
 
+// ==================== ATUALIZAR ENVIO ====================
+app.post("/api/pedidos/:id/envio", async (req, res) => {
+  const { id } = req.params;
+  const { codigo_rastreio, status_envio } = req.body;
+  try {
+    await pool.query(
+      "UPDATE pedidos SET codigo_rastreio = $1, status_envio = $2 WHERE id = $3",
+      [codigo_rastreio || null, status_envio || "enviado", id]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Erro ao atualizar envio:", err);
+    res.status(500).json({ success: false });
+  }
+});
+
 // ==================== ROTAS DE PEDIDOS ====================
 app.get("/api/pedidos", async (req, res) => {
   try {
