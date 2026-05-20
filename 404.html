@@ -9,7 +9,6 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
-      background: #0a0a0a;
       color: #fff;
       min-height: 100vh;
       display: flex;
@@ -17,23 +16,20 @@
       align-items: center;
       text-align: center;
       padding: 20px;
-      background-image: url('https://varg-bnlz.onrender.com/img/lobovinho.png');
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: 400px;
+      background: url('https://varg-bnlz.onrender.com/img/lobovinho.png') center center / cover no-repeat #0a0a0a;
       position: relative;
     }
     body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background: rgba(10,10,10,0.82);
+      background: rgba(10,10,10,0.75);
       z-index: 0;
     }
     .container { max-width: 500px; position: relative; z-index: 1; }
-    .code { font-size: 8rem; font-weight: 900; color: #DC143C; line-height: 1; text-shadow: 0 0 40px rgba(220,20,60,0.4); }
+    .code { font-size: 8rem; font-weight: 900; color: #DC143C; line-height: 1; text-shadow: 0 0 40px rgba(220,20,60,0.5); }
     h1 { font-size: 1.8rem; margin: 20px 0 10px; color: #fff; }
-    p { color: #888; font-size: 1rem; margin-bottom: 30px; line-height: 1.6; }
+    p { color: #aaa; font-size: 1rem; margin-bottom: 30px; line-height: 1.6; }
     .buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
     .btn { padding: 12px 25px; border-radius: 25px; text-decoration: none; font-weight: bold; font-size: 0.95rem; transition: 0.3s; }
     .btn-primary { background: #DC143C; color: white; }
