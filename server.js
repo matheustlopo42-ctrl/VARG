@@ -718,7 +718,7 @@ app.get("/admin", adminAuth, async (req, res) => {
     </script>
     </head><body>
     <h1>🐺 Pedidos VARG</h1>
-    <p>Total: ${result.rows.length} pedido(s)</p>
+    <p>Total: ${result.rows.length} pedido(s) &nbsp;|&nbsp; <a href="/admin-cupons.html?token=${req.query.token || ''}" style="color:#00BFFF;font-size:0.9em;">🏷️ Gerenciar Cupons</a></p>
     <table><tr>
       <th>ID Pagamento</th><th>Cliente</th><th>Email</th>
       <th>Produtos</th><th>Valor</th><th>Entrega</th><th>Status Pgto</th><th>Envio</th><th>Data</th>
@@ -859,6 +859,62 @@ setInterval(async () => {
     console.error("Erro na limpeza de pendentes:", err.message);
   }
 }, 6 * 60 * 60 * 1000);
+
+// ==================== CUPONS ====================
+app.get("/api/cupons", adminAuth, async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM cupons ORDER BY criado_em DESC");
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao listar cupons" });
+  }
+});
+
+app.post("/api/cupons", adminAuth, async (req, res) => {
+  const { codigo, desconto_pix, desconto_cartao } = req.body;
+  if (!codigo) return res.json({ success: false, message: "Código obrigatório." });
+  try {
+    await pool.query(
+      "INSERT INTO cupons (codigo, desconto_pix, desconto_cartao) VALUES ($1, $2, $3)",
+      [codigo.toUpperCase().trim(), parseFloat(desconto_pix) || 10, parseFloat(desconto_cartao) || 10]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    if (err.code === '23505') return res.json({ success: false, message: "Código já existe." });
+    res.status(500).json({ success: false, message: "Erro ao criar cupom." });
+  }
+});
+
+app.post("/api/cupons/:id/toggle", adminAuth, async (req, res) => {
+  try {
+    await pool.query("UPDATE cupons SET ativo = NOT ativo WHERE id = $1", [req.params.id]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false });
+  }
+});
+
+app.post("/api/cupom/validar", async (req, res) => {
+  const { codigo } = req.body;
+  if (!codigo) return res.json({ valido: false, message: "Informe o cupom." });
+  try {
+    const result = await pool.query(
+      "SELECT * FROM cupons WHERE codigo = $1 AND ativo = true",
+      [codigo.toUpperCase().trim()]
+    );
+    if (result.rows.length === 0)
+      return res.json({ valido: false, message: "Cupom inválido ou desativado." });
+    const cupom = result.rows[0];
+    res.json({
+      valido: true,
+      codigo: cupom.codigo,
+      desconto_pix: parseFloat(cupom.desconto_pix),
+      desconto_cartao: parseFloat(cupom.desconto_cartao),
+    });
+  } catch (err) {
+    res.status(500).json({ valido: false, message: "Erro ao validar cupom." });
+  }
+});
 
 // ==================== 404 ====================
 app.use((req, res) => {

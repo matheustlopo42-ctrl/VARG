@@ -110,6 +110,18 @@
         <div class="entrega-ok" id="entregaOk">✅ Dados de entrega preenchidos!</div>
     </section>
 
+    <!-- CUPOM -->
+    <section class="section">
+        <h2>🏷️ Cupom de Desconto</h2>
+        <div style="display:flex;gap:10px;align-items:flex-end;">
+            <div style="flex:1;">
+                <input id="inputCupom" type="text" placeholder="Digite seu cupom" style="width:100%;background:#333;border:1px solid #444;border-radius:8px;padding:10px 14px;color:#eee;font-size:0.95em;outline:none;text-transform:uppercase;" />
+            </div>
+            <button onclick="aplicarCupom()" style="background:#00BFFF;color:#111;border:none;border-radius:8px;padding:10px 20px;cursor:pointer;font-weight:bold;white-space:nowrap;">Aplicar</button>
+        </div>
+        <div id="cupomStatus" style="margin-top:10px;font-size:0.9em;"></div>
+    </section>
+
     <!-- PIX -->
     <section class="section">
         <h2>💚 Pagar com PIX</h2>
@@ -233,6 +245,36 @@ function validarEntrega() {
 
 let totalCarrinho = 0;
 let cartGlobal = [];
+let cupomAtivo = null;
+
+async function aplicarCupom() {
+    const codigo = document.getElementById('inputCupom').value.trim();
+    const status = document.getElementById('cupomStatus');
+    if (!codigo) { status.innerHTML = '<span style="color:#ff4d4d;">Digite um cupom.</span>'; return; }
+
+    status.innerHTML = 'Verificando...';
+    try {
+        const res = await fetch('/api/cupom/validar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ codigo })
+        });
+        const data = await res.json();
+        if (data.valido) {
+            cupomAtivo = data;
+            status.innerHTML = `<span style="color:#00ff88;">✅ Cupom <b>${data.codigo}</b> aplicado! PIX: ${data.desconto_pix}% off | Cartão: ${data.desconto_cartao}% off</span>`;
+            // Regenerate PIX with discount
+            const totalComDesconto = totalCarrinho * (1 - data.desconto_pix / 100);
+            await generatePix(totalComDesconto, cartGlobal);
+            await prepareCard(cartGlobal, totalCarrinho * (1 - data.desconto_cartao / 100));
+        } else {
+            cupomAtivo = null;
+            status.innerHTML = `<span style="color:#ff4d4d;">❌ ${data.message}</span>`;
+        }
+    } catch(e) {
+        status.innerHTML = '<span style="color:#ff4d4d;">Erro ao verificar cupom.</span>';
+    }
+}
 
 async function loadCart() {
     let cart;
@@ -276,7 +318,7 @@ async function generatePix(valor, cart) {
         const res = await fetch('/pix', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: Math.round(valor * 100), cart, entrega, nome: entrega.nome, pedidoId })
+            body: JSON.stringify({ amount: Math.round(valor * 100), cart, entrega, nome: entrega.nome, pedidoId, cupom: cupomAtivo?.codigo || null })
         });
         const data = await res.json();
         if (data.success && data.pix_code) {

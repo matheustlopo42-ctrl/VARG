@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cupons - Admin VARG</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #0a0a0a; color: #eee; padding: 40px; }
+    h1 { color: #DC143C; margin-bottom: 5px; }
+    .subtitle { color: #888; margin-bottom: 30px; font-size: 0.9em; }
+    .nav-links { margin-bottom: 30px; }
+    .nav-links a { color: #00BFFF; text-decoration: none; margin-right: 20px; font-size: 0.9em; }
+    .nav-links a:hover { color: #fff; }
+
+    /* Form criar cupom */
+    .form-card { background: #1a1a1a; border-radius: 10px; padding: 25px; margin-bottom: 30px; border: 1px solid #333; max-width: 600px; }
+    .form-card h2 { color: #00BFFF; margin-bottom: 20px; font-size: 1.1em; }
+    .form-row { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 120px; }
+    .form-group label { font-size: 0.8em; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+    .form-group input { background: #111; border: 1px solid #444; border-radius: 6px; padding: 10px 12px; color: #fff; font-size: 0.95em; outline: none; }
+    .form-group input:focus { border-color: #00BFFF; }
+    .btn-criar { background: #DC143C; color: white; border: none; padding: 10px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9em; }
+    .btn-criar:hover { background: #b01030; }
+    .msg { margin-top: 10px; font-size: 0.9em; padding: 8px 12px; border-radius: 6px; display: none; }
+    .msg.ok { color: #00ff88; background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); }
+    .msg.err { color: #ff4d4d; background: rgba(255,77,77,0.1); border: 1px solid rgba(255,77,77,0.3); }
+
+    /* Tabela */
+    table { width: 100%; border-collapse: collapse; background: #1a1a1a; border-radius: 10px; overflow: hidden; }
+    th { background: #DC143C; color: white; padding: 12px; text-align: left; font-size: 0.85em; }
+    td { padding: 12px; border-bottom: 1px solid #2a2a2a; font-size: 0.9em; vertical-align: middle; }
+    tr:hover { background: #222; }
+    .badge-ativo { background: rgba(0,255,136,0.15); color: #00ff88; border: 1px solid #00ff88; padding: 3px 10px; border-radius: 12px; font-size: 0.8em; font-weight: bold; }
+    .badge-inativo { background: rgba(255,77,77,0.15); color: #ff4d4d; border: 1px solid #ff4d4d; padding: 3px 10px; border-radius: 12px; font-size: 0.8em; font-weight: bold; }
+    .btn-toggle-on { background: rgba(255,77,77,0.2); color: #ff4d4d; border: 1px solid #ff4d4d; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8em; }
+    .btn-toggle-on:hover { background: rgba(255,77,77,0.4); }
+    .btn-toggle-off { background: rgba(0,255,136,0.2); color: #00ff88; border: 1px solid #00ff88; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8em; }
+    .btn-toggle-off:hover { background: rgba(0,255,136,0.4); }
+    .codigo { font-family: monospace; font-size: 1em; color: #00BFFF; font-weight: bold; letter-spacing: 1px; }
+    .vazio { text-align: center; padding: 40px; color: #555; }
+  </style>
+</head>
+<body>
+  <h1>🐺 Cupons de Desconto</h1>
+  <p class="subtitle">Gerencie os cupons de parceiros e promoções</p>
+
+  <div class="nav-links">
+    <a href="/admin?token=${getToken()}">← Voltar aos Pedidos</a>
+  </div>
+
+  <div class="form-card">
+    <h2>➕ Criar Novo Cupom</h2>
+    <div class="form-row">
+      <div class="form-group" style="flex:2">
+        <label>Código do Cupom</label>
+        <input type="text" id="novoCodigo" placeholder="Ex: ATLETA10" style="text-transform:uppercase;" />
+      </div>
+      <div class="form-group">
+        <label>Desconto PIX (%)</label>
+        <input type="number" id="novoDescPix" value="10" min="1" max="100" />
+      </div>
+      <div class="form-group">
+        <label>Desconto Cartão (%)</label>
+        <input type="number" id="novoDescCartao" value="10" min="1" max="100" />
+      </div>
+    </div>
+    <button class="btn-criar" onclick="criarCupom()">Criar Cupom</button>
+    <div class="msg" id="msgCriar"></div>
+  </div>
+
+  <table>
+    <tr>
+      <th>Código</th>
+      <th>Desconto PIX</th>
+      <th>Desconto Cartão</th>
+      <th>Status</th>
+      <th>Criado em</th>
+      <th>Ação</th>
+    </tr>
+    <tbody id="tabelaCupons">
+      <tr><td colspan="6" class="vazio">Carregando...</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    const token = new URLSearchParams(window.location.search).get('token') || localStorage.getItem('adminToken') || '';
+
+    function getToken() { return token; }
+
+    // Fix nav link
+    document.querySelector('.nav-links a').href = '/admin?token=' + token;
+
+    async function carregarCupons() {
+      try {
+        const res = await fetch('/api/cupons', { headers: { 'x-admin-token': token } });
+        const cupons = await res.json();
+        const tbody = document.getElementById('tabelaCupons');
+
+        if (!cupons.length) {
+          tbody.innerHTML = '<tr><td colspan="6" class="vazio">Nenhum cupom criado ainda.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = cupons.map(c => `
+          <tr>
+            <td><span class="codigo">${c.codigo}</span></td>
+            <td>${parseFloat(c.desconto_pix)}%</td>
+            <td>${parseFloat(c.desconto_cartao)}%</td>
+            <td><span class="${c.ativo ? 'badge-ativo' : 'badge-inativo'}">${c.ativo ? '✅ Ativo' : '❌ Inativo'}</span></td>
+            <td>${new Date(c.criado_em).toLocaleDateString('pt-BR')}</td>
+            <td>
+              <button class="${c.ativo ? 'btn-toggle-on' : 'btn-toggle-off'}" onclick="toggleCupom(${c.id})">
+                ${c.ativo ? 'Desativar' : 'Ativar'}
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      } catch(e) {
+        document.getElementById('tabelaCupons').innerHTML = '<tr><td colspan="6" class="vazio">Erro ao carregar.</td></tr>';
+      }
+    }
+
+    async function criarCupom() {
+      const codigo = document.getElementById('novoCodigo').value.trim().toUpperCase();
+      const desconto_pix = document.getElementById('novoDescPix').value;
+      const desconto_cartao = document.getElementById('novoDescCartao').value;
+      const msg = document.getElementById('msgCriar');
+      msg.style.display = 'none';
+
+      if (!codigo) { msg.textContent = 'Digite o código do cupom.'; msg.className = 'msg err'; msg.style.display = 'block'; return; }
+
+      const res = await fetch('/api/cupons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
+        body: JSON.stringify({ codigo, desconto_pix, desconto_cartao })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        msg.textContent = '✅ Cupom criado com sucesso!';
+        msg.className = 'msg ok';
+        document.getElementById('novoCodigo').value = '';
+        carregarCupons();
+      } else {
+        msg.textContent = data.message || 'Erro ao criar cupom.';
+        msg.className = 'msg err';
+      }
+      msg.style.display = 'block';
+    }
+
+    async function toggleCupom(id) {
+      await fetch(`/api/cupons/${id}/toggle`, {
+        method: 'POST',
+        headers: { 'x-admin-token': token }
+      });
+      carregarCupons();
+    }
+
+    carregarCupons();
+  </script>
+</body>
+</html>
