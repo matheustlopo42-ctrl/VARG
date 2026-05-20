@@ -578,6 +578,63 @@ app.post("/api/pedidos/:id/envio", adminAuth, async (req, res) => {
       [codigo_rastreio || null, status_envio || "enviado", id]
     );
     res.json({ success: true });
+
+    // Busca dados do pedido para notificar o cliente
+    try {
+      const result = await pool.query("SELECT * FROM pedidos WHERE id = $1", [id]);
+      if (result.rows.length === 0) return;
+      const pedido = result.rows[0];
+      const clienteEmail = pedido.cliente_email;
+      const clienteNome = pedido.cliente_nome || "Cliente";
+      const rastreio = codigo_rastreio || "";
+
+      let itens = [];
+      try { itens = JSON.parse(pedido.itens || "[]"); } catch(e) {}
+      const itensHtml = itens.length > 0
+        ? `<ul>${itens.map(i => `<li>${i.quantidade}x ${i.nome}</li>`).join("")}</ul>`
+        : "<p>Produto VARG</p>";
+
+      // Envia para o cliente (quando tiver domínio verificado)
+      // Por enquanto envia para varg.oficialstore@gmail.com
+      const destinatario = clienteEmail || "varg.oficialstore@gmail.com";
+
+      await enviarEmail({
+        to: "varg.oficialstore@gmail.com", // Trocar para destinatario quando tiver domínio
+        subject: `🚚 Seu pedido foi enviado! — VARG`,
+        html: `
+          <h2 style="color:#DC143C">🐺 Seu pedido está a caminho!</h2>
+          <p>Olá, ${clienteNome}!</p>
+          <p>Seu pedido foi enviado e já está nos Correios.</p>
+          <p><b>Código de rastreio:</b> <span style="font-size:1.2em;color:#00BFFF;font-weight:bold;">${rastreio}</span></p>
+          <p>Você pode rastrear seu pedido em <a href="https://rastreamento.correios.com.br" style="color:#DC143C;">rastreamento.correios.com.br</a></p>
+          <br>
+          <p><b>Produtos:</b></p>
+          ${itensHtml}
+          <br>
+          <p style="color:#888;font-size:0.9em;">Pedido: ${pedido.external_id || pedido.id}</p>
+        `,
+      });
+      console.log("📧 Email de envio enviado para:", destinatario);
+    } catch(emailErr) {
+      console.error("❌ Erro ao enviar email de envio:", emailErr.message);
+    }
+
+    // WhatsApp para você
+    try {
+      const result = await pool.query("SELECT * FROM pedidos WHERE id = $1", [id]);
+      if (result.rows.length > 0) {
+        const pedido = result.rows[0];
+        await enviarWhatsApp(
+          `🚚 VARG - Pedido enviado!
+Cliente: ${pedido.cliente_nome || "-"}
+Rastreio: ${codigo_rastreio}
+Pedido: ${pedido.external_id || id}`
+        );
+      }
+    } catch(waErr) {
+      console.error("❌ Erro WhatsApp envio:", waErr.message);
+    }
+
   } catch (err) {
     console.error("Erro ao atualizar envio:", err);
     res.status(500).json({ success: false });
