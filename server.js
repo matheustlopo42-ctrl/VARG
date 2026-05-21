@@ -56,6 +56,75 @@ async function enviarWhatsApp(mensagem) {
   });
 }
 
+
+// ==================== HELPER ESTOQUE ====================
+const PRODUTO_MAP = {
+  'varg salt': { id: 'varg-salt', var: 'unico' },
+  'camiseta varg preta com logo branco': 'camiseta-preta-branco',
+  'camiseta varg preta com logo azul': 'camiseta-preta-azul',
+  'camiseta varg branca com logo preto': 'camiseta-branca-preto',
+  'camiseta varg preta com logo dourado': 'camiseta-preta-dourado',
+  'camiseta varg azul marinho com logo branco': 'camiseta-azul-branco',
+};
+
+function getProdutoId(nomeItem) {
+  const nome = (nomeItem || '').toLowerCase();
+  if (nome.includes('salt') || nome.includes('varg salt')) return 'varg-salt';
+  if (nome.includes('preta') && nome.includes('branco')) return 'camiseta-preta-branco';
+  if (nome.includes('preta') && nome.includes('azul')) return 'camiseta-preta-azul';
+  if (nome.includes('branca')) return 'camiseta-branca-preto';
+  if (nome.includes('dourado')) return 'camiseta-preta-dourado';
+  if (nome.includes('azul')) return 'camiseta-azul-branco';
+  return null;
+}
+
+function getVariacao(nomeItem) {
+  const match = (nomeItem || '').match(/Tam\.\s*(\w+)/i);
+  return match ? match[1] : 'unico';
+}
+
+async function decrementarEstoque(itens) {
+  for (const item of itens) {
+    const produtoId = getProdutoId(item.nome);
+    if (!produtoId) continue;
+    const variacao = getVariacao(item.nome);
+    const qtd = parseInt(item.quantidade) || 1;
+    try {
+      // Decrement
+      await pool.query(
+        "UPDATE estoque SET quantidade = GREATEST(quantidade - $1, 0), atualizado_em = NOW() WHERE produto_id = $2 AND variacao = $3",
+        [qtd, produtoId, variacao]
+      );
+      // Check if below alert
+      const check = await pool.query(
+        "SELECT quantidade, alerta_minimo FROM estoque WHERE produto_id = $1 AND variacao = $2",
+        [produtoId, variacao]
+      );
+      if (check.rows.length > 0) {
+        const { quantidade, alerta_minimo } = check.rows[0];
+        if (parseInt(quantidade) <= parseInt(alerta_minimo)) {
+          const varLabel = variacao === 'unico' ? '' : ' - ' + variacao;
+          const subject = quantidade === 0
+            ? 'VARG - Estoque ESGOTADO: ' + produtoId + varLabel
+            : 'VARG - Estoque baixo: ' + produtoId + varLabel;
+          const cor = quantidade === 0 ? '#ff4d4d' : 'orange';
+          await enviarEmail({
+            to: EMAIL_DESTINO,
+            subject,
+            html: '<h2 style="color:' + cor + '">⚠️ Alerta de Estoque</h2>' +
+              '<p><b>Produto:</b> ' + produtoId + varLabel + '</p>' +
+              '<p><b>Quantidade restante:</b> <span style="color:' + cor + ';font-size:1.5em;font-weight:bold;">' + quantidade + '</span></p>' +
+              (quantidade === 0 ? '<p style="color:#ff4d4d;font-weight:bold;">Produto ESGOTADO! Reponha o estoque.</p>' : '<p>Estoque abaixo do mínimo (' + alerta_minimo + '). Considere repor.</p>') +
+              '<p><a href="' + BASE_URL + '/admin-estoque.html" style="background:#DC143C;color:white;padding:10px 20px;border-radius:20px;text-decoration:none;font-weight:bold;">Gerenciar Estoque</a></p>'
+          }).catch(e => console.error('Erro email alerta estoque:', e.message));
+        }
+      }
+    } catch(e) {
+      console.error('Erro ao decrementar estoque:', e.message);
+    }
+  }
+}
+
 // ==================== ADMIN AUTH ====================
 function adminAuth(req, res, next) {
   const expected = Buffer.from("admin:" + ADMIN_PASSWORD).toString("base64");
@@ -234,6 +303,10 @@ app.post("/webhook/pixgo", async (req, res) => {
         [pid, pedido, nome, data.data?.customer?.email || "", valor, itens, entrega]
       );
       console.log("Pedido salvo!");
+      // Decrement estoque
+      let itensParsed = [];
+      try { itensParsed = JSON.parse(itens); } catch(e) {}
+      if (itensParsed.length > 0) await decrementarEstoque(itensParsed);
     } catch (err) { console.error("Erro ao salvar pedido:", err.message); }
 
     try {
@@ -278,6 +351,8 @@ app.post("/webhook/mercadopago", async (req, res) => {
         const entregaRow = await pool.query("SELECT entrega FROM pedidos WHERE external_id = $1 AND entrega IS NOT NULL LIMIT 1", [paymentData.external_reference || ""]);
         if (entregaRow.rows.length > 0 && entregaRow.rows[0].entrega)
           await pool.query("UPDATE pedidos SET entrega = $1 WHERE payment_id = $2", [entregaRow.rows[0].entrega, pid]);
+        // Decrement estoque
+        if (itensMp.length > 0) await decrementarEstoque(itensMp);
       } catch (err) { console.error("Erro salvar pedido MP:", err.message); }
       try {
         const itensHtml = itensMp.length > 0 ? "<ul>" + itensMp.map(i => "<li>" + i.quantidade + "x " + i.nome + "</li>").join("") + "</ul>" : "";
