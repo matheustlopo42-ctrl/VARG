@@ -52,6 +52,7 @@
       <li><a href="/index.html">Início</a></li>
       <li><a href="#" id="linkAdmin" style="color:#DC143C;font-weight:bold;">Pedidos</a></li>
       <li><a href="#" id="linkCupons" style="color:#00BFFF;">🏷️ Cupons</a></li>
+      <li><a href="#" id="linkEstoque" style="color:#00ff88;">📦 Estoque</a></li>
     </ul></nav>
     <a href="/admin-login" style="color:#888;font-size:0.85em;text-decoration:none;">Sair</a>
   </header>
@@ -65,6 +66,7 @@
       <p id="totalPedidos">Carregando...</p>
       <a href="#" id="linkCupons2" class="btn-cupons">🏷️ Gerenciar Cupons</a>
       <button class="btn-excel" onclick="exportarExcel()">📊 Exportar Excel</button>
+      <a href="#" id="linkEstoque2" style="background:#00ff44;color:#111;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:0.85em;text-decoration:none;display:inline-block;">📦 Estoque</a>
     </div>
     <div id="tabelaContainer">
       <div class="spinner"><i class="fa-solid fa-spinner fa-spin"></i> Carregando pedidos...</div>
@@ -116,6 +118,8 @@
     // Fix links
     document.getElementById('linkAdmin').href = '/admin.html?token=' + token;
     document.getElementById('linkCupons').href = '/admin-cupons.html?token=' + token;
+    document.getElementById('linkEstoque').href = '/admin-estoque.html?token=' + token;
+    document.getElementById('linkEstoque2').href = '/admin-estoque.html?token=' + token;
     document.getElementById('linkCupons2').href = '/admin-cupons.html?token=' + token;
 
     // Verify token

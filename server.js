@@ -409,6 +409,7 @@ footer a{color:#333;text-decoration:none;font-size:0.75em;}
     <li><a href="/index.html">Inicio</a></li>
     <li><a href="/admin?token=${tk}" style="color:#DC143C;font-weight:bold;">Pedidos</a></li>
     <li><a href="/admin-cupons.html?token=${tk}" style="color:#00BFFF;">Cupons</a></li>
+      <li><a href="/admin-estoque.html?token=${tk}" style="color:#00ff88;">Estoque</a></li>
   </ul></nav>
   <a href="/admin-login" style="color:#888;font-size:0.85em;text-decoration:none;">Sair</a>
 </header>
@@ -418,10 +419,18 @@ footer a{color:#333;text-decoration:none;font-size:0.75em;}
   <p>Total: ${result.rows.length} pedido(s)</p>
   <a href="/admin-cupons.html?token=${tk}" class="btn-cupons">Gerenciar Cupons</a>
   <button class="btn-excel" onclick="exportarExcel()">Exportar Excel</button>
+  <a href="/admin-estoque.html?token=${tk}" style="background:#00ff44;color:#111;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:0.85em;text-decoration:none;display:inline-block;">📦 Estoque</a>
 </div>
 <table id="tabelaPedidos"><tr>
-  <th>ID Pagamento</th><th>Cliente</th><th>Email</th><th>Produtos</th><th>Valor</th><th>Entrega</th><th>Status</th><th>Envio</th><th>Data</th>
+  <th>ID Pagamento</th><th>Cliente</th><th>Email</th><th>Produtos</th><th>Valor</th><th>Estoque</th><th>Entrega</th><th>Status</th><th>Envio</th><th>Data</th>
 </tr>`;
+
+    // Load estoque
+    let estoqueAtual = {};
+    try {
+      const estoqueResult = await pool.query("SELECT produto_id, variacao, quantidade FROM estoque");
+      estoqueResult.rows.forEach(e => { estoqueAtual[e.produto_id + '|' + e.variacao] = parseInt(e.quantidade) || 0; });
+    } catch(e) {}
 
     result.rows.forEach((p) => {
       let itens = [];
@@ -438,7 +447,26 @@ footer a{color:#333;text-decoration:none;font-size:0.75em;}
       } else {
         envioHtml = "-";
       }
-      html += "<tr><td style='font-size:0.75em'>" + (p.payment_id || "-") + "</td><td>" + (p.cliente_nome || "-") + "</td><td>" + (p.cliente_email || "-") + "</td><td>" + itensHtml + "</td><td>R$ " + parseFloat(p.valor || 0).toFixed(2) + "</td><td>" + entregaHtml + "</td><td class='" + p.status + "'>" + (p.status === "pago" ? "Pago" : p.status) + "</td><td>" + envioHtml + "</td><td>" + new Date(p.criado_em).toLocaleString("pt-BR") + "</td></tr>";
+      // Build estoque info for this order
+      let estoqueHtml = '-';
+      if (itens.length > 0) {
+        estoqueHtml = itens.map(item => {
+          const nome = (item.nome || '').toLowerCase();
+          let pid = 'varg-salt', var_ = 'unico';
+          if (nome.includes('preta') && nome.includes('branco')) pid = 'camiseta-preta-branco';
+          else if (nome.includes('preta') && nome.includes('azul')) pid = 'camiseta-preta-azul';
+          else if (nome.includes('branca')) pid = 'camiseta-branca-preto';
+          else if (nome.includes('dourado')) pid = 'camiseta-preta-dourado';
+          else if (nome.includes('azul')) pid = 'camiseta-azul-branco';
+          const tamMatch = (item.nome || '').match(/Tam\.\s*(\w+)/);
+          if (tamMatch) var_ = tamMatch[1];
+          const estoqueKey = pid + '|' + var_;
+          const qtd = estoqueAtual[estoqueKey] !== undefined ? estoqueAtual[estoqueKey] : '?';
+          const cor = qtd === 0 ? '#ff4d4d' : qtd <= 5 ? 'orange' : '#00ff88';
+          return '<small style="color:' + cor + ';">' + (var_ === 'unico' ? '' : var_ + ': ') + qtd + ' un.</small>';
+        }).join('<br>');
+      }
+      html += "<tr><td style='font-size:0.75em'>" + (p.payment_id || "-") + "</td><td>" + (p.cliente_nome || "-") + "</td><td>" + (p.cliente_email || "-") + "</td><td>" + itensHtml + "</td><td>R$ " + parseFloat(p.valor || 0).toFixed(2) + "</td><td>" + estoqueHtml + "</td><td>" + entregaHtml + "</td><td class='" + p.status + "'>" + (p.status === "pago" ? "Pago" : p.status) + "</td><td>" + envioHtml + "</td><td>" + new Date(p.criado_em).toLocaleString("pt-BR") + "</td></tr>";
     });
 
     html += `</table></div>
@@ -490,6 +518,143 @@ setInterval(async () => {
 
 // ==================== ESQUECI SENHA ====================
 app.get("/redefinir-senha.html", (req, res) => res.sendFile(path.join(__dirname, "redefinir-senha.html")));
+
+
+// ==================== ESTOQUE ====================
+app.get("/api/estoque", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM estoque ORDER BY produto_id, variacao");
+    res.json(result.rows);
+  } catch (err) { res.status(500).json({ error: "Erro ao listar estoque" }); }
+});
+
+app.get("/api/estoque/:produto_id/:variacao", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM estoque WHERE produto_id = $1 AND variacao = $2",
+      [req.params.produto_id, req.params.variacao]
+    );
+    if (result.rows.length === 0) return res.json({ quantidade: 0, disponivel: false });
+    const row = result.rows[0];
+    res.json({ quantidade: row.quantidade, disponivel: row.quantidade > 0 });
+  } catch (err) { res.status(500).json({ error: "Erro" }); }
+});
+
+app.post("/api/estoque", adminAuth, async (req, res) => {
+  const { produto_id, variacao, quantidade, alerta_minimo } = req.body;
+  try {
+    await pool.query(
+      `INSERT INTO estoque (produto_id, variacao, quantidade, alerta_minimo, atualizado_em)
+       VALUES ($1, $2, $3, $4, NOW())
+       ON CONFLICT (produto_id, variacao) DO UPDATE SET quantidade = $3, alerta_minimo = $4, atualizado_em = NOW()`,
+      [produto_id, variacao || "unico", parseInt(quantidade) || 0, parseInt(alerta_minimo) || 5]
+    );
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+app.post("/api/estoque/:produto_id/:variacao/decrementar", async (req, res) => {
+  const { quantidade } = req.body;
+  const qtd = parseInt(quantidade) || 1;
+  try {
+    const check = await pool.query(
+      "SELECT quantidade FROM estoque WHERE produto_id = $1 AND variacao = $2",
+      [req.params.produto_id, req.params.variacao]
+    );
+    if (check.rows.length === 0 || check.rows[0].quantidade < qtd)
+      return res.json({ success: false, message: "Estoque insuficiente" });
+    await pool.query(
+      "UPDATE estoque SET quantidade = quantidade - $1, atualizado_em = NOW() WHERE produto_id = $2 AND variacao = $3",
+      [qtd, req.params.produto_id, req.params.variacao]
+    );
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ success: false }); }
+});
+
+// ==================== LISTA DE ESPERA ====================
+app.post("/api/lista-espera", async (req, res) => {
+  const { produto_id, variacao, email, nome } = req.body;
+  if (!produto_id || !email) return res.json({ success: false, message: "Dados incompletos." });
+  try {
+    const existe = await pool.query(
+      "SELECT id FROM lista_espera WHERE produto_id = $1 AND variacao = $2 AND email = $3",
+      [produto_id, variacao || "unico", email]
+    );
+    if (existe.rows.length > 0) return res.json({ success: false, message: "Voce ja esta na lista de espera!" });
+    await pool.query(
+      "INSERT INTO lista_espera (produto_id, variacao, email, nome) VALUES ($1, $2, $3, $4)",
+      [produto_id, variacao || "unico", email, nome || ""]
+    );
+    res.json({ success: true, message: "Adicionado a lista de espera!" });
+  } catch (err) { res.status(500).json({ success: false, message: "Erro ao entrar na lista." }); }
+});
+
+app.get("/api/lista-espera", adminAuth, async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM lista_espera ORDER BY criado_em DESC");
+    res.json(result.rows);
+  } catch (err) { res.status(500).json({ error: "Erro" }); }
+});
+
+app.get("/admin-estoque.html", adminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, "admin-estoque.html"));
+});
+
+
+// ==================== ESTOQUE ====================
+app.get("/api/estoque", adminAuth, async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM estoque ORDER BY produto_id, variacao");
+    res.json(result.rows);
+  } catch (err) { res.status(500).json({ error: "Erro ao listar estoque" }); }
+});
+
+app.post("/api/estoque", adminAuth, async (req, res) => {
+  const { produto_id, variacao, quantidade, alerta_minimo } = req.body;
+  try {
+    await pool.query(
+      "INSERT INTO estoque (produto_id, variacao, quantidade, alerta_minimo, atualizado_em) VALUES ($1, $2, $3, $4, NOW()) ON CONFLICT (produto_id, variacao) DO UPDATE SET quantidade = $3, alerta_minimo = $4, atualizado_em = NOW()",
+      [produto_id, variacao || "unico", parseInt(quantidade) || 0, parseInt(alerta_minimo) || 5]
+    );
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+app.get("/api/estoque-resumo", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT produto_id, variacao, quantidade FROM estoque");
+    res.json(result.rows);
+  } catch (err) { res.status(500).json({ error: "Erro" }); }
+});
+
+// ==================== LISTA DE ESPERA ====================
+app.post("/api/lista-espera", async (req, res) => {
+  const { produto_id, variacao, email, nome } = req.body;
+  if (!produto_id || !email) return res.json({ success: false, message: "Dados incompletos." });
+  try {
+    const existe = await pool.query(
+      "SELECT id FROM lista_espera WHERE produto_id = $1 AND variacao = $2 AND email = $3",
+      [produto_id, variacao || "unico", email]
+    );
+    if (existe.rows.length > 0) return res.json({ success: false, message: "Voce ja esta na lista!" });
+    await pool.query(
+      "INSERT INTO lista_espera (produto_id, variacao, email, nome) VALUES ($1, $2, $3, $4)",
+      [produto_id, variacao || "unico", email, nome || ""]
+    );
+    res.json({ success: true, message: "Adicionado a lista de espera!" });
+  } catch (err) { res.status(500).json({ success: false, message: "Erro ao entrar na lista." }); }
+});
+
+app.get("/api/lista-espera", adminAuth, async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM lista_espera ORDER BY criado_em DESC");
+    res.json(result.rows);
+  } catch (err) { res.status(500).json({ error: "Erro" }); }
+});
+
+app.get("/admin-estoque.html", adminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, "admin-estoque.html"));
+});
 
 // ==================== 404 ====================
 app.use((req, res) => res.status(404).sendFile(path.join(__dirname, "404.html")));

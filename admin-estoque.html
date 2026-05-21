@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estoque - Admin VARG</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #0a0a0a; color: #eee; padding-top: 70px; }
+    header { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.95); padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 1px solid #222; font-size: 15px; }
+    nav ul { list-style: none; display: flex; gap: 25px; align-items: center; }
+    nav ul li a { color: #fff; font-weight: 600; text-decoration: none; font-size: 15px; transition: 0.3s; }
+    nav ul li a:hover { color: #DC143C; }
+    .main { padding: 30px 40px; }
+    h1 { color: #DC143C; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; }
+    h1 img { height: 150px; filter: brightness(1.8) contrast(1.3); }
+    .subtitle { color: #888; margin-bottom: 25px; font-size: 0.9em; }
+    .produto-section { margin-bottom: 35px; }
+    .produto-section h2 { color: #00BFFF; font-size: 0.95em; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #222; }
+    table { width: 100%; border-collapse: collapse; background: #1a1a1a; border-radius: 8px; overflow: hidden; }
+    th { background: #DC143C; color: white; padding: 10px 12px; text-align: left; font-size: 0.85em; }
+    td { padding: 10px 12px; border-bottom: 1px solid #2a2a2a; font-size: 0.9em; vertical-align: middle; }
+    tr:hover { background: #222; }
+    .qty-input { background: #111; border: 1px solid #444; border-radius: 4px; padding: 5px 8px; color: #fff; width: 80px; font-size: 0.9em; text-align: center; }
+    .qty-input:focus { border-color: #00BFFF; outline: none; }
+    .btn-save { background: #00BFFF; color: #111; border: none; padding: 5px 14px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8em; }
+    .btn-save:hover { background: #00a8d8; }
+    .status-ok { color: #00ff88; font-weight: bold; }
+    .status-alerta { color: orange; font-weight: bold; }
+    .status-zero { color: #ff4d4d; font-weight: bold; }
+    .msg-ok { color: #00ff88; font-size: 0.8em; margin-left: 8px; }
+    .lista-section { margin-top: 40px; }
+    .lista-section h2 { color: #DC143C; font-size: 0.95em; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #222; }
+    footer { background: #050505; padding: 60px 20px 20px; border-top: 1px solid #222; color: #888; margin-top: 40px; }
+    .footer-grid { max-width: 1200px; margin: auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; text-align: left; margin-bottom: 40px; }
+    .footer-box h4 { color: #DC143C; font-size: 1em; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 22px; }
+    .footer-box ul { list-style: none; padding: 0; }
+    .footer-box ul li { margin-bottom: 8px; }
+    .footer-box ul li a { color: #888; text-decoration: none; font-size: 15px; transition: 0.3s; }
+    .footer-box ul li a:hover { color: #DC143C; }
+    .footer-box p { color: #888; font-size: 15px; }
+    .footer-bottom { text-align: center; border-top: 1px solid #111; padding-top: 20px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <nav><ul>
+      <li><a href="/index.html">Início</a></li>
+      <li><a href="#" id="linkAdmin">Pedidos</a></li>
+      <li><a href="#" id="linkCupons">Cupons</a></li>
+      <li><a href="#" style="color:#00ff88;font-weight:bold;">📦 Estoque</a></li>
+    </ul></nav>
+    <a href="/admin-login" style="color:#888;font-size:0.85em;text-decoration:none;">Sair</a>
+  </header>
+
+  <div class="main">
+    <h1>
+      <img src="/img/lobovinho-removebg-preview.png" alt="VARG">
+      Controle de Estoque
+    </h1>
+    <p class="subtitle">Edite as quantidades e clique em Salvar</p>
+    <div id="estoqueContainer">Carregando...</div>
+
+    <div class="lista-section">
+      <h2>📋 Lista de Espera</h2>
+      <div id="listaContainer">Carregando...</div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-box"><h4>VARG - A MATILHA</h4><p>Equipando os mais fortes desde sempre. Junte-se à matilha.</p></div>
+      <div class="footer-box"><h4>INSTITUCIONAL</h4><ul><li><a href="/quem-somos.html">Quem somos</a></li><li><a href="/politica-privacidade.html">Política de privacidade</a></li><li><a href="/termos-de-uso.html">Termos de Uso</a></li><li><a href="/envio-e-prazos.html">Envio e prazos</a></li></ul></div>
+      <div class="footer-box"><h4>SUPORTE</h4><ul><li><a href="/trocas-e-devolucoes.html">Trocas e Devoluções</a></li><li><a href="/rastrear-pedido.html">Rastrear Pedido</a></li><li><a href="/duvidas-frequentes.html">Dúvidas Frequentes</a></li></ul></div>
+      <div class="footer-box"><h4>CONTATO</h4><p>Email: contato@vargmatilha.com.br</p><p>CNPJ: 00.000.000/0001-00</p><p>São José dos Campos - SP</p></div>
+    </div>
+    <div class="footer-bottom">© 2026 VARG - A Matilha. Todos os direitos reservados.<br><a href="/admin-login" style="color:#333;font-size:0.85em;text-decoration:none;margin-top:6px;display:inline-block;">Área do Administrador</a></div>
+  </footer>
+
+  <script>
+    const token = new URLSearchParams(window.location.search).get('token') || localStorage.getItem('adminToken') || '';
+    document.getElementById('linkAdmin').href = '/admin.html?token=' + token;
+    document.getElementById('linkCupons').href = '/admin-cupons.html?token=' + token;
+
+    const PRODUTOS = [
+      { id: 'varg-salt', nome: 'VARG Salt 30g', variacoes: ['unico'] },
+      { id: 'camiseta-preta-branco', nome: 'Camiseta Preta Logo Branco', variacoes: ['P','M','G','GG','XGG','3GG','4GG','5GG'] },
+      { id: 'camiseta-preta-azul', nome: 'Camiseta Preta Logo Azul', variacoes: ['P','M','G','GG','XGG','3GG','4GG','5GG'] },
+      { id: 'camiseta-branca-preto', nome: 'Camiseta Branca Logo Preto', variacoes: ['P','M','G','GG','XGG','3GG','4GG','5GG'] },
+      { id: 'camiseta-preta-dourado', nome: 'Camiseta Preta Logo Dourado', variacoes: ['P','M','G','GG','XGG','3GG','4GG','5GG'] },
+      { id: 'camiseta-azul-branco', nome: 'Camiseta Azul Marinho Logo Branco', variacoes: ['P','M','G','GG','XGG','3GG','4GG','5GG'] },
+    ];
+
+    async function carregarEstoque() {
+      const res = await fetch('/api/estoque', { headers: { 'x-admin-token': token } });
+      const rows = await res.json();
+      const mapa = {};
+      rows.forEach(r => { mapa[r.produto_id + '|' + r.variacao] = r; });
+
+      let html = '';
+      PRODUTOS.forEach(p => {
+        html += '<div class="produto-section">';
+        html += '<h2>' + p.nome + '</h2>';
+        html += '<table><tr><th>Variação</th><th>Estoque Atual</th><th>Alerta Mínimo</th><th>Status</th><th>Ação</th></tr>';
+        p.variacoes.forEach(v => {
+          const key = p.id + '|' + v;
+          const row = mapa[key] || { quantidade: 0, alerta_minimo: 5 };
+          const qtd = parseInt(row.quantidade) || 0;
+          const alerta = parseInt(row.alerta_minimo) || 5;
+          let statusClass = 'status-ok', statusTxt = '✅ OK';
+          if (qtd === 0) { statusClass = 'status-zero'; statusTxt = '❌ Esgotado'; }
+          else if (qtd <= alerta) { statusClass = 'status-alerta'; statusTxt = '⚠️ Baixo'; }
+          const varLabel = v === 'unico' ? 'Único' : v;
+          html += '<tr>' +
+            '<td>' + varLabel + '</td>' +
+            '<td><input class="qty-input" id="qty_' + p.id + '_' + v + '" type="number" min="0" value="' + qtd + '" /></td>' +
+            '<td><input class="qty-input" id="alerta_' + p.id + '_' + v + '" type="number" min="0" value="' + alerta + '" /></td>' +
+            '<td><span class="' + statusClass + '">' + statusTxt + '</span></td>' +
+            '<td><button class="btn-save" onclick="salvar(\'' + p.id + '\',\'' + v + '\')">Salvar</button> <span id="msg_' + p.id + '_' + v + '" class="msg-ok" style="display:none">✅ Salvo!</span></td>' +
+            '</tr>';
+        });
+        html += '</table></div>';
+      });
+
+      document.getElementById('estoqueContainer').innerHTML = html;
+    }
+
+    async function salvar(produtoId, variacao) {
+      const qtd = document.getElementById('qty_' + produtoId + '_' + variacao).value;
+      const alerta = document.getElementById('alerta_' + produtoId + '_' + variacao).value;
+      await fetch('/api/estoque', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
+        body: JSON.stringify({ produto_id: produtoId, variacao, quantidade: qtd, alerta_minimo: alerta })
+      });
+      const msg = document.getElementById('msg_' + produtoId + '_' + variacao);
+      msg.style.display = 'inline';
+      setTimeout(() => { msg.style.display = 'none'; carregarEstoque(); }, 2000);
+    }
+
+    async function carregarListaEspera() {
+      const res = await fetch('/api/lista-espera', { headers: { 'x-admin-token': token } });
+      const lista = await res.json();
+      if (!lista.length) {
+        document.getElementById('listaContainer').innerHTML = '<p style="color:#555;padding:20px 0;">Nenhuma pessoa na lista de espera.</p>';
+        return;
+      }
+      let html = '<table><tr><th>Produto</th><th>Variação</th><th>Nome</th><th>Email</th><th>Data</th></tr>';
+      lista.forEach(l => {
+        html += '<tr><td>' + l.produto_id + '</td><td>' + (l.variacao === 'unico' ? '-' : l.variacao) + '</td><td>' + (l.nome || '-') + '</td><td>' + l.email + '</td><td>' + new Date(l.criado_em).toLocaleDateString('pt-BR') + '</td></tr>';
+      });
+      html += '</table>';
+      document.getElementById('listaContainer').innerHTML = html;
+    }
+
+    carregarEstoque();
+    carregarListaEspera();
+  </script>
+</body>
+</html>
