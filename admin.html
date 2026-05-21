@@ -103,11 +103,9 @@
         <p>São José dos Campos - SP</p>
       </div>
     </div>
-    <div class="footer-admin">
-      <a href="/admin-login">admin</a>
-    </div>
     <div class="footer-bottom">
-      © 2026 VARG - A Matilha. Todos os direitos reservados.
+      © 2026 VARG - A Matilha. Todos os direitos reservados.<br>
+      <a href="/admin-login" style="color:#333;font-size:0.85em;text-decoration:none;margin-top:6px;display:inline-block;">Área do Administrador</a>
     </div>
   </footer>
 
@@ -128,17 +126,37 @@
 
     async function carregarPedidos() {
       try {
-        const res = await fetch('/api/pedidos', { headers: { 'x-admin-token': token } });
-        const pedidos = await res.json();
+        const [resPedidos, resEstoque] = await Promise.all([
+          fetch('/api/pedidos', { headers: { 'x-admin-token': token } }),
+          fetch('/api/estoque-resumo')
+        ]);
+        const pedidos = await resPedidos.json();
+        const estoqueRows = await resEstoque.json();
+        const estoqueMap = {};
+        estoqueRows.forEach(function(e) { estoqueMap[e.produto_id + '|' + e.variacao] = parseInt(e.quantidade) || 0; });
         document.getElementById('totalPedidos').textContent = 'Total: ' + pedidos.length + ' pedido(s)';
-        renderizarTabela(pedidos);
+        renderizarTabela(pedidos, estoqueMap);
       } catch(e) {
         document.getElementById('tabelaContainer').innerHTML = '<div class="erro">Erro ao carregar pedidos.</div>';
       }
     }
 
-    function renderizarTabela(pedidos) {
-      let html = '<table id="tabelaPedidos"><tr><th>ID Pagamento</th><th>Cliente</th><th>Email</th><th>Produtos</th><th>Valor</th><th>Entrega</th><th>Status</th><th>Envio</th><th>Data</th></tr>';
+    function getProdutoId(nome) {
+      const n = (nome || '').toLowerCase();
+      if (n.includes('salt')) return 'varg-salt';
+      if (n.includes('preta') && n.includes('branco')) return 'camiseta-preta-branco';
+      if (n.includes('preta') && n.includes('azul')) return 'camiseta-preta-azul';
+      if (n.includes('branca')) return 'camiseta-branca-preto';
+      if (n.includes('dourado')) return 'camiseta-preta-dourado';
+      if (n.includes('azul')) return 'camiseta-azul-branco';
+      return null;
+    }
+    function getVariacao(nome) {
+      const m = (nome || '').match(/Tam[.]\s*(\w+)/i);
+      return m ? m[1] : 'unico';
+    }
+    function renderizarTabela(pedidos, estoqueMap) {
+      let html = '<table id="tabelaPedidos"><tr><th>ID Pagamento</th><th>Cliente</th><th>Email</th><th>Produtos</th><th>Valor</th><th>Estoque</th><th>Entrega</th><th>Status</th><th>Envio</th><th>Data</th></tr>';
       pedidos.forEach(p => {
         let itens = [];
         try { itens = JSON.parse(p.itens || '[]'); } catch(e) {}
@@ -154,7 +172,21 @@
         } else {
           envioHtml = '-';
         }
-        html += '<tr><td style="font-size:0.75em">' + (p.payment_id || '-') + '</td><td>' + (p.cliente_nome || '-') + '</td><td>' + (p.cliente_email || '-') + '</td><td>' + itensHtml + '</td><td>R$ ' + parseFloat(p.valor || 0).toFixed(2) + '</td><td>' + entregaHtml + '</td><td class="' + p.status + '">' + (p.status === 'pago' ? '✅ Pago' : p.status) + '</td><td>' + envioHtml + '</td><td>' + new Date(p.criado_em).toLocaleString('pt-BR') + '</td></tr>';
+        var estoqueHtml = '-';
+        if (itens.length > 0) {
+          var parts = itens.map(function(item) {
+            var pid = getProdutoId(item.nome);
+            if (!pid) return '';
+            var vari = getVariacao(item.nome);
+            var key = pid + '|' + vari;
+            var qtd = (estoqueMap && estoqueMap[key] !== undefined) ? estoqueMap[key] : '?';
+            var cor = qtd === 0 ? '#ff4d4d' : qtd <= 5 ? 'orange' : '#00ff88';
+            var label = vari === 'unico' ? 'Salt' : vari;
+            return '<small style="color:' + cor + ';font-weight:bold;">' + label + ': ' + qtd + '</small>';
+          }).filter(Boolean);
+          if (parts.length) estoqueHtml = parts.join('<br>');
+        }
+        html += '<tr><td style="font-size:0.75em">' + (p.payment_id || '-') + '</td><td>' + (p.cliente_nome || '-') + '</td><td>' + (p.cliente_email || '-') + '</td><td>' + itensHtml + '</td><td>R$ ' + parseFloat(p.valor || 0).toFixed(2) + '</td><td>' + estoqueHtml + '</td><td>' + entregaHtml + '</td><td class="' + p.status + '">' + (p.status === 'pago' ? '✅ Pago' : p.status) + '</td><td>' + envioHtml + '</td><td>' + new Date(p.criado_em).toLocaleString('pt-BR') + '</td></tr>';
       });
       html += '</table>';
       document.getElementById('tabelaContainer').innerHTML = html;
