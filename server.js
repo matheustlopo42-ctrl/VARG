@@ -686,12 +686,34 @@ app.get("/api/estoque", adminAuth, async (req, res) => {
 
 app.post("/api/estoque", adminAuth, async (req, res) => {
   const { produto_id, variacao, quantidade, alerta_minimo } = req.body;
+  const qtd = parseInt(quantidade) || 0;
+  const alerta = parseInt(alerta_minimo) || 5;
   try {
     await pool.query(
       "INSERT INTO estoque (produto_id, variacao, quantidade, alerta_minimo, atualizado_em) VALUES ($1, $2, $3, $4, NOW()) ON CONFLICT (produto_id, variacao) DO UPDATE SET quantidade = $3, alerta_minimo = $4, atualizado_em = NOW()",
-      [produto_id, variacao || "unico", parseInt(quantidade) || 0, parseInt(alerta_minimo) || 5]
+      [produto_id, variacao || "unico", qtd, alerta]
     );
     res.json({ success: true });
+
+    // Envia alerta se estoque estiver baixo ou zerado
+    if (qtd <= alerta) {
+      const varLabel = (variacao && variacao !== 'unico') ? ' - ' + variacao : '';
+      const subject = qtd === 0
+        ? 'VARG - Estoque ESGOTADO: ' + produto_id + varLabel
+        : 'VARG - Estoque baixo: ' + produto_id + varLabel;
+      const cor = qtd === 0 ? '#ff4d4d' : 'orange';
+      enviarEmail({
+        to: EMAIL_DESTINO,
+        subject,
+        html: '<h2 style="color:' + cor + '">⚠️ Alerta de Estoque</h2>' +
+          '<p><b>Produto:</b> ' + produto_id + varLabel + '</p>' +
+          '<p><b>Quantidade:</b> <span style="color:' + cor + ';font-size:1.5em;font-weight:bold;">' + qtd + '</span></p>' +
+          (qtd === 0
+            ? '<p style="color:#ff4d4d;font-weight:bold;">Produto ESGOTADO! Reponha o estoque.</p>'
+            : '<p>Estoque abaixo do mínimo (' + alerta + '). Considere repor.</p>') +
+          '<p style="margin-top:20px;"><a href="' + BASE_URL + '/admin-estoque.html" style="background:#DC143C;color:white;padding:10px 20px;border-radius:20px;text-decoration:none;font-weight:bold;">Gerenciar Estoque</a></p>'
+      }).catch(e => console.error('Erro email alerta estoque manual:', e.message));
+    }
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
