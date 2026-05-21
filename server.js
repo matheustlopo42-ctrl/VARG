@@ -361,7 +361,16 @@ app.post("/api/cupom/validar", async (req, res) => {
 });
 
 // ==================== PAINEL ADMIN ====================
+app.get("/admin.html", adminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, "admin.html"));
+});
+
 app.get("/admin", adminAuth, async (req, res) => {
+  // Redirect to static admin page
+  res.redirect("/admin.html?token=" + (req.query.token || ""));
+});
+
+app.get("/admin-legacy", adminAuth, async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM pedidos ORDER BY criado_em DESC");
     const tk = req.query.token || "";

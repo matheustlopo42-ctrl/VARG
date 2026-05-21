@@ -6,7 +6,7 @@ async function marcarEnviado(id) {
   if (!codigo) { alert('Digite o código de rastreio!'); return; }
   const res = await fetch('/api/pedidos/' + id + '/envio', {
     method: 'POST',
-    headers: {'Content-Type':'application/json', 'x-admin-token': adminToken},
+    headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
     body: JSON.stringify({ codigo_rastreio: codigo, status_envio: 'enviado' })
   });
   const data = await res.json();
