@@ -245,6 +245,42 @@ function validarEntrega() {
 
 let totalCarrinho = 0;
 let cartGlobal = [];
+let cupomAtivo = null;
+
+async function aplicarCupom() {
+    const codigo = document.getElementById('inputCupom').value.trim();
+    const statusEl = document.getElementById('cupomStatus');
+    if (!codigo) { statusEl.innerHTML = '<span style="color:#ff4d4d;">Digite um cupom.</span>'; return; }
+    statusEl.innerHTML = 'Verificando...';
+    try {
+        const res = await fetch('/api/cupom/validar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ codigo })
+        });
+        const data = await res.json();
+        if (data.valido) {
+            cupomAtivo = data;
+            const totalDescPix = totalCarrinho * (1 - data.desconto_pix / 100);
+            const totalDescCartao = totalCarrinho * (1 - data.desconto_cartao / 100);
+            statusEl.innerHTML = '<span style="color:#00ff88;">&#10003; Cupom <b>' + data.codigo + '</b> aplicado! PIX: ' + data.desconto_pix + '% off | Cartao: ' + data.desconto_cartao + '% off</span>';
+            document.getElementById('totalLabel').innerHTML =
+                '<span style="text-decoration:line-through;color:#888;font-size:0.85em;">' + formatPrice(totalCarrinho) + '</span> ' +
+                '<span style="color:#00ff88;font-weight:bold;">' + formatPrice(totalDescPix) + '</span> ' +
+                '<small style="color:#aaa;"> com cupom (PIX)</small>';
+            await generatePix(totalDescPix, cartGlobal);
+            await prepareCard(cartGlobal, totalDescCartao);
+        } else {
+            cupomAtivo = null;
+            statusEl.innerHTML = '<span style="color:#ff4d4d;">&#10007; ' + data.message + '</span>';
+            document.getElementById('totalLabel').textContent = formatPrice(totalCarrinho);
+            await generatePix(totalCarrinho, cartGlobal);
+            await prepareCard(cartGlobal, totalCarrinho);
+        }
+    } catch(e) {
+        statusEl.innerHTML = '<span style="color:#ff4d4d;">Erro ao verificar cupom.</span>';
+    }
+}
 
 async function loadCart() {
     let cart;
