@@ -288,7 +288,7 @@ async function generatePix(valor, cart) {
         const res = await fetch('/pix', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: Math.round(valor * 100), cart, entrega, nome: entrega.nome, pedidoId })
+            body: JSON.stringify({ amount: Math.round(valor * 100), cart, entrega, nome: entrega.nome, pedidoId, cupom: cupomAtivo ? cupomAtivo.codigo : null })
         });
         const data = await res.json();
         if (data.success && data.pix_code) {
