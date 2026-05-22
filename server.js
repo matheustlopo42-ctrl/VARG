@@ -217,7 +217,7 @@ app.post("/pix", async (req, res) => {
 
   await pool.query(
     "INSERT INTO pedidos (payment_id, external_id, cliente_nome, cliente_email, valor, status, itens, entrega, cupom) VALUES ($1, $2, $3, $4, $5, 'pendente', $6, $7, $8) ON CONFLICT (payment_id) DO NOTHING",
-    ["PIX_PENDING_" + externalId, externalId, req.body.nome || "", "", valor, JSON.stringify(cart), entrega ? JSON.stringify(entrega) : null]
+    ["PIX_PENDING_" + externalId, externalId, req.body.nome || "", "", valor, JSON.stringify(cart), entrega ? JSON.stringify(entrega) : null, req.body.cupom || null]
   ).catch(() => {});
 
   const payload = JSON.stringify({ amount: valor, description: "Pedido VARG", external_id: externalId, webhook_url: BASE_URL + "/webhook/pixgo" });
