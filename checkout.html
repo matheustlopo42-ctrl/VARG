@@ -110,6 +110,18 @@
         <div class="entrega-ok" id="entregaOk">✅ Dados de entrega preenchidos!</div>
     </section>
 
+    <!-- CUPOM -->
+    <section class="section">
+        <h2>🏷️ Cupom de Desconto</h2>
+        <div style="display:flex;gap:10px;align-items:flex-end;">
+            <div style="flex:1;">
+                <input id="inputCupom" type="text" placeholder="Digite seu cupom" style="width:100%;background:#333;border:1px solid #444;border-radius:8px;padding:10px 14px;color:#eee;font-size:0.95em;outline:none;text-transform:uppercase;" />
+            </div>
+            <button onclick="aplicarCupom()" style="background:#00BFFF;color:#111;border:none;border-radius:8px;padding:10px 20px;cursor:pointer;font-weight:bold;white-space:nowrap;">Aplicar</button>
+        </div>
+        <div id="cupomStatus" style="margin-top:10px;font-size:0.9em;"></div>
+    </section>
+
     <!-- PIX -->
     <section class="section">
         <h2>💚 Pagar com PIX</h2>
