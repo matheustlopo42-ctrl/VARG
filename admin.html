@@ -156,7 +156,7 @@
       return m ? m[1] : 'unico';
     }
     function renderizarTabela(pedidos, estoqueMap) {
-      let html = '<table id="tabelaPedidos"><tr><th>ID Pagamento</th><th>Cliente</th><th>Email</th><th>Produtos</th><th>Valor</th><th>Estoque</th><th>Entrega</th><th>Status</th><th>Envio</th><th>Data</th></tr>';
+      let html = '<table id="tabelaPedidos"><tr><th>ID Pagamento</th><th>Cliente</th><th>Email</th><th>Produtos</th><th>Valor</th><th>Cupom</th><th>Estoque</th><th>Entrega</th><th>Status</th><th>Envio</th><th>Data</th></tr>';
       pedidos.forEach(p => {
         let itens = [];
         try { itens = JSON.parse(p.itens || '[]'); } catch(e) {}
@@ -186,7 +186,8 @@
           }).filter(Boolean);
           if (parts.length) estoqueHtml = parts.join('<br>');
         }
-        html += '<tr><td style="font-size:0.75em">' + (p.payment_id || '-') + '</td><td>' + (p.cliente_nome || '-') + '</td><td>' + (p.cliente_email || '-') + '</td><td>' + itensHtml + '</td><td>R$ ' + parseFloat(p.valor || 0).toFixed(2) + '</td><td>' + estoqueHtml + '</td><td>' + entregaHtml + '</td><td class="' + p.status + '">' + (p.status === 'pago' ? '✅ Pago' : p.status) + '</td><td>' + envioHtml + '</td><td>' + new Date(p.criado_em).toLocaleString('pt-BR') + '</td></tr>';
+        var cupomHtml = p.cupom ? '<span style="background:rgba(0,255,136,0.15);color:#00ff88;border:1px solid #00ff88;padding:2px 8px;border-radius:10px;font-size:0.8em;font-weight:bold;">' + p.cupom + '</span>' : '<span style="color:#555;">-</span>';
+        html += '<tr><td style="font-size:0.75em">' + (p.payment_id || '-') + '</td><td>' + (p.cliente_nome || '-') + '</td><td>' + (p.cliente_email || '-') + '</td><td>' + itensHtml + '</td><td>R$ ' + parseFloat(p.valor || 0).toFixed(2) + '</td><td>' + cupomHtml + '</td><td>' + estoqueHtml + '</td><td>' + entregaHtml + '</td><td class="' + p.status + '">' + (p.status === 'pago' ? '✅ Pago' : p.status) + '</td><td>' + envioHtml + '</td><td>' + new Date(p.criado_em).toLocaleString('pt-BR') + '</td></tr>';
       });
       html += '</table>';
       document.getElementById('tabelaContainer').innerHTML = html;
