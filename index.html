@@ -145,17 +145,6 @@
     .section-label::after{content:'';flex:1;height:3px;background:linear-gradient(90deg,var(--red),transparent);border-radius:2px}
 
     /* TOP SELLERS */
-    .top-sellers-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.5rem;text-transform:uppercase;letter-spacing:.04em;margin:0 0 16px;display:flex;align-items:center;gap:12px;color:#fff}
-    .top-sellers-title::after{content:'';flex:1;height:2px;background:linear-gradient(90deg,var(--red),transparent)}
-    .top-sellers-scroll{display:flex;gap:16px;overflow-x:auto;padding-bottom:12px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
-    .top-sellers-scroll::-webkit-scrollbar{height:4px}
-    .top-sellers-scroll::-webkit-scrollbar-thumb{background:var(--red);border-radius:4px}
-    .top-sellers-scroll .card{min-width:200px;width:200px;scroll-snap-align:start;flex-shrink:0}
-    .ver-mais-wrap{text-align:center;margin:32px 0 8px}
-    .btn-ver-mais{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;text-transform:uppercase;letter-spacing:.06em;padding:12px 32px;border:1px solid var(--red);border-radius:50px;background:none;color:var(--red);cursor:pointer;transition:all .2s}
-    .btn-ver-mais:hover{background:var(--red);color:#fff}
-    .todos-produtos{display:none}
-    .todos-produtos.aberto{display:block}
     .cat-grid-2col{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
     @media(min-width:768px){.cat-grid-2col{grid-template-columns:repeat(3,1fr);gap:16px}}
 
@@ -288,9 +277,7 @@
     }
   });
   document.addEventListener('vargLangChanged', applyAll);
-document.addEventListener('vargLangChanged', function() {
-  if (typeof renderGrid === 'function') { renderGrid(); }
-});
+document.addEventListener('vargLangChanged', function() { if(typeof renderGrid==='function') renderGrid(); });
   window.PEP_LANG_APPLY = applyAll;
 })();
 </script>
@@ -425,14 +412,7 @@ document.addEventListener('vargLangChanged', function() {
 
 <!-- PRODUTOS -->
 <section class="produtos-section" id="produtos">
-  <div id="topSellersSection">
-    <h2 class="top-sellers-title" id="smelling-salt">🔥 <span data-i18n="home.topsellers">Top Sellers</span></h2>
-    <div class="top-sellers-scroll" id="topSellersGrid"></div>
-    <div class="ver-mais-wrap">
-      <button class="btn-ver-mais" onclick="toggleTodosProdutos()" id="btnVerMais" data-i18n="home.verMais">Ver todos os produtos ↓</button>
-    </div>
-  </div>
-  <div class="todos-produtos" id="todosProdutos">
+  <div id="produtosSection">
     <div class="section-label"><h2 data-i18n="products.title">Equipamentos</h2></div>
     <div id="produtosGrid"></div>
   </div>
@@ -529,7 +509,6 @@ const CATALOGO = [
   { id:'camiseta-preta-dourado', nomes:{pt:'Camiseta VARG preta com logo dourado',en:'VARG Black T-shirt gold logo',es:'Camiseta VARG negra logo dorado',de:'VARG Schwarzes T-Shirt goldenes Logo',fr:'T-shirt VARG noir logo doré'}, nome:'Camiseta VARG preta com logo dourado', cats:{pt:'Camiseta',en:'T-shirt',es:'Camiseta',de:'T-Shirt',fr:'T-shirt'}, precoAntes:109.90,preco:89.90, img:'img/4.png', catClass:'shirt', temTamanho:true  },
   { id:'camiseta-azul-branco',   nomes:{pt:'Camiseta VARG azul marinho com logo branco',en:'VARG Navy T-shirt white logo',es:'Camiseta VARG azul marino logo blanco',de:'VARG Marineblau T-Shirt weißes Logo',fr:'T-shirt VARG bleu marine logo blanc'}, nome:'Camiseta VARG azul marinho com logo branco', cats:{pt:'Camiseta',en:'T-shirt',es:'Camiseta',de:'T-Shirt',fr:'T-shirt'}, precoAntes:109.90,preco:89.90, img:'img/5.png', catClass:'shirt', temTamanho:true  },
 ];
-const TOP_SELLERS = ['varg-salt','camiseta-preta-branco','camiseta-preta-dourado'];
 const TAMANHOS = ['P','M','G','GG','XGG','3GG','4GG','5GG'];
 
 const fmt = v => 'R$ ' + parseFloat(v).toFixed(2).replace('.',',');
@@ -570,34 +549,19 @@ async function carregarEstoque() {
 }
 
 function renderGrid() {
-  const ts = document.getElementById('topSellersGrid');
   const pg = document.getElementById('produtosGrid');
-  const topIds = TOP_SELLERS;
-  if(ts){ ts.innerHTML = CATALOGO.filter(p=>topIds.includes(p.id)).map(p=>mkCard(p,estoqueMap)).join(''); }
-
-  // Smelling Salt
   const salts = CATALOGO.filter(p=>p.catClass==='salt');
   const shirts = CATALOGO.filter(p=>p.catClass==='shirt');
   if(pg){
-    pg.innerHTML = `
-      <h3 id="smelling-salt-all" style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#DC143C;margin:0 0 16px;">SMELLING SALT</h3>
-      <div class="cat-grid-2col" style="margin-bottom:40px">${salts.map(p=>mkCard(p,estoqueMap)).join('')}</div>
-      <h3 id="camisetas" style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#DC143C;margin:0 0 16px;">VARG WEAR</h3>
-      <div class="cat-grid-2col">${shirts.map(p=>mkCard(p,estoqueMap)).join('')}</div>`;
+    pg.innerHTML =
+      `<h3 id="smelling-salt" style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#DC143C;margin:0 0 16px;">SMELLING SALT</h3>`
+      +`<div class="cat-grid-2col" style="margin-bottom:40px">${salts.map(p=>mkCard(p,estoqueMap)).join('')}</div>`
+      +`<h3 id="camisetas" style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#DC143C;margin:0 0 16px;">VARG WEAR</h3>`
+      +`<div class="cat-grid-2col">${shirts.map(p=>mkCard(p,estoqueMap)).join('')}</div>`;
   }
 }
 
-function toggleTodosProdutos() {
-  var el = document.getElementById('todosProdutos');
-  var btn = document.getElementById('btnVerMais');
-  var open = el.classList.toggle('aberto');
-  var lang = (window.PEP_LANG && window.PEP_LANG.get()) || localStorage.getItem('varg_lang') || 'pt';
-  var dict = window.PEPMASTERS_I18N || {};
-  var t = function(k) { return (dict[k] && (dict[k][lang] || dict[k]['pt'] || dict[k]['en'])) || k; };
-  btn.setAttribute('data-i18n', open ? 'home.verMenos' : 'home.verMais');
-  btn.textContent = open ? t('home.verMenos') : t('home.verMais');
-  if(open) el.scrollIntoView({behavior:'smooth',block:'start'});
-}
+
 
 // QTD LOGIC
 function iniciarAdd(id) {
@@ -666,7 +630,7 @@ function irProduto(id) {
   document.getElementById('headerSearch').value='';
   const el = document.getElementById('card-'+id);
   if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); }
-  else { toggleTodosProdutos(); setTimeout(()=>{ const el2=document.getElementById('card-'+id); if(el2) el2.scrollIntoView({behavior:'smooth',block:'center'}); },300); }
+  else { setTimeout(()=>{ const el2=document.getElementById('card-'+id); if(el2) el2.scrollIntoView({behavior:'smooth',block:'center'}); },300); }
 }
 document.addEventListener('click', e=>{ if(!e.target.closest('.search-suggestions-wrap')) document.getElementById('searchSuggestions').style.display='none'; });
 
