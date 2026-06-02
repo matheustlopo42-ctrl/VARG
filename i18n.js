@@ -213,4 +213,39 @@ window.PEPMASTERS_I18N = {
   "about.title":      { en:"Who We Are", pt:"Quem Somos", es:"Quiénes Somos", de:"Über uns", fr:"Qui sommes-nous" },
   "about.subtitle":   { en:"The story and values behind VARG.", pt:"A história e os valores por trás da VARG.", es:"La historia y los valores detrás de VARG.", de:"Die Geschichte und Werte hinter VARG.", fr:"L'histoire et les valeurs derrière VARG." },
 
+  // ===== QUEM SOMOS =====
+  "about.h1":           { en:"Our History",         pt:"A Nossa História",     es:"Nuestra Historia",    de:"Unsere Geschichte",    fr:"Notre Histoire" },
+  "about.p1":           { en:"VARG was born in São José dos Campos with an undeniable purpose: to equip those who seek physical and mental excellence through strength training.", pt:"A VARG nasceu em São José dos Campos com um propósito inegociável: equipar aqueles que buscam a excelência física e mental através do treinamento de força.", es:"VARG nació en São José dos Campos para equipar a quienes buscan la excelencia física y mental.", de:"VARG wurde in São José dos Campos gegründet, um diejenigen auszurüsten, die körperliche und geistige Exzellenz anstreben.", fr:"VARG est né à São José dos Campos pour équiper ceux qui cherchent l'excellence physique et mentale." },
+  "about.p2":           { en:"The name 'Pack' reflects our philosophy. Although weightlifting is an individual effort, no one truly evolves alone. We created a community of athletes.", pt:"O nome 'Matilha' reflete nossa filosofia. Embora o levantamento de peso seja um esforço individual, ninguém evolui verdadeiramente sozinho. Criamos uma comunidade de atletas.", es:"El nombre 'Manada' refleja nuestra filosofía. Creamos una comunidad de atletas.", de:"Der Name 'Rudel' spiegelt unsere Philosophie wider. Wir haben eine Gemeinschaft von Athleten gegründet.", fr:"Le nom 'Meute' reflète notre philosophie. Nous avons créé une communauté d'athlètes." },
+  "about.mission.title":{ en:"Our Mission",          pt:"Nossa Missão",          es:"Nuestra Misión",       de:"Unsere Mission",        fr:"Notre Mission" },
+  "about.mission.text": { en:"Provide elite tools and high-performance apparel for strength athletes, fostering serious training culture and pack unity.", pt:"Prover ferramentas de elite e vestuário de alta performance para atletas de força, fomentando a cultura do treinamento sério e a união da matilha.", es:"Proveer herramientas de élite y ropa de alto rendimiento para atletas de fuerza.", de:"Elite-Werkzeuge und Hochleistungskleidung für Kraftsportler bereitstellen.", fr:"Fournir des outils d'élite et des vêtements haute performance pour les athlètes de force." },
+  "about.values.title": { en:"Our Values",           pt:"Nossos Valores",        es:"Nuestros Valores",    de:"Unsere Werte",          fr:"Nos Valeurs" },
+  "about.v1.title":     { en:"Strength",             pt:"Força",                 es:"Fuerza",              de:"Stärke",                fr:"Force" },
+  "about.v1.text":      { en:"The foundation of everything we do. We value constant evolution and the power of effort.", pt:"A base de tudo o que fazemos. Valorizamos a evolução constante e o poder do esforço.", es:"La base de todo lo que hacemos.", de:"Die Grundlage von allem, was wir tun.", fr:"La base de tout ce que nous faisons." },
+  "about.v2.title":     { en:"Loyalty",              pt:"Lealdade",              es:"Lealtad",             de:"Loyalität",             fr:"Loyauté" },
+  "about.v2.text":      { en:"Respect for pack members and commitment to truth in sport.", pt:"Respeito aos membros da matilha e compromisso com a verdade no esporte.", es:"Respeto a los miembros de la manada.", de:"Respekt für Rudelmitglieder und Engagement für Wahrheit im Sport.", fr:"Respect des membres de la meute." },
+  "about.v3.title":     { en:"Performance",          pt:"Performance",           es:"Performance",         de:"Performance",           fr:"Performance" },
+  "about.v3.text":      { en:"Products tested under maximum stress to guarantee real results.", pt:"Produtos testados sob estresse máximo para garantir resultados reais no ferro.", es:"Productos probados bajo estrés máximo.", de:"Unter maximaler Belastung getestete Produkte.", fr:"Produits testés sous stress maximum." },
+  "about.v4.title":     { en:"Authenticity",         pt:"Autenticidade",         es:"Autenticidad",        de:"Authentizität",         fr:"Authenticité" },
+  "about.v4.text":      { en:"No shortcuts, no fads. Focus on what really works for serious trainers.", pt:"Sem atalhos, sem modismos. Foco no que realmente funciona para quem treina sério.", es:"Sin atajos. Enfoque en lo que realmente funciona.", de:"Keine Abkürzungen. Fokus auf das, was wirklich funktioniert.", fr:"Pas de raccourcis. Focus sur ce qui fonctionne vraiment." },
+
+  // ===== ENVIO =====
+  "shipping.subtitle":  { en:"Worldwide delivery information", pt:"Informações sobre entrega worldwide", es:"Información sobre envíos mundiales", de:"Informationen zum weltweiten Versand", fr:"Informations sur la livraison mondiale" },
+  "shipping.h2":        { en:"Tracking",             pt:"Rastreamento",          es:"Seguimiento",         de:"Sendungsverfolgung",    fr:"Suivi" },
+  "shipping.tracking":  { en:"After shipping, you will receive an email with the tracking code.", pt:"Após o envio, você receberá um email com o código de rastreio. Acompanhe pelo site dos Correios ou pelo nosso rastreador.", es:"Después del envío, recibirás un email con el código de seguimiento.", de:"Nach dem Versand erhalten Sie eine E-Mail mit dem Tracking-Code.", fr:"Après l'expédition, vous recevrez un e-mail avec le code de suivi." },
+  "shipping.h3":        { en:"Customs",              pt:"Alfândega",             es:"Aduana",              de:"Zoll",                  fr:"Douane" },
+  "shipping.customs":   { en:"International orders may go through customs inspection. Import taxes are the buyer's responsibility.", pt:"Pedidos internacionais podem passar por inspeção alfandegária. Impostos e taxas de importação são de total responsabilidade do comprador.", es:"Los pedidos internacionales pueden pasar por inspección aduanera.", de:"Internationale Bestellungen können einer Zollkontrolle unterzogen werden.", fr:"Les commandes internationales peuvent passer par le contrôle douanier." },
+
+  // ===== TROCAS =====
+  "returns.subtitle":   { en:"Our returns policy", pt:"Nossa política de devoluções", es:"Nuestra política de devoluciones", de:"Unsere Rückgaberichtlinie", fr:"Notre politique de retours" },
+
+  // ===== CART =====
+  "cart.subtotal":      { en:"Subtotal",             pt:"Subtotal",              es:"Subtotal",            de:"Zwischensumme",         fr:"Sous-total" },
+  "cart.clear":         { en:"Clear cart",           pt:"Limpar carrinho",       es:"Vaciar carrito",      de:"Warenkorb leeren",      fr:"Vider le panier" },
+
+  // ===== FOOTER =====
+  "footer.profile":     { en:"My Profile",           pt:"Meu Perfil",            es:"Mi Perfil",           de:"Mein Profil",           fr:"Mon Profil" },
+  "footer.account":     { en:"My Account",           pt:"Minha Conta",           es:"Mi Cuenta",           de:"Mein Konto",            fr:"Mon Compte" },
+  "nav.faq":            { en:"FAQ",                  pt:"Dúvidas",               es:"Preguntas",           de:"FAQ",                   fr:"FAQ" },
+
 };
