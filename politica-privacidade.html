@@ -25,7 +25,7 @@
             color: var(--text-color);
             line-height: 1.6;
             overflow-x: hidden;
-            padding-top: 70px;
+            
         }
         header {
             position: fixed;
@@ -364,26 +364,86 @@
     nav ul li:hover .dropdown-content { display: block; }
     .cart-icon { color: #00BFFF; font-size: 1.4rem; cursor: pointer; }
   </style>
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--red:#DC143C;--red2:#b01030}
+header.slim{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(0,0,0,0.97);border-bottom:3px solid var(--red);box-shadow:0 2px 20px rgba(220,20,60,.2)}
+.slim-inner{max-width:1200px;margin:0 auto;padding:0 18px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.slim-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.slim-logo img{height:36px;width:36px;object-fit:contain;filter:brightness(1.8) contrast(1.3)}
+.slim-logo span{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.2rem;letter-spacing:.04em;color:#DC143C;line-height:1;white-space:nowrap}
+.slim-right{display:flex;align-items:center;gap:10px}
+.slim-back{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:#aaa;text-decoration:none;padding:5px 10px;border-radius:6px;transition:all .2s;white-space:nowrap}
+.slim-back:hover{color:#fff;background:rgba(255,255,255,.07)}
+body{padding-top:59px}
+</style>
+
+<style>header:not(.slim){display:none!important}body{padding-top:59px!important}</style>
 </head>
 <body>
-      <header>
-    <nav>
-      <ul>
-        <li><a href="/index.html">Início</a></li>
-        <li id="authArea"><a href="/login.html">Já é cadastrado?</a></li>
-        <li class="dropdown">
-          <a href="#">Produtos <i class="fa-solid fa-chevron-down" style="font-size:0.7em;"></i></a>
-          <ul class="dropdown-content">
-            <li><a href="/index.html#smelling-salt">Smelling Salt</a></li>
-            <li><a href="/index.html#camisetas">Camisetas</a></li>
-          </ul>
-        </li>
-      </ul>
-    </nav>
-    <div class="cart-icon" onclick="window.location.href='/index.html'">
-      <i class="fa-solid fa-bag-shopping"></i>
+<header class="slim">
+  <div class="slim-inner">
+    <a href="/index.html" class="slim-logo">
+      <img src="/img/lobovinho-removebg-preview.png" alt="VARG"/>
+      <span>VARG</span>
+    </a>
+    <div class="slim-right">
+      <a href="/index.html" class="slim-back" data-i18n="nav.home">← Loja</a>
     </div>
-  </header>
+  </div>
+</header>
+<script src="/i18n.js"></script>
+<script src="/i18n-init.js"></script>
+
+<script src="/i18n-init.js"></script>
+<script>
+// ===== AUTH =====
+(function(){
+  var nome=localStorage.getItem('usuarioNome');
+  var a=document.getElementById('hdrAuthArea');
+  var m=document.getElementById('hdrMobAuth');
+  if(nome){
+    a.innerHTML='<a href="/meus-pedidos.html" style="color:#ccc;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:.78rem;text-transform:uppercase;text-decoration:none;white-space:nowrap;padding:4px 7px;border-radius:6px;transition:.2s;" onmouseover="this.style.color=\'#DC143C\'" onmouseout="this.style.color=\'#ccc\'" data-i18n="nav.orders">Pedidos</a>'
+      +'<a href="#" onclick="localStorage.removeItem(\'usuarioNome\');localStorage.removeItem(\'usuarioEmail\');location.href=\'/index.html\';" style="color:#DC143C;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:.78rem;text-transform:uppercase;text-decoration:none;white-space:nowrap;padding:4px 7px;" data-i18n="nav.logout">Sair</a>';
+    if(m) m.innerHTML='<a href="/meus-pedidos.html" style="background:none;border:1px solid #333;color:#eee;" data-i18n="nav.orders">Pedidos</a><a href="#" onclick="localStorage.removeItem(\'usuarioNome\');location.href=\'/index.html\';" style="background:#DC143C;color:#fff;" data-i18n="nav.logout">Sair</a>';
+  } else {
+    a.innerHTML='<a href="/login.html" class="hdr-btn-login" data-i18n="nav.login">Login</a><a href="/cadastro.html" class="hdr-btn-cadastro" data-i18n="nav.register">Cadastrar</a>';
+    if(m) m.innerHTML='<a href="/login.html" style="background:none;border:1px solid #333;color:#eee;">Login</a><a href="/cadastro.html" style="background:#DC143C;color:#fff;">Cadastrar</a>';
+  }
+})();
+// ===== BUSCA =====
+var VARG_CAT=[
+  {id:'varg-salt',nome:'VARG Salt 30g',cat:'Smelling Salt',preco:2.00,img:'/img/smelling.png'},
+  {id:'camiseta-preta-branco',nome:'Camiseta VARG preta com logo branco',cat:'Camiseta',preco:89.90,img:'/img/1.png'},
+  {id:'camiseta-preta-azul',nome:'Camiseta VARG preta com logo azul',cat:'Camiseta',preco:89.90,img:'/img/2.png'},
+  {id:'camiseta-branca-preto',nome:'Camiseta VARG branca com logo preto',cat:'Camiseta',preco:89.90,img:'/img/3.png'},
+  {id:'camiseta-preta-dourado',nome:'Camiseta VARG preta com logo dourado',cat:'Camiseta',preco:89.90,img:'/img/4.png'},
+  {id:'camiseta-azul-branco',nome:'Camiseta VARG azul marinho com logo branco',cat:'Camiseta',preco:89.90,img:'/img/5.png'}
+];
+function hdrBuscar(q){
+  var box=document.getElementById('hdrSuggestions');
+  if(!q.trim()){box.style.display='none';return;}
+  var r=VARG_CAT.filter(function(p){return p.nome.toLowerCase().includes(q.toLowerCase());});
+  if(!r.length){box.innerHTML='<div style="padding:14px;text-align:center;color:#666;font-size:.85rem">Nenhum produto encontrado</div>';box.style.display='block';return;}
+  box.innerHTML=r.map(function(p){
+    var hl=p.nome.replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>');
+    return '<div class="hdr-sugg-item" onclick="hdrIrProduto(\''+p.id+'\')"><img src="'+p.img+'" alt=""><div style="flex:1"><div class="hdr-sugg-name">'+hl+'</div><div class="hdr-sugg-cat">'+p.cat+'</div></div><span class="hdr-sugg-price">R$ '+p.preco.toFixed(2).replace('.',',')+'</span></div>';
+  }).join('');
+  box.style.display='block';
+}
+function hdrIrProduto(id){
+  document.getElementById('hdrSuggestions').style.display='none';
+  document.getElementById('hdrSearchInput').value='';
+  window.location.href='/index.html#card-'+id;
+}
+document.addEventListener('click',function(e){if(!e.target.closest('.hdr-search-wrap')) document.getElementById('hdrSuggestions').style.display='none';});
+// ===== MOBILE =====
+function hdrToggleMob(){var m=document.getElementById('hdrMobMenu'),o=document.getElementById('hdrMobOverlay'),h=document.getElementById('hdrHamburger');m.classList.toggle('open');o.classList.toggle('open');h.classList.toggle('open');}
+</script>
+      
 
     <section class="hero">
         <h1>POLÍTICA DE PRIVACIDADE</h1>
@@ -490,12 +550,7 @@
     </div>
 
     <!-- CARRINHO SIDEBAR — EXATO DO INDEX -->
-    <div id="cartSidebar" class="cart-sidebar">
-      <div class="cart-header">
-        <h4>Seu Carrinho</h4>
-        <i class="fa-solid fa-xmark" style="cursor:pointer" onclick="toggleCart()"></i>
-      </div>
-      <div class="cart-items">
+    <div class="cart-items">
         <p>Seu carrinho está vazio.</p>
       </div>
     </div>
@@ -641,26 +696,6 @@
             if (e.target === this) fecharModalLogin();
         });
     </script>
-  <script>
-    (function() {
-      const nome = localStorage.getItem('usuarioNome');
-      const authArea = document.getElementById('authArea');
-      if (nome && authArea) {
-        authArea.innerHTML = `
-          <div style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap;">
-            <span style="color:#00BFFF;font-weight:bold;"><i class="fa-solid fa-user" style="margin-right:6px;"></i>Olá, ${nome}</span>
-            <a href="#" id="btnSairNav" style="color:#DC143C;font-weight:bold;text-decoration:none;">(Sair)</a>
-            <a href="/meus-pedidos.html" style="color:#fff;font-weight:600;text-decoration:none;transition:0.2s;" onmouseover="this.style.color='#DC143C'" onmouseout="this.style.color='#fff'"><i class="fa-solid fa-box" style="margin-right:5px;"></i>Meus Pedidos</a>
-            <a href="/rastrear-pedido.html" style="color:#fff;font-weight:600;text-decoration:none;transition:0.2s;" onmouseover="this.style.color='#DC143C'" onmouseout="this.style.color='#fff'"><i class="fa-solid fa-truck" style="margin-right:5px;"></i>Rastrear</a>
-          </div>`;
-        document.getElementById('btnSairNav').addEventListener('click', function(e) {
-          e.preventDefault();
-          localStorage.removeItem('usuarioNome');
-          localStorage.removeItem('usuarioEmail');
-          window.location.href = '/index.html';
-        });
-      }
-    })();
-  </script>
+  
 </body>
 </html>
