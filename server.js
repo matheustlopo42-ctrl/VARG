@@ -5,6 +5,7 @@ const path = require("path");
 const https = require("https");
 const crypto = require("crypto");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,23 +24,27 @@ app.use(cors());
 app.use(express.static(path.join(__dirname)));
 
 // ==================== CREDENCIAIS ====================
-const PIXGO_API_KEY = process.env.PIXGO_API_KEY || "pk_a11c371cd9771d6c91e5211016d350e15f349161f001754109a8eb0a2e92233b";
+const PIXGO_API_KEY   = process.env.PIXGO_API_KEY   || "pk_a11c371cd9771d6c91e5211016d350e15f349161f001754109a8eb0a2e92233b";
 const PIXGO_WEBHOOK_SECRET = process.env.PIXGO_WEBHOOK_SECRET || "whsec_5fcff2c2534505e4d0d9fbceed4c47f39e1d558bf508712a531f957e0ee3c99d";
-const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN || "TEST-8514428929430007-051219-1ffa08d06b14b182133e70460fcdd29c-239972134";
-const BASE_URL = process.env.BASE_URL || "https://varg-bnlz.onrender.com";
-const EMAIL_USER = process.env.EMAIL_USER || "matheustlopo42@gmail.com";
-const EMAIL_PASS = process.env.EMAIL_PASS || "pplezzjcvzyakzdc";
-const EMAIL_DESTINO = process.env.EMAIL_DESTINO || "varg.oficialstore@gmail.com";
-const WA_PHONE = process.env.WA_PHONE || "5512988875509";
-const WA_APIKEY = process.env.WA_APIKEY || "";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "159357456258";
+const BASE_URL        = process.env.BASE_URL        || "https://varg-bnlz.onrender.com";
+const EMAIL_DESTINO   = process.env.EMAIL_DESTINO   || "varg.oficialstore@gmail.com";
+const WA_PHONE        = process.env.WA_PHONE        || "5512988875509";
+const WA_APIKEY       = process.env.WA_APIKEY       || "";
+const ADMIN_PASSWORD  = process.env.ADMIN_PASSWORD  || "159357456258";
+const JWT_SECRET      = process.env.JWT_SECRET      || "varg_jwt_secret_2025";
 
 // ==================== RESEND ====================
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "re_H34dbCvj_JYsUmRBKpMNXbCaLf6ZKeEM3";
-const resend = new (require("resend").Resend)(RESEND_API_KEY);
+const { Resend } = require("resend");
+const resend = new Resend(RESEND_API_KEY);
 
 async function enviarEmail({ to, subject, html }) {
-  const { error } = await resend.emails.send({ from: "VARG <onboarding@resend.dev>", to, subject, html });
+  const { error } = await resend.emails.send({
+    from: "VARG <onboarding@resend.dev>",
+    to,
+    subject,
+    html,
+  });
   if (error) throw new Error(JSON.stringify(error));
 }
 
@@ -56,33 +61,53 @@ async function enviarWhatsApp(mensagem) {
   });
 }
 
+// ==================== EMAIL TEMPLATES ====================
+function emailConfirmacaoCliente({ nome, pedidoId, itens, entrega, valor, metodo }) {
+  const itensHtml = itens.length > 0
+    ? "<ul>" + itens.map(i => `<li>${i.quantidade}x ${i.nome} — R$ ${parseFloat(i.preco * i.quantidade).toFixed(2)}</li>`).join("") + "</ul>"
+    : "<p>Produto VARG</p>";
+  const entregaHtml = entrega
+    ? `<p><b>Endereço:</b> ${entrega.rua}, ${entrega.numero}${entrega.complemento ? " " + entrega.complemento : ""} — ${entrega.bairro}, ${entrega.cidade}/${entrega.estado} — CEP: ${entrega.cep}</p>`
+    : "";
+  return `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;background:#0a0a0a;color:#eee;border-radius:12px;overflow:hidden;">
+      <div style="background:#DC143C;padding:25px 30px;text-align:center;">
+        <h1 style="color:#fff;margin:0;letter-spacing:3px;">VARG</h1>
+        <p style="color:rgba(255,255,255,0.8);margin:5px 0 0;">Pedido Confirmado ✅</p>
+      </div>
+      <div style="padding:30px;">
+        <p>Olá, <b>${nome}</b>!</p>
+        <p>Recebemos seu pedido e estamos processando. Em breve você receberá mais atualizações.</p>
+        <div style="background:#1a1a1a;border-radius:10px;padding:20px;margin:20px 0;border-left:4px solid #DC143C;">
+          <p style="color:#DC143C;font-weight:bold;margin:0 0 10px;">Resumo do Pedido #${pedidoId}</p>
+          ${itensHtml}
+          <p style="margin-top:12px;"><b>Total:</b> <span style="color:#DC143C;font-size:1.1em;font-weight:bold;">R$ ${parseFloat(valor).toFixed(2)}</span></p>
+          <p><b>Pagamento:</b> ${metodo}</p>
+        </div>
+        ${entregaHtml}
+        <p style="color:#888;font-size:0.9em;margin-top:20px;">Prazo de entrega: 25 a 40 dias úteis. Em caso de dúvidas, entre em contato via <a href="https://wa.me/${WA_PHONE}" style="color:#DC143C;">WhatsApp</a>.</p>
+      </div>
+      <div style="background:#050505;padding:15px;text-align:center;color:#555;font-size:0.8em;">
+        © 2026 VARG - A Matilha &nbsp;|&nbsp; <a href="${BASE_URL}" style="color:#DC143C;text-decoration:none;">vargmatilha.com.br</a>
+      </div>
+    </div>`;
+}
 
 // ==================== HELPER ESTOQUE ====================
-const PRODUTO_MAP = {
-  'varg salt': { id: 'varg-salt', var: 'unico' },
-  'camiseta varg preta com logo branco': 'camiseta-preta-branco',
-  'camiseta varg preta com logo azul': 'camiseta-preta-azul',
-  'camiseta varg branca com logo preto': 'camiseta-branca-preto',
-  'camiseta varg preta com logo dourado': 'camiseta-preta-dourado',
-  'camiseta varg azul marinho com logo branco': 'camiseta-azul-branco',
-};
-
 function getProdutoId(nomeItem) {
-  const nome = (nomeItem || '').toLowerCase();
-  if (nome.includes('salt') || nome.includes('varg salt')) return 'varg-salt';
-  if (nome.includes('preta') && nome.includes('branco')) return 'camiseta-preta-branco';
-  if (nome.includes('preta') && nome.includes('azul')) return 'camiseta-preta-azul';
-  if (nome.includes('branca')) return 'camiseta-branca-preto';
-  if (nome.includes('dourado')) return 'camiseta-preta-dourado';
-  if (nome.includes('azul')) return 'camiseta-azul-branco';
+  const nome = (nomeItem || "").toLowerCase();
+  if (nome.includes("salt") || nome.includes("varg salt")) return "varg-salt";
+  if (nome.includes("preta") && nome.includes("branco")) return "camiseta-preta-branco";
+  if (nome.includes("preta") && nome.includes("azul"))   return "camiseta-preta-azul";
+  if (nome.includes("branca")) return "camiseta-branca-preto";
+  if (nome.includes("dourado")) return "camiseta-preta-dourado";
+  if (nome.includes("azul"))   return "camiseta-azul-branco";
   return null;
 }
-
 function getVariacao(nomeItem) {
-  const match = (nomeItem || '').match(/Tam\.\s*(\w+)/i);
-  return match ? match[1] : 'unico';
+  const match = (nomeItem || "").match(/Tam\.\s*(\w+)/i);
+  return match ? match[1] : "unico";
 }
-
 async function decrementarEstoque(itens) {
   for (const item of itens) {
     const produtoId = getProdutoId(item.nome);
@@ -90,12 +115,10 @@ async function decrementarEstoque(itens) {
     const variacao = getVariacao(item.nome);
     const qtd = parseInt(item.quantidade) || 1;
     try {
-      // Decrement
       await pool.query(
         "UPDATE estoque SET quantidade = GREATEST(quantidade - $1, 0), atualizado_em = NOW() WHERE produto_id = $2 AND variacao = $3",
         [qtd, produtoId, variacao]
       );
-      // Check if below alert
       const check = await pool.query(
         "SELECT quantidade, alerta_minimo FROM estoque WHERE produto_id = $1 AND variacao = $2",
         [produtoId, variacao]
@@ -103,25 +126,18 @@ async function decrementarEstoque(itens) {
       if (check.rows.length > 0) {
         const { quantidade, alerta_minimo } = check.rows[0];
         if (parseInt(quantidade) <= parseInt(alerta_minimo)) {
-          const varLabel = variacao === 'unico' ? '' : ' - ' + variacao;
+          const varLabel = variacao === "unico" ? "" : " - " + variacao;
           const subject = quantidade === 0
-            ? 'VARG - Estoque ESGOTADO: ' + produtoId + varLabel
-            : 'VARG - Estoque baixo: ' + produtoId + varLabel;
-          const cor = quantidade === 0 ? '#ff4d4d' : 'orange';
+            ? "VARG - Estoque ESGOTADO: " + produtoId + varLabel
+            : "VARG - Estoque baixo: " + produtoId + varLabel;
+          const cor = quantidade === 0 ? "#ff4d4d" : "orange";
           await enviarEmail({
-            to: EMAIL_DESTINO,
-            subject,
-            html: '<h2 style="color:' + cor + '">⚠️ Alerta de Estoque</h2>' +
-              '<p><b>Produto:</b> ' + produtoId + varLabel + '</p>' +
-              '<p><b>Quantidade restante:</b> <span style="color:' + cor + ';font-size:1.5em;font-weight:bold;">' + quantidade + '</span></p>' +
-              (quantidade === 0 ? '<p style="color:#ff4d4d;font-weight:bold;">Produto ESGOTADO! Reponha o estoque.</p>' : '<p>Estoque abaixo do mínimo (' + alerta_minimo + '). Considere repor.</p>') +
-              '<p><a href="' + BASE_URL + '/admin-estoque.html" style="background:#DC143C;color:white;padding:10px 20px;border-radius:20px;text-decoration:none;font-weight:bold;">Gerenciar Estoque</a></p>'
-          }).catch(e => console.error('Erro email alerta estoque:', e.message));
+            to: EMAIL_DESTINO, subject,
+            html: `<h2 style="color:${cor}">⚠️ Alerta de Estoque</h2><p><b>Produto:</b> ${produtoId}${varLabel}</p><p><b>Quantidade restante:</b> <span style="color:${cor};font-size:1.5em;font-weight:bold;">${quantidade}</span></p>${quantidade===0?'<p style="color:#ff4d4d;font-weight:bold;">Produto ESGOTADO! Reponha o estoque.</p>':`<p>Abaixo do mínimo (${alerta_minimo}). Considere repor.</p>`}<p><a href="${BASE_URL}/admin-estoque.html" style="background:#DC143C;color:white;padding:10px 20px;border-radius:20px;text-decoration:none;font-weight:bold;">Gerenciar Estoque</a></p>`,
+          }).catch(e => console.error("Erro email alerta estoque:", e.message));
         }
       }
-    } catch(e) {
-      console.error('Erro ao decrementar estoque:', e.message);
-    }
+    } catch (e) { console.error("Erro ao decrementar estoque:", e.message); }
   }
 }
 
@@ -133,23 +149,24 @@ function adminAuth(req, res, next) {
   res.redirect("/admin-login");
 }
 
-// ==================== PAGINA INICIAL ====================
+// ==================== INIT ====================
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 
-// ==================== LOGIN ====================
+// ==================== LOGIN (com JWT) ====================
 app.post("/login", async (req, res) => {
   const { email, senha } = req.body;
   if (!email || !senha) return res.json({ success: false, message: "Preencha todos os campos." });
   try {
     const result = await pool.query("SELECT * FROM usuarios WHERE email = $1", [email]);
-    if (result.rows.length === 0) return res.json({ success: false, message: "E-mail ou senha incorretos." });
+    if (!result.rows.length) return res.json({ success: false, message: "E-mail ou senha incorretos." });
     const usuario = result.rows[0];
-    const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
-    if (!senhaCorreta) return res.json({ success: false, message: "E-mail ou senha incorretos." });
-    res.json({ success: true, nome: usuario.nome });
+    const ok = await bcrypt.compare(senha, usuario.senha);
+    if (!ok) return res.json({ success: false, message: "E-mail ou senha incorretos." });
+    const token = jwt.sign({ id: usuario.id, email: usuario.email, nome: usuario.nome }, JWT_SECRET, { expiresIn: "30d" });
+    res.json({ success: true, nome: usuario.nome, token });
   } catch (err) {
-    console.error("Erro no login:", err);
-    res.json({ success: false, message: "Erro interno do servidor." });
+    console.error("Erro login:", err);
+    res.json({ success: false, message: "Erro interno." });
   }
 });
 
@@ -159,37 +176,40 @@ app.post("/cadastro", async (req, res) => {
   if (!nome || !email || !senha) return res.json({ success: false, message: "Preencha todos os campos." });
   try {
     const existe = await pool.query("SELECT id FROM usuarios WHERE email = $1", [email]);
-    if (existe.rows.length > 0) return res.json({ success: false, message: "Este e-mail ja esta cadastrado." });
+    if (existe.rows.length) return res.json({ success: false, message: "Este e-mail já está cadastrado." });
     const hash = await bcrypt.hash(senha, 10);
     await pool.query("INSERT INTO usuarios (nome, email, senha) VALUES ($1, $2, $3)", [nome, email, hash]);
-    res.json({ success: true, message: "Cadastro realizado com sucesso!" });
+    // Email boas-vindas
+    enviarEmail({
+      to: email,
+      subject: "Bem-vindo à matilha, " + nome + "!",
+      html: `<div style="font-family:Arial,sans-serif;background:#0a0a0a;color:#eee;padding:30px;border-radius:10px;max-width:500px;margin:auto;"><div style="text-align:center;margin-bottom:20px;"><h1 style="color:#DC143C;letter-spacing:3px;">VARG</h1></div><h2 style="color:#DC143C;">Bem-vindo à matilha, ${nome}! 🐺</h2><p>Sua conta foi criada com sucesso. Agora você faz parte da matilha dos mais fortes.</p><p style="margin-top:15px;"><a href="${BASE_URL}/index.html" style="background:#DC143C;color:#fff;padding:12px 25px;border-radius:25px;text-decoration:none;font-weight:bold;">Ir às compras</a></p></div>`
+    }).catch(e => console.error("Erro email boas-vindas:", e.message));
+    res.json({ success: true, message: "Cadastro realizado!" });
   } catch (err) {
-    console.error("Erro no cadastro:", err);
-    res.json({ success: false, message: "Erro interno do servidor." });
+    console.error("Erro cadastro:", err);
+    res.json({ success: false, message: "Erro interno." });
   }
 });
 
-// ==================== ESQUECI SENHA ====================
+// ==================== ESQUECI / REDEFINE SENHA ====================
 app.post("/esqueci-senha", async (req, res) => {
   const { email } = req.body;
   if (!email) return res.json({ success: false, message: "Informe o e-mail." });
   try {
     const result = await pool.query("SELECT * FROM usuarios WHERE email = $1", [email]);
-    if (result.rows.length === 0) return res.json({ success: false, message: "E-mail nao encontrado." });
+    if (!result.rows.length) return res.json({ success: false, message: "E-mail não encontrado." });
     const token = crypto.randomBytes(32).toString("hex");
     const expires = new Date(Date.now() + 60 * 60 * 1000);
     await pool.query("UPDATE usuarios SET reset_token = $1, reset_expires = $2 WHERE email = $3", [token, expires, email]);
     const resetLink = BASE_URL + "/redefinir-senha.html?token=" + token;
     await enviarEmail({
-      to: EMAIL_DESTINO,
-      subject: "VARG - Redefinicao de senha para " + email,
-      html: "<h2 style='color:#DC143C'>Redefinicao de Senha</h2><p>Ola, " + result.rows[0].nome + "!</p><p>Clique abaixo para redefinir sua senha:</p><p><a href='" + resetLink + "' style='background:#DC143C;color:white;padding:12px 25px;border-radius:25px;text-decoration:none;font-weight:bold;'>Redefinir Senha</a></p><p style='color:#888;font-size:0.9em;'>Este link expira em 1 hora.</p>"
+      to: email,
+      subject: "VARG - Redefinição de senha",
+      html: `<h2 style="color:#DC143C">Redefinição de Senha</h2><p>Olá, ${result.rows[0].nome}!</p><p><a href="${resetLink}" style="background:#DC143C;color:white;padding:12px 25px;border-radius:25px;text-decoration:none;font-weight:bold;">Redefinir Senha</a></p><p style="color:#888;font-size:0.9em;">Este link expira em 1 hora.</p>`
     });
     res.json({ success: true, message: "Email enviado! Verifique sua caixa de entrada." });
-  } catch (err) {
-    console.error("Erro esqueci-senha:", err);
-    res.json({ success: false, message: "Erro interno do servidor." });
-  }
+  } catch (err) { res.json({ success: false, message: "Erro interno." }); }
 });
 
 app.post("/redefinir-senha", async (req, res) => {
@@ -197,14 +217,11 @@ app.post("/redefinir-senha", async (req, res) => {
   if (!token || !novaSenha) return res.json({ success: false, message: "Dados incompletos." });
   try {
     const result = await pool.query("SELECT * FROM usuarios WHERE reset_token = $1 AND reset_expires > NOW()", [token]);
-    if (result.rows.length === 0) return res.json({ success: false, message: "Link invalido ou expirado." });
+    if (!result.rows.length) return res.json({ success: false, message: "Link inválido ou expirado." });
     const hash = await bcrypt.hash(novaSenha, 10);
     await pool.query("UPDATE usuarios SET senha = $1, reset_token = NULL, reset_expires = NULL WHERE reset_token = $2", [hash, token]);
     res.json({ success: true, message: "Senha redefinida com sucesso!" });
-  } catch (err) {
-    console.error("Erro redefinir-senha:", err);
-    res.json({ success: false, message: "Erro interno do servidor." });
-  }
+  } catch (err) { res.json({ success: false, message: "Erro interno." }); }
 });
 
 // ==================== PIX ====================
@@ -215,13 +232,24 @@ app.post("/pix", async (req, res) => {
   const entrega = req.body.entrega || null;
   const externalId = "VARG_" + Date.now();
 
+  // Salva pedido pendente
   await pool.query(
     "INSERT INTO pedidos (payment_id, external_id, cliente_nome, cliente_email, valor, status, itens, entrega, cupom) VALUES ($1, $2, $3, $4, $5, 'pendente', $6, $7, $8) ON CONFLICT (payment_id) DO NOTHING",
-    ["PIX_PENDING_" + externalId, externalId, req.body.nome || "", "", valor, JSON.stringify(cart), entrega ? JSON.stringify(entrega) : null, req.body.cupom || null]
-  ).catch((err) => { console.error('Erro INSERT pendente:', err.message); });
+    ["PIX_PENDING_" + externalId, externalId, req.body.nome || "", req.body.email || "", valor, JSON.stringify(cart), entrega ? JSON.stringify(entrega) : null, req.body.cupom || null]
+  ).catch(err => console.error("Erro INSERT pendente:", err.message));
 
-  const payload = JSON.stringify({ amount: valor, description: "Pedido VARG", external_id: externalId, webhook_url: BASE_URL + "/webhook/pixgo" });
-  const options = { hostname: "pixgo.org", path: "/api/v1/payment/create", method: "POST", headers: { "Content-Type": "application/json", "X-API-Key": PIXGO_API_KEY, "Content-Length": Buffer.byteLength(payload) } };
+  const payload = JSON.stringify({
+    amount: valor,
+    description: "Pedido VARG",
+    external_id: externalId,
+    webhook_url: BASE_URL + "/webhook/pixgo",
+  });
+  const options = {
+    hostname: "pixgo.org",
+    path: "/api/v1/payment/create",
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-API-Key": PIXGO_API_KEY, "Content-Length": Buffer.byteLength(payload) },
+  };
   const request = https.request(options, (response) => {
     let data = "";
     response.on("data", (chunk) => (data += chunk));
@@ -233,35 +261,39 @@ app.post("/pix", async (req, res) => {
         } else {
           res.json({ error: json.message ?? json.error ?? "Erro desconhecido" });
         }
-      } catch (e) { res.json({ error: "Resposta invalida da API" }); }
+      } catch (e) { res.json({ error: "Resposta inválida da API" }); }
     });
   });
-  request.on("error", (e) => res.json({ error: "Falha na conexao: " + e.message }));
+  request.on("error", (e) => res.json({ error: "Falha na conexão: " + e.message }));
   request.write(payload);
   request.end();
 });
 
-// ==================== MERCADO PAGO ====================
-app.post("/mp-preference", async (req, res) => {
-  const { cart } = req.body;
-  if (!cart || cart.length === 0) return res.json({ error: "Carrinho vazio" });
-  const items = cart.map((i) => ({ title: i.nome, quantity: parseInt(i.quantidade), unit_price: parseFloat(i.preco), currency_id: "BRL" }));
-  const payload = JSON.stringify({ items, notification_url: BASE_URL + "/webhook/mercadopago", back_urls: { success: "https://www.mercadopago.com.br", failure: "https://www.mercadopago.com.br", pending: "https://www.mercadopago.com.br" }, auto_return: "approved" });
-  const options = { hostname: "api.mercadopago.com", path: "/checkout/preferences", method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + MP_ACCESS_TOKEN, "Content-Length": Buffer.byteLength(payload) } };
-  const request = https.request(options, (response) => {
-    let data = "";
-    response.on("data", (chunk) => (data += chunk));
-    response.on("end", () => {
-      try {
-        const json = JSON.parse(data);
-        if (json.init_point) { res.json({ init_point: json.init_point }); }
-        else { res.json({ error: "Erro ao criar preferencia" }); }
-      } catch (e) { res.json({ error: "Resposta invalida do MP" }); }
-    });
-  });
-  request.on("error", (e) => res.json({ error: e.message }));
-  request.write(payload);
-  request.end();
+// ==================== PEDIDO WHATSAPP ====================
+app.post("/api/pedido-whatsapp", async (req, res) => {
+  const { cart, entrega, total, cupom, nomeCliente, emailCliente } = req.body;
+  if (!cart || !entrega) return res.json({ success: false, message: "Dados incompletos." });
+  const externalId = "WA_" + Date.now();
+  try {
+    await pool.query(
+      "INSERT INTO pedidos (payment_id, external_id, cliente_nome, cliente_email, valor, status, itens, entrega, cupom) VALUES ($1, $2, $3, $4, $5, 'pendente', $6, $7, $8)",
+      [externalId, externalId, nomeCliente || entrega.nome || "", emailCliente || "", parseFloat(total), JSON.stringify(cart), JSON.stringify(entrega), cupom || null]
+    );
+    res.json({ success: true, pedidoId: externalId });
+
+    // Notifica admin
+    const itensHtml = cart.map(i => `<li>${i.quantidade}x ${i.nome} — R$ ${parseFloat(i.preco*i.quantidade).toFixed(2)}</li>`).join("");
+    await enviarEmail({
+      to: EMAIL_DESTINO,
+      subject: "VARG - Novo pedido WhatsApp — R$ " + parseFloat(total).toFixed(2),
+      html: `<h2 style="color:#25D366">📱 Novo pedido via WhatsApp!</h2><p><b>Cliente:</b> ${nomeCliente}</p><p><b>Telefone:</b> ${entrega.telefone}</p><p><b>Valor:</b> R$ ${parseFloat(total).toFixed(2)}</p><ul>${itensHtml}</ul><p><b>Endereço:</b> ${entrega.rua}, ${entrega.numero} — ${entrega.cidade}/${entrega.estado}</p>${cupom?`<p><b>Cupom:</b> ${cupom}</p>`:''}`
+    }).catch(e => console.error("Erro email WhatsApp:", e.message));
+
+    await enviarWhatsApp(`VARG - Pedido WhatsApp!\nCliente: ${nomeCliente}\nValor: R$ ${parseFloat(total).toFixed(2)}\nID: ${externalId}`);
+  } catch (err) {
+    console.error("Erro pedido WhatsApp:", err.message);
+    res.json({ success: true }); // Não bloqueia o fluxo
+  }
 });
 
 // ==================== WEBHOOK PIXGO ====================
@@ -274,94 +306,63 @@ app.post("/webhook/pixgo", async (req, res) => {
   const expected = crypto.createHmac("sha256", PIXGO_WEBHOOK_SECRET).update(timestamp + "." + rawBody).digest("hex");
   try {
     if (!crypto.timingSafeEqual(Buffer.from(expected, "hex"), Buffer.from(signature, "hex")))
-      return res.status(401).json({ error: "Assinatura invalida" });
+      return res.status(401).json({ error: "Assinatura inválida" });
   } catch { return res.status(401).json({ error: "Erro ao verificar assinatura" }); }
   if (Math.abs(Math.floor(Date.now() / 1000) - parseInt(timestamp)) > 300)
     return res.status(401).json({ error: "Timestamp expirado" });
 
   const data = req.body;
-  console.log("Webhook PixGo:", event);
   res.status(200).json({ received: true });
 
   if (event === "payment.completed") {
     const pid = data.data?.payment_id;
     const nome = data.data?.customer?.name || "N/A";
+    const emailCliente = data.data?.customer?.email || "";
     const valor = data.data?.amounts?.gross || 0;
     const pedido = data.data?.external_id;
     console.log("PAGO via PIX!", pid, nome, valor);
 
-    let itens = "[]";
-    let entrega = null;
+    let itens = "[]", entregaStr = null;
     try {
-      const row = await pool.query("SELECT itens, entrega FROM pedidos WHERE external_id = $1 LIMIT 1", [pedido]);
-      if (row.rows.length > 0) { itens = row.rows[0].itens || "[]"; entrega = row.rows[0].entrega; }
-    } catch(e) {}
+      const row = await pool.query("SELECT itens, entrega, cupom, cliente_email FROM pedidos WHERE external_id = $1 LIMIT 1", [pedido]);
+      if (row.rows.length > 0) { itens = row.rows[0].itens || "[]"; entregaStr = row.rows[0].entrega; }
+    } catch (e) {}
 
     try {
       await pool.query(
         "INSERT INTO pedidos (payment_id, external_id, cliente_nome, cliente_email, valor, status, itens, entrega) VALUES ($1, $2, $3, $4, $5, 'pago', $6, $7) ON CONFLICT (payment_id) DO UPDATE SET status = 'pago', itens = $6, entrega = $7",
-        [pid, pedido, nome, data.data?.customer?.email || "", valor, itens, entrega]
+        [pid, pedido, nome, emailCliente, valor, itens, entregaStr]
       );
-      console.log("Pedido salvo!");
-      // Decrement estoque
       let itensParsed = [];
-      try { itensParsed = JSON.parse(itens); } catch(e) {}
+      try { itensParsed = JSON.parse(itens); } catch (e) {}
       if (itensParsed.length > 0) await decrementarEstoque(itensParsed);
-    } catch (err) { console.error("Erro ao salvar pedido:", err.message); }
+    } catch (err) { console.error("Erro salvar pedido PIX:", err.message); }
 
+    // Notificações
     try {
-      let itensPix = [];
-      try { itensPix = JSON.parse(itens); } catch(e) {}
-      let entregaPix = null;
-      try { entregaPix = entrega ? JSON.parse(entrega) : null; } catch(e) {}
-      const itensHtml = itensPix.length > 0 ? "<p><b>Produtos:</b></p><ul>" + itensPix.map(i => "<li>" + i.quantidade + "x " + i.nome + " - R$ " + parseFloat(i.preco).toFixed(2) + "</li>").join("") + "</ul>" : "";
-      const entregaHtml = entregaPix ? "<p><b>Entrega:</b></p><p>" + entregaPix.nome + " | " + entregaPix.telefone + " | CPF: " + entregaPix.cpf + "</p><p>" + entregaPix.rua + ", " + entregaPix.numero + " - " + entregaPix.bairro + "</p><p>" + entregaPix.cidade + "/" + entregaPix.estado + " - CEP: " + entregaPix.cep + "</p>" : "";
-      await enviarEmail({ to: EMAIL_DESTINO, subject: "Nova venda PIX - R$ " + valor, html: "<h2 style='color:#DC143C'>Nova venda confirmada!</h2><p><b>Metodo:</b> PIX</p><p><b>Cliente:</b> " + nome + "</p><p><b>Valor:</b> R$ " + valor + "</p>" + itensHtml + entregaHtml + "<p><b>Pedido:</b> " + pedido + "</p>" });
-      console.log("Email enviado!");
-      const itensWa = itensPix.length > 0 ? "\nProdutos:\n" + itensPix.map(i => "  - " + i.quantidade + "x " + i.nome).join("\n") : "";
-      const entregaWa = entregaPix ? "\nEntrega: " + entregaPix.rua + ", " + entregaPix.numero + " - " + entregaPix.cidade + "/" + entregaPix.estado : "";
+      let itensParsed = [];
+      try { itensParsed = JSON.parse(itens); } catch (e) {}
+      let entregaParsed = null;
+      try { entregaParsed = entregaStr ? JSON.parse(entregaStr) : null; } catch (e) {}
+
+      const itensHtml = itensParsed.length > 0 ? "<ul>" + itensParsed.map(i => `<li>${i.quantidade}x ${i.nome}</li>`).join("") + "</ul>" : "";
+      const entregaHtml = entregaParsed ? `<p><b>Entrega:</b> ${entregaParsed.rua}, ${entregaParsed.numero} — ${entregaParsed.cidade}/${entregaParsed.estado}</p>` : "";
+
+      // Email admin
+      await enviarEmail({ to: EMAIL_DESTINO, subject: "Nova venda PIX - R$ " + valor, html: `<h2 style="color:#DC143C">Nova venda PIX!</h2><p><b>Cliente:</b> ${nome}</p><p><b>Valor:</b> R$ ${valor}</p>${itensHtml}${entregaHtml}<p><b>Pedido:</b> ${pedido}</p>` });
+
+      // Email cliente
+      if (emailCliente) {
+        const emailHtml = emailConfirmacaoCliente({ nome, pedidoId: pedido, itens: itensParsed, entrega: entregaParsed, valor, metodo: "PIX" });
+        await enviarEmail({ to: emailCliente, subject: "VARG - Pedido confirmado! 🐺", html: emailHtml });
+      }
+
+      const itensWa = itensParsed.length > 0 ? "\nProdutos:\n" + itensParsed.map(i => "  - " + i.quantidade + "x " + i.nome).join("\n") : "";
+      const entregaWa = entregaParsed ? "\nEntrega: " + entregaParsed.rua + ", " + entregaParsed.numero + " - " + entregaParsed.cidade + "/" + entregaParsed.estado : "";
       await enviarWhatsApp("VARG - Nova venda PIX!\nCliente: " + nome + "\nValor: R$ " + valor + itensWa + entregaWa + "\nPedido: " + pedido);
-    } catch (err) { console.error("Erro notificacoes:", err.message); }
+    } catch (err) { console.error("Erro notificações PIX:", err.message); }
   }
   if (event === "payment.expired") console.log("PIX expirou:", data.data?.payment_id);
-});
-
-// ==================== WEBHOOK MERCADO PAGO ====================
-app.post("/webhook/mercadopago", async (req, res) => {
-  res.status(200).json({ received: true });
-  const paymentId = req.body.data?.id || req.body.resource?.id;
-  if (!paymentId) return;
-  try {
-    const options = { hostname: "api.mercadopago.com", path: "/v1/payments/" + paymentId, headers: { Authorization: "Bearer " + MP_ACCESS_TOKEN } };
-    const paymentData = await new Promise((resolve, reject) => {
-      https.get(options, (r) => { let d = ""; r.on("data", (c) => (d += c)); r.on("end", () => resolve(JSON.parse(d))); }).on("error", reject);
-    });
-    if (paymentData.status === "approved") {
-      const nome = ((paymentData.payer?.first_name || "") + " " + (paymentData.payer?.last_name || "")).trim();
-      const valor = paymentData.transaction_amount;
-      const pid = String(paymentData.id);
-      console.log("MP APROVADO!", pid, nome, valor);
-      const cartMp = paymentData.additional_info?.items || [];
-      const itensMp = cartMp.map(i => ({ nome: i.title, quantidade: i.quantity, preco: i.unit_price }));
-      try {
-        await pool.query(
-          "INSERT INTO pedidos (payment_id, external_id, cliente_nome, cliente_email, valor, status, itens) VALUES ($1, $2, $3, $4, $5, 'pago', $6) ON CONFLICT (payment_id) DO NOTHING",
-          [pid, paymentData.external_reference || "", nome, paymentData.payer?.email || "", valor, JSON.stringify(itensMp)]
-        );
-        const entregaRow = await pool.query("SELECT entrega FROM pedidos WHERE external_id = $1 AND entrega IS NOT NULL LIMIT 1", [paymentData.external_reference || ""]);
-        if (entregaRow.rows.length > 0 && entregaRow.rows[0].entrega)
-          await pool.query("UPDATE pedidos SET entrega = $1 WHERE payment_id = $2", [entregaRow.rows[0].entrega, pid]);
-        // Decrement estoque
-        if (itensMp.length > 0) await decrementarEstoque(itensMp);
-      } catch (err) { console.error("Erro salvar pedido MP:", err.message); }
-      try {
-        const itensHtml = itensMp.length > 0 ? "<ul>" + itensMp.map(i => "<li>" + i.quantidade + "x " + i.nome + "</li>").join("") + "</ul>" : "";
-        await enviarEmail({ to: EMAIL_DESTINO, subject: "Nova venda Cartao - R$ " + valor, html: "<h2 style='color:#009EE3'>Nova venda no cartao!</h2><p><b>Cliente:</b> " + nome + "</p><p><b>Valor:</b> R$ " + valor + "</p>" + itensHtml });
-        const itensWa = itensMp.length > 0 ? "\nProdutos:\n" + itensMp.map(i => "  - " + i.quantidade + "x " + i.nome).join("\n") : "";
-        await enviarWhatsApp("VARG - Nova venda cartao!\nCliente: " + nome + "\nValor: R$ " + valor + itensWa + "\nID: " + pid);
-      } catch (err) { console.error("Erro notificacoes MP:", err.message); }
-    }
-  } catch (err) { console.error("Erro webhook MP:", err.message); }
 });
 
 // ==================== ATUALIZAR ENVIO ====================
@@ -371,24 +372,28 @@ app.post("/api/pedidos/:id/envio", adminAuth, async (req, res) => {
   try {
     await pool.query("UPDATE pedidos SET codigo_rastreio = $1, status_envio = $2 WHERE id = $3", [codigo_rastreio || null, status_envio || "enviado", id]);
     res.json({ success: true });
-    try {
-      const result = await pool.query("SELECT * FROM pedidos WHERE id = $1", [id]);
-      if (result.rows.length === 0) return;
-      const pedido = result.rows[0];
-      let itens = [];
-      try { itens = JSON.parse(pedido.itens || "[]"); } catch(e) {}
-      const itensHtml = itens.length > 0 ? "<ul>" + itens.map(i => "<li>" + i.quantidade + "x " + i.nome + "</li>").join("") + "</ul>" : "<p>Produto VARG</p>";
-      await enviarEmail({ to: EMAIL_DESTINO, subject: "Seu pedido foi enviado! - VARG", html: "<h2 style='color:#DC143C'>Seu pedido esta a caminho!</h2><p>Ola, " + (pedido.cliente_nome || "Cliente") + "!</p><p>Codigo de rastreio: <b style='color:#00BFFF;font-size:1.2em;'>" + (codigo_rastreio || "") + "</b></p><p>Rastreie em <a href='https://rastreamento.correios.com.br' style='color:#DC143C;'>rastreamento.correios.com.br</a></p>" + itensHtml });
-      await enviarWhatsApp("VARG - Pedido enviado!\nCliente: " + (pedido.cliente_nome || "-") + "\nRastreio: " + codigo_rastreio + "\nPedido: " + (pedido.external_id || id));
-    } catch(err) { console.error("Erro notificacao envio:", err.message); }
+    // Notifica cliente
+    const pedido = (await pool.query("SELECT * FROM pedidos WHERE id = $1", [id])).rows[0];
+    if (!pedido) return;
+    let itens = [];
+    try { itens = JSON.parse(pedido.itens || "[]"); } catch (e) {}
+    const itensHtml = itens.length > 0 ? "<ul>" + itens.map(i => `<li>${i.quantidade}x ${i.nome}</li>`).join("") + "</ul>" : "<p>Produto VARG</p>";
+    if (pedido.cliente_email) {
+      await enviarEmail({
+        to: pedido.cliente_email,
+        subject: "VARG - Seu pedido foi enviado! 🐺",
+        html: `<div style="font-family:Arial,sans-serif;background:#0a0a0a;color:#eee;padding:30px;border-radius:10px;max-width:500px;margin:auto;"><h1 style="color:#DC143C;">VARG</h1><h2>Seu pedido está a caminho! 📦</h2><p>Olá, ${pedido.cliente_nome || "Cliente"}!</p><p>Código de rastreio: <b style="color:#00BFFF;font-size:1.2em;">${codigo_rastreio || ""}</b></p><p>Rastreie em <a href="https://rastreamento.correios.com.br" style="color:#DC143C;">rastreamento.correios.com.br</a></p>${itensHtml}</div>`
+      }).catch(e => console.error("Erro email envio:", e.message));
+    }
+    await enviarEmail({ to: EMAIL_DESTINO, subject: "VARG - Pedido enviado: " + (pedido.external_id || id), html: `<h2>Pedido marcado como enviado</h2><p><b>Cliente:</b> ${pedido.cliente_nome}</p><p><b>Rastreio:</b> ${codigo_rastreio}</p>` });
+    await enviarWhatsApp("VARG - Pedido enviado!\nCliente: " + (pedido.cliente_nome || "-") + "\nRastreio: " + codigo_rastreio + "\nPedido: " + (pedido.external_id || id));
   } catch (err) { console.error("Erro atualizar envio:", err); res.status(500).json({ success: false }); }
 });
 
 // ==================== API PEDIDOS ====================
 app.get("/api/pedidos", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM pedidos ORDER BY criado_em DESC");
-    res.json(result.rows);
+    res.json((await pool.query("SELECT * FROM pedidos ORDER BY criado_em DESC")).rows);
   } catch (err) { res.status(500).json({ error: "Erro ao listar pedidos" }); }
 });
 
@@ -403,20 +408,20 @@ app.post("/admin-login", (req, res) => {
   }
 });
 
-// ==================== ADMIN CUPONS ====================
+// ==================== CUPONS ====================
 app.get("/admin-cupons.html", adminAuth, (req, res) => res.sendFile(path.join(__dirname, "admin-cupons.html")));
 app.get("/api/cupons", adminAuth, async (req, res) => {
   try { res.json((await pool.query("SELECT * FROM cupons ORDER BY criado_em DESC")).rows); }
-  catch (err) { res.status(500).json({ error: "Erro ao listar cupons" }); }
+  catch (err) { res.status(500).json({ error: "Erro" }); }
 });
 app.post("/api/cupons", adminAuth, async (req, res) => {
   const { codigo, desconto_pix, desconto_cartao } = req.body;
-  if (!codigo) return res.json({ success: false, message: "Codigo obrigatorio." });
+  if (!codigo) return res.json({ success: false, message: "Código obrigatório." });
   try {
-    await pool.query("INSERT INTO cupons (codigo, desconto_pix, desconto_cartao) VALUES ($1, $2, $3)", [codigo.toUpperCase().trim(), parseFloat(desconto_pix) || 10, parseFloat(desconto_cartao) || 10]);
+    await pool.query("INSERT INTO cupons (codigo, desconto_pix, desconto_cartao) VALUES ($1, $2, $3)", [codigo.toUpperCase().trim(), parseFloat(desconto_pix)||10, parseFloat(desconto_cartao)||10]);
     res.json({ success: true });
   } catch (err) {
-    if (err.code === "23505") return res.json({ success: false, message: "Codigo ja existe." });
+    if (err.code === "23505") return res.json({ success: false, message: "Código já existe." });
     res.status(500).json({ success: false, message: "Erro ao criar cupom." });
   }
 });
@@ -429,180 +434,21 @@ app.post("/api/cupom/validar", async (req, res) => {
   if (!codigo) return res.json({ valido: false, message: "Informe o cupom." });
   try {
     const result = await pool.query("SELECT * FROM cupons WHERE codigo = $1 AND ativo = true", [codigo.toUpperCase().trim()]);
-    if (result.rows.length === 0) return res.json({ valido: false, message: "Cupom invalido ou desativado." });
-    const cupom = result.rows[0];
-    res.json({ valido: true, codigo: cupom.codigo, desconto_pix: parseFloat(cupom.desconto_pix), desconto_cartao: parseFloat(cupom.desconto_cartao) });
+    if (!result.rows.length) return res.json({ valido: false, message: "Cupom inválido ou desativado." });
+    const c = result.rows[0];
+    res.json({ valido: true, codigo: c.codigo, desconto_pix: parseFloat(c.desconto_pix), desconto_cartao: parseFloat(c.desconto_cartao) });
   } catch (err) { res.status(500).json({ valido: false, message: "Erro ao validar cupom." }); }
 });
 
 // ==================== PAINEL ADMIN ====================
-app.get("/admin.html", adminAuth, (req, res) => {
-  res.sendFile(path.join(__dirname, "admin.html"));
-});
-
-app.get("/admin", adminAuth, async (req, res) => {
-  // Redirect to static admin page
-  res.redirect("/admin.html?token=" + (req.query.token || ""));
-});
-
-app.get("/admin-legacy", adminAuth, async (req, res) => {
-  try {
-    const result = await pool.query("SELECT * FROM pedidos ORDER BY criado_em DESC");
-    const tk = req.query.token || "";
-    let html = `<!DOCTYPE html><html><head><title>Admin VARG</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:Arial;background:#0a0a0a;color:#eee;padding-top:70px;}
-header{position:fixed;top:0;width:100%;background:rgba(0,0,0,0.95);padding:12px 25px;display:flex;justify-content:space-between;align-items:center;z-index:1000;border-bottom:1px solid #222;font-size:15px;}
-nav ul{list-style:none;display:flex;gap:25px;align-items:center;}
-nav ul li a{color:#fff;font-weight:600;text-decoration:none;font-size:15px;}
-nav ul li a:hover{color:#DC143C;}
-.main{padding:30px 40px;}
-h1{color:#DC143C;margin-bottom:5px;}
-.top-bar{display:flex;align-items:center;gap:20px;margin-bottom:20px;flex-wrap:wrap;}
-.top-bar p{color:#888;font-size:0.9em;}
-.btn-cupons{background:#00BFFF;color:#111;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:0.85em;text-decoration:none;display:inline-block;}
-.btn-excel{background:#1D6F42;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:0.85em;}
-table{width:100%;border-collapse:collapse;background:#1a1a1a;}
-th{background:#DC143C;color:white;padding:12px;text-align:left;}
-td{padding:10px 12px;border-bottom:1px solid #333;font-size:0.9em;vertical-align:top;}
-tr:hover{background:#222;}
-.pago{color:#00ff88;font-weight:bold;}
-.pendente{color:orange;}
-.btn-enviar{background:#DC143C;color:white;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:0.8em;margin-top:5px;display:block;}
-.input-rastreio{background:#222;border:1px solid #444;color:#eee;padding:5px 8px;border-radius:4px;font-size:0.8em;width:160px;margin-bottom:5px;display:block;}
-.tag-enviado{background:rgba(0,191,255,0.15);color:#00BFFF;border:1px solid #00BFFF;padding:3px 8px;border-radius:12px;font-size:0.8em;}
-.tag-aguardando{background:rgba(255,165,0,0.15);color:orange;border:1px solid orange;padding:3px 8px;border-radius:12px;font-size:0.8em;}
-footer{background:#050505;padding:30px 40px;border-top:1px solid #222;color:#888;font-size:0.85em;text-align:center;margin-top:40px;}
-footer a{color:#333;text-decoration:none;font-size:0.75em;}
-</style>
-<script src="/admin-scripts.js"></script>
-</head><body>
-<header>
-  <nav><ul>
-    <li><a href="/index.html">Inicio</a></li>
-    <li><a href="/admin?token=${tk}" style="color:#DC143C;font-weight:bold;">Pedidos</a></li>
-    <li><a href="/admin-cupons.html?token=${tk}" style="color:#00BFFF;">Cupons</a></li>
-      <li><a href="/admin-estoque.html?token=${tk}" style="color:#00ff88;">Estoque</a></li>
-  </ul></nav>
-  <a href="/admin-login" style="color:#888;font-size:0.85em;text-decoration:none;">Sair</a>
-</header>
-<div class="main">
-<h1><img src='/img/lobovinho-removebg-preview.png' style='height:35px;vertical-align:middle;margin-right:10px;'>Pedidos VARG</h1>
-<div class="top-bar">
-  <p>Total: ${result.rows.length} pedido(s)</p>
-  <a href="/admin-cupons.html?token=${tk}" class="btn-cupons">Gerenciar Cupons</a>
-  <button class="btn-excel" onclick="exportarExcel()">Exportar Excel</button>
-  <a href="/admin-estoque.html?token=${tk}" style="background:#00ff44;color:#111;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:0.85em;text-decoration:none;display:inline-block;">📦 Estoque</a>
-</div>
-<table id="tabelaPedidos"><tr>
-  <th>ID Pagamento</th><th>Cliente</th><th>Email</th><th>Produtos</th><th>Valor</th><th>Estoque</th><th>Entrega</th><th>Status</th><th>Envio</th><th>Data</th>
-</tr>`;
-
-    // Load estoque
-    let estoqueAtual = {};
-    try {
-      const estoqueResult = await pool.query("SELECT produto_id, variacao, quantidade FROM estoque");
-      estoqueResult.rows.forEach(e => { estoqueAtual[e.produto_id + '|' + e.variacao] = parseInt(e.quantidade) || 0; });
-    } catch(e) {}
-
-    result.rows.forEach((p) => {
-      let itens = [];
-      try { itens = JSON.parse(p.itens || "[]"); } catch(e) {}
-      const itensHtml = itens.length > 0 ? itens.map(i => i.quantidade + "x " + i.nome).join("<br>") : "-";
-      let entrega = null;
-      try { entrega = p.entrega ? JSON.parse(p.entrega) : null; } catch(e) {}
-      const entregaHtml = entrega ? entrega.nome + "<br>" + entrega.telefone + "<br>" + entrega.cpf + "<br>" + entrega.rua + ", " + entrega.numero + (entrega.complemento ? " " + entrega.complemento : "") + "<br>" + entrega.bairro + "<br>" + entrega.cidade + "/" + entrega.estado + "<br>CEP: " + entrega.cep : "-";
-      let envioHtml;
-      if (p.status_envio === "enviado" && p.codigo_rastreio) {
-        envioHtml = '<span class="tag-enviado">Enviado</span><br><small style="color:#aaa;display:block;margin-top:4px;">' + p.codigo_rastreio + '</small><a href="https://rastreamento.correios.com.br/app/index.php?numero=' + p.codigo_rastreio + '" target="_blank" style="color:#00BFFF;font-size:0.8em;text-decoration:none;display:block;margin-top:4px;">Rastrear</a>';
-      } else if (p.status === "pago") {
-        envioHtml = '<span class="tag-aguardando">Aguardando</span><br><input class="input-rastreio" id="rastreio_' + p.id + '" placeholder="Codigo dos Correios" /><br><button class="btn-enviar" onclick="marcarEnviado(' + p.id + ')">Marcar como Enviado</button>';
-      } else {
-        envioHtml = "-";
-      }
-      // Build estoque info for this order
-      let estoqueHtml = '-';
-      if (itens.length > 0) {
-        estoqueHtml = itens.map(item => {
-          const nome = (item.nome || '').toLowerCase();
-          let pid = 'varg-salt', var_ = 'unico';
-          if (nome.includes('preta') && nome.includes('branco')) pid = 'camiseta-preta-branco';
-          else if (nome.includes('preta') && nome.includes('azul')) pid = 'camiseta-preta-azul';
-          else if (nome.includes('branca')) pid = 'camiseta-branca-preto';
-          else if (nome.includes('dourado')) pid = 'camiseta-preta-dourado';
-          else if (nome.includes('azul')) pid = 'camiseta-azul-branco';
-          const tamMatch = (item.nome || '').match(/Tam\.\s*(\w+)/);
-          if (tamMatch) var_ = tamMatch[1];
-          const estoqueKey = pid + '|' + var_;
-          const qtd = estoqueAtual[estoqueKey] !== undefined ? estoqueAtual[estoqueKey] : '?';
-          const cor = qtd === 0 ? '#ff4d4d' : qtd <= 5 ? 'orange' : '#00ff88';
-          return '<small style="color:' + cor + ';">' + (var_ === 'unico' ? '' : var_ + ': ') + qtd + ' un.</small>';
-        }).join('<br>');
-      }
-      html += "<tr><td style='font-size:0.75em'>" + (p.payment_id || "-") + "</td><td>" + (p.cliente_nome || "-") + "</td><td>" + (p.cliente_email || "-") + "</td><td>" + itensHtml + "</td><td>R$ " + parseFloat(p.valor || 0).toFixed(2) + "</td><td>" + estoqueHtml + "</td><td>" + entregaHtml + "</td><td class='" + p.status + "'>" + (p.status === "pago" ? "Pago" : p.status) + "</td><td>" + envioHtml + "</td><td>" + new Date(p.criado_em).toLocaleString("pt-BR") + "</td></tr>";
-    });
-
-    html += `</table></div>
-<footer style="background:#050505;padding:20px 40px;border-top:1px solid #222;color:#888;font-size:14px;text-align:center;margin-top:40px;">
-  &copy; 2026 VARG - A Matilha. Todos os direitos reservados. &nbsp;|&nbsp;
-  <a href="/admin-login" style="color:#555;text-decoration:none;font-size:0.85em;">Sair do Admin</a>
-</footer>
-</body></html>`;
-    res.send(html);
-  } catch (err) { res.status(500).send("Erro: " + err.message); }
-});
-
-// ==================== TESTES ====================
-app.get("/teste-email-pedido", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT * FROM pedidos ORDER BY criado_em DESC LIMIT 1");
-    if (result.rows.length === 0) return res.send("Nenhum pedido encontrado.");
-    const p = result.rows[0];
-    await enviarEmail({ to: EMAIL_DESTINO, subject: "VARG - Teste de Email", html: "<h2>Teste</h2><p>Cliente: " + (p.cliente_nome || "-") + "</p><p>Valor: R$ " + parseFloat(p.valor).toFixed(2) + "</p>" });
-    res.send("Email enviado!");
-  } catch (err) { res.status(500).send("Erro: " + err.message); }
-});
-
-app.get("/test-whatsapp", async (req, res) => {
-  try { await enviarWhatsApp("VARG - Teste de WhatsApp!"); res.send("Mensagem enviada!"); }
-  catch (err) { res.status(500).send("Erro: " + err.message); }
-});
-
-app.get("/test-whatsapp-pedido", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT * FROM pedidos ORDER BY criado_em DESC LIMIT 1");
-    if (result.rows.length === 0) return res.send("Nenhum pedido encontrado.");
-    const p = result.rows[0];
-    let itens = [];
-    try { itens = JSON.parse(p.itens || "[]"); } catch(e) {}
-    const itensTexto = itens.length > 0 ? "\nProdutos:\n" + itens.map(i => "  - " + i.quantidade + "x " + i.nome).join("\n") : "";
-    await enviarWhatsApp("VARG - Pedido!\nCliente: " + (p.cliente_nome || "-") + "\nValor: R$ " + parseFloat(p.valor).toFixed(2) + itensTexto);
-    res.send("WhatsApp enviado!");
-  } catch (err) { res.status(500).send("Erro: " + err.message); }
-});
-
-// ==================== LIMPEZA PENDENTES ====================
-setInterval(async () => {
-  try {
-    const result = await pool.query("DELETE FROM pedidos WHERE payment_id LIKE 'PIX_PENDING_%' AND status = 'pendente' AND criado_em < NOW() - INTERVAL '24 hours'");
-    if (result.rowCount > 0) console.log("Limpeza: " + result.rowCount + " pedidos removidos");
-  } catch (err) { console.error("Erro limpeza:", err.message); }
-}, 6 * 60 * 60 * 1000);
-
-// ==================== ESQUECI SENHA ====================
-app.get("/redefinir-senha.html", (req, res) => res.sendFile(path.join(__dirname, "redefinir-senha.html")));
-
+app.get("/admin.html", adminAuth, (req, res) => res.sendFile(path.join(__dirname, "admin.html")));
+app.get("/admin", adminAuth, (req, res) => res.redirect("/admin.html?token=" + (req.query.token || "")));
 
 // ==================== ESTOQUE ====================
 app.get("/api/estoque", adminAuth, async (req, res) => {
-  try {
-    const result = await pool.query("SELECT * FROM estoque ORDER BY produto_id, variacao");
-    res.json(result.rows);
-  } catch (err) { res.status(500).json({ error: "Erro ao listar estoque" }); }
+  try { res.json((await pool.query("SELECT * FROM estoque ORDER BY produto_id, variacao")).rows); }
+  catch (err) { res.status(500).json({ error: "Erro" }); }
 });
-
 app.post("/api/estoque", adminAuth, async (req, res) => {
   const { produto_id, variacao, quantidade, alerta_minimo } = req.body;
   const qtd = parseInt(quantidade) || 0;
@@ -613,34 +459,19 @@ app.post("/api/estoque", adminAuth, async (req, res) => {
       [produto_id, variacao || "unico", qtd, alerta]
     );
     res.json({ success: true });
-
-    // Envia alerta se estoque estiver baixo ou zerado
     if (qtd <= alerta) {
-      const varLabel = (variacao && variacao !== 'unico') ? ' - ' + variacao : '';
-      const subject = qtd === 0
-        ? 'VARG - Estoque ESGOTADO: ' + produto_id + varLabel
-        : 'VARG - Estoque baixo: ' + produto_id + varLabel;
-      const cor = qtd === 0 ? '#ff4d4d' : 'orange';
+      const varLabel = variacao && variacao !== "unico" ? " - " + variacao : "";
       enviarEmail({
         to: EMAIL_DESTINO,
-        subject,
-        html: '<h2 style="color:' + cor + '">⚠️ Alerta de Estoque</h2>' +
-          '<p><b>Produto:</b> ' + produto_id + varLabel + '</p>' +
-          '<p><b>Quantidade:</b> <span style="color:' + cor + ';font-size:1.5em;font-weight:bold;">' + qtd + '</span></p>' +
-          (qtd === 0
-            ? '<p style="color:#ff4d4d;font-weight:bold;">Produto ESGOTADO! Reponha o estoque.</p>'
-            : '<p>Estoque abaixo do mínimo (' + alerta + '). Considere repor.</p>') +
-          '<p style="margin-top:20px;"><a href="' + BASE_URL + '/admin-estoque.html" style="background:#DC143C;color:white;padding:10px 20px;border-radius:20px;text-decoration:none;font-weight:bold;">Gerenciar Estoque</a></p>'
-      }).catch(e => console.error('Erro email alerta estoque manual:', e.message));
+        subject: qtd === 0 ? "VARG - Estoque ESGOTADO: " + produto_id + varLabel : "VARG - Estoque baixo: " + produto_id + varLabel,
+        html: `<h2 style="color:${qtd===0?'#ff4d4d':'orange'}">⚠️ Alerta de Estoque</h2><p><b>Produto:</b> ${produto_id}${varLabel}</p><p><b>Quantidade:</b> ${qtd}</p>`
+      }).catch(e => console.error(e.message));
     }
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
-
 app.get("/api/estoque-resumo", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT produto_id, variacao, quantidade FROM estoque");
-    res.json(result.rows);
-  } catch (err) { res.status(500).json({ error: "Erro" }); }
+  try { res.json((await pool.query("SELECT produto_id, variacao, quantidade FROM estoque")).rows); }
+  catch (err) { res.status(500).json({ error: "Erro" }); }
 });
 
 // ==================== LISTA DE ESPERA ====================
@@ -648,46 +479,28 @@ app.post("/api/lista-espera", async (req, res) => {
   const { produto_id, variacao, email, nome } = req.body;
   if (!produto_id || !email) return res.json({ success: false, message: "Dados incompletos." });
   try {
-    const existe = await pool.query(
-      "SELECT id FROM lista_espera WHERE produto_id = $1 AND variacao = $2 AND email = $3",
-      [produto_id, variacao || "unico", email]
-    );
-    if (existe.rows.length > 0) return res.json({ success: false, message: "Voce ja esta na lista!" });
-    await pool.query(
-      "INSERT INTO lista_espera (produto_id, variacao, email, nome) VALUES ($1, $2, $3, $4)",
-      [produto_id, variacao || "unico", email, nome || ""]
-    );
-    res.json({ success: true, message: "Adicionado a lista de espera!" });
+    const existe = await pool.query("SELECT id FROM lista_espera WHERE produto_id = $1 AND variacao = $2 AND email = $3", [produto_id, variacao || "unico", email]);
+    if (existe.rows.length) return res.json({ success: false, message: "Você já está na lista!" });
+    await pool.query("INSERT INTO lista_espera (produto_id, variacao, email, nome) VALUES ($1, $2, $3, $4)", [produto_id, variacao || "unico", email, nome || ""]);
+    res.json({ success: true, message: "Adicionado à lista de espera!" });
   } catch (err) { res.status(500).json({ success: false, message: "Erro ao entrar na lista." }); }
 });
-
 app.get("/api/lista-espera", adminAuth, async (req, res) => {
-  try {
-    const result = await pool.query("SELECT * FROM lista_espera ORDER BY criado_em DESC");
-    res.json(result.rows);
-  } catch (err) { res.status(500).json({ error: "Erro" }); }
+  try { res.json((await pool.query("SELECT * FROM lista_espera ORDER BY criado_em DESC")).rows); }
+  catch (err) { res.status(500).json({ error: "Erro" }); }
 });
+app.get("/admin-estoque.html", adminAuth, (req, res) => res.sendFile(path.join(__dirname, "admin-estoque.html")));
 
-app.get("/admin-estoque.html", adminAuth, (req, res) => {
-  res.sendFile(path.join(__dirname, "admin-estoque.html"));
-});
+// ==================== PÁGINAS ESTÁTICAS ====================
+app.get("/redefinir-senha.html", (req, res) => res.sendFile(path.join(__dirname, "redefinir-senha.html")));
 
-// ==================== TESTE ESTOQUE EMAIL ====================
-app.get("/teste-email-estoque", async (req, res) => {
+// ==================== LIMPEZA PENDENTES ====================
+setInterval(async () => {
   try {
-    console.log("Testando email de estoque...");
-    await enviarEmail({
-      to: EMAIL_DESTINO,
-      subject: "VARG - Teste Alerta Estoque",
-      html: "<h2 style='color:#ff4d4d'>Teste de alerta de estoque funcionando!</h2><p>Se voce recebeu este email, o sistema esta correto.</p>"
-    });
-    console.log("Email de teste estoque enviado!");
-    res.send("Email enviado! Verifique " + EMAIL_DESTINO);
-  } catch(err) {
-    console.error("Erro email teste estoque:", err.message);
-    res.status(500).send("Erro: " + err.message);
-  }
-});
+    const result = await pool.query("DELETE FROM pedidos WHERE payment_id LIKE 'PIX_PENDING_%' AND status = 'pendente' AND criado_em < NOW() - INTERVAL '24 hours'");
+    if (result.rowCount > 0) console.log("Limpeza: " + result.rowCount + " pedidos removidos");
+  } catch (err) { console.error("Erro limpeza:", err.message); }
+}, 6 * 60 * 60 * 1000);
 
 // ==================== 404 ====================
 app.use((req, res) => res.status(404).sendFile(path.join(__dirname, "404.html")));
@@ -696,6 +509,6 @@ app.use((req, res) => res.status(404).sendFile(path.join(__dirname, "404.html"))
 pool.connect()
   .then(() => {
     console.log("Conectado ao PostgreSQL");
-    app.listen(PORT, () => console.log("Servidor rodando em http://localhost:" + PORT));
+    app.listen(PORT, () => console.log("Servidor VARG rodando em http://localhost:" + PORT));
   })
   .catch((err) => { console.error("Erro ao conectar no banco:", err.message); process.exit(1); });

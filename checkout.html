@@ -4,63 +4,121 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - VARG</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        body{background:#111;color:#eee;font-family:sans-serif;margin:0;padding:0;}
-        .container{max-width:900px;margin:0 auto;padding:20px;}
-        .section{background:#222;border-radius:15px;padding:25px;margin-bottom:25px;border:1px solid #00BFFF;}
-        h2{color:#00BFFF;text-align:center;}
-        .item{display:flex;align-items:center;gap:15px;padding:15px;margin-bottom:15px;background:rgba(0,191,255,0.05);border-left:4px solid #00BFFF;border-radius:10px;}
-        .item img{width:80px;height:80px;border-radius:10px;object-fit:cover;}
-        .item-info h4{color:#00BFFF;margin-bottom:5px;}
-        .item-price{font-weight:bold;color:#DC143C;font-size:1.2em;margin-left:auto;}
-        .qr-container{display:flex;justify-content:center;margin:30px 0;}
-        #qrCode{max-width:300px;border-radius:15px;border:5px solid #fff;display:none;}
-        #pixKey{background:#333;padding:15px;border-radius:5px;color:#00BFFF;word-break:break-all;text-align:center;margin:10px auto;font-family:monospace;font-size:0.9em;}
-        .btn-group{display:flex;gap:15px;justify-content:center;flex-wrap:wrap;}
-        .btn-pix{background:#25D366;color:white;padding:15px 30px;border:none;border-radius:30px;cursor:pointer;font-weight:bold;font-size:1em;}
-        .btn-copy{background:#00BFFF;color:white;padding:15px 30px;border:none;border-radius:30px;cursor:pointer;font-weight:bold;font-size:1em;}
-        .btn-card{background:#009EE3;color:white;padding:18px 35px;border:none;border-radius:30px;cursor:pointer;font-weight:bold;font-size:1.05em;width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:12px;transition:0.3s;}
-        .btn-card:hover{background:#007bb5;transform:translateY(-2px);box-shadow:0 5px 20px rgba(0,158,227,0.4);}
-        .btn-card:disabled{background:#444;cursor:not-allowed;transform:none;}
-        #status{text-align:center;margin-top:10px;font-size:0.9em;color:#aaa;}
-        .spinner{display:inline-block;width:18px;height:18px;border:3px solid #444;border-top-color:#00BFFF;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:8px;}
-        @keyframes spin{to{transform:rotate(360deg)}}
-        .checkout-back-btn{display:inline-block;color:#DC143C;background:transparent;border:1px solid transparent;padding:12px 20px;text-decoration:none;margin:0 0 24px 0;font-size:16px;cursor:pointer;border-radius:4px;opacity:0.8;transition:all 0.3s ease;font-weight:500;font-family:inherit;}
-        .checkout-back-btn:hover{background:#222;border-color:rgba(220,20,60,0.3);color:#ff4444;opacity:1;}
-        .mp-logo{width:20px;height:20px;}
-        #cardStatus{text-align:center;margin-top:12px;font-size:0.9em;color:#aaa;}
-
-        /* Formulário de entrega */
-        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
-        .form-grid .full{grid-column:1/-1;}
-        .form-group{display:flex;flex-direction:column;gap:6px;}
-        .form-group label{font-size:0.85em;color:#00BFFF;font-weight:bold;}
-        .form-group input{background:#333;border:1px solid #444;border-radius:8px;padding:10px 14px;color:#eee;font-size:0.95em;outline:none;transition:border 0.2s;}
-        .form-group input:focus{border-color:#00BFFF;}
-        .form-group input::placeholder{color:#666;}
-        .cep-row{display:flex;gap:10px;align-items:flex-end;}
-        .cep-row input{flex:1;}
-        .btn-cep{background:#00BFFF;color:#111;border:none;border-radius:8px;padding:10px 16px;cursor:pointer;font-weight:bold;font-size:0.9em;white-space:nowrap;}
-        .btn-cep:hover{background:#00a8d8;}
-        #cepStatus{font-size:0.8em;color:#aaa;margin-top:4px;}
-        .entrega-ok{color:#00ff88;font-size:0.9em;text-align:center;margin-top:10px;display:none;}
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #111; color: #eee; font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; }
+        header {
+            position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.95);
+            padding: 12px 25px; display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000; border-bottom: 1px solid #222;
+        }
+        header a { color: #fff; text-decoration: none; font-weight: bold; font-size: 1.1em; letter-spacing: 2px; }
+        header a:hover { color: #DC143C; }
+        .cart-back { color: #888; font-size: 0.9em; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+        .cart-back:hover { color: #DC143C; }
+        .container { max-width: 900px; margin: 0 auto; padding: 90px 20px 40px; }
+        .section {
+            background: #1a1a1a; border-radius: 15px; padding: 25px;
+            margin-bottom: 25px; border: 1px solid #333;
+        }
+        .section-title {
+            color: #DC143C; font-size: 1.2em; font-weight: bold;
+            margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+        }
+        /* ITENS */
+        .item { display: flex; align-items: center; gap: 15px; padding: 15px; margin-bottom: 15px; background: rgba(220,20,60,0.05); border-left: 4px solid #DC143C; border-radius: 10px; }
+        .item img { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; border: 1px solid #333; }
+        .item-info h4 { color: #DC143C; margin-bottom: 5px; }
+        .item-info p { color: #ccc; font-size: 0.9em; margin: 2px 0; }
+        .item-price { font-weight: bold; color: #DC143C; font-size: 1.2em; margin-left: auto; white-space: nowrap; }
+        .total-line { text-align: right; font-size: 1.1em; color: #DC143C; padding-top: 15px; border-top: 1px solid #333; margin-top: 10px; }
+        /* FORM */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-grid .full { grid-column: 1 / -1; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 0.82em; color: #DC143C; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input {
+            background: #222; border: 1px solid #444; border-radius: 8px;
+            padding: 10px 14px; color: #eee; font-size: 0.95em; outline: none; transition: border 0.2s;
+        }
+        .form-group input:focus { border-color: #DC143C; }
+        .form-group input::placeholder { color: #555; }
+        .cep-row { display: flex; gap: 10px; align-items: flex-end; }
+        .cep-row input { flex: 1; }
+        .btn-cep { background: #DC143C; color: #fff; border: none; border-radius: 8px; padding: 10px 16px; cursor: pointer; font-weight: bold; font-size: 0.9em; white-space: nowrap; transition: 0.2s; }
+        .btn-cep:hover { background: #b01030; }
+        /* CUPOM */
+        .cupom-row { display: flex; gap: 10px; }
+        .cupom-row input {
+            flex: 1; background: #222; border: 1px solid #444; border-radius: 8px;
+            padding: 10px 14px; color: #eee; font-size: 0.95em; outline: none; text-transform: uppercase;
+        }
+        .cupom-row input:focus { border-color: #DC143C; }
+        .btn-cupom { background: #DC143C; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; cursor: pointer; font-weight: bold; white-space: nowrap; transition: 0.2s; }
+        .btn-cupom:hover { background: #b01030; }
+        /* PIX */
+        .qr-container { display: flex; justify-content: center; margin: 20px 0; }
+        #qrCode { max-width: 240px; border-radius: 12px; border: 4px solid #fff; display: none; }
+        #pixKey {
+            background: #222; padding: 14px; border-radius: 8px; color: #DC143C;
+            word-break: break-all; text-align: center; font-family: monospace; font-size: 0.88em;
+            border: 1px solid #333; margin: 10px 0;
+        }
+        .btn-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 15px; }
+        .btn-pix {
+            background: #32BCAD; color: white; padding: 14px 28px; border: none;
+            border-radius: 30px; cursor: pointer; font-weight: bold; font-size: 0.95em; transition: 0.3s;
+        }
+        .btn-pix:hover { background: #25a091; }
+        .btn-pix:disabled { background: #444; cursor: not-allowed; }
+        .btn-copy {
+            background: #DC143C; color: white; padding: 14px 28px; border: none;
+            border-radius: 30px; cursor: pointer; font-weight: bold; font-size: 0.95em; transition: 0.3s;
+        }
+        .btn-copy:hover { background: #b01030; }
+        .btn-copy:disabled { background: #444; cursor: not-allowed; }
+        /* WHATSAPP */
+        .btn-whatsapp {
+            width: 100%; background: #25D366; color: white; padding: 16px; border: none;
+            border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 1em; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px;
+        }
+        .btn-whatsapp:hover { background: #1eaa55; transform: translateY(-2px); box-shadow: 0 5px 20px rgba(37,211,102,0.3); }
+        /* STATUS */
+        #status { text-align: center; margin-top: 10px; font-size: 0.9em; color: #aaa; }
+        .spinner { display: inline-block; width: 16px; height: 16px; border: 3px solid #444; border-top-color: #DC143C; border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle; margin-right: 6px; }
+        @keyframes spin { to { transform: rotate(360deg) } }
+        /* MODAL AVISO PIX */
+        .modal { display: none; position: fixed; z-index: 4000; inset: 0; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal.active { display: flex; }
+        .modal-content { background: #1a1a1a; padding: 35px; border-radius: 15px; width: 90%; max-width: 460px; text-align: center; position: relative; border: 1px solid #333; }
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .form-grid .full { grid-column: 1; }
+        }
     </style>
 </head>
 <body>
+
+<header>
+    <a href="/index.html">VARG</a>
+    <a href="/index.html" class="cart-back"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
+</header>
+
 <div class="container">
 
-    <section class="section">
-        <a href="/index.html" class="checkout-back-btn">← Voltar ao Carrinho</a>
-        <h2>🛒 Itens do Carrinho</h2>
+    <!-- ITENS -->
+    <div class="section">
+        <div class="section-title"><i class="fa-solid fa-bag-shopping"></i> Itens do Carrinho</div>
         <div id="itemsList"></div>
-        <p style="text-align:right;font-size:1.1em;color:#00BFFF;margin-top:10px;">
-            Total: <strong id="totalLabel">R$ 0,00</strong>
-        </p>
-    </section>
+        <div class="total-line">Total: <strong id="totalLabel">R$ 0,00</strong></div>
+    </div>
 
     <!-- ENTREGA -->
-    <section class="section">
-        <h2>📦 Dados de Entrega</h2>
+    <div class="section">
+        <div class="section-title"><i class="fa-solid fa-truck"></i> Dados de Entrega</div>
         <div class="form-grid">
             <div class="form-group full">
                 <label>Nome completo *</label>
@@ -80,7 +138,7 @@
                     <input id="e-cep" type="text" placeholder="00000-000" maxlength="9" />
                     <button class="btn-cep" onclick="buscarCep()">Buscar</button>
                 </div>
-                <span id="cepStatus"></span>
+                <span id="cepStatus" style="font-size:0.8em;color:#aaa;margin-top:4px;"></span>
             </div>
             <div class="form-group full">
                 <label>Rua / Logradouro *</label>
@@ -107,57 +165,74 @@
                 <input id="e-estado" type="text" placeholder="SP" maxlength="2" />
             </div>
         </div>
-        <div class="entrega-ok" id="entregaOk">✅ Dados de entrega preenchidos!</div>
-    </section>
+    </div>
 
     <!-- CUPOM -->
-    <section class="section">
-        <h2>🏷️ Cupom de Desconto</h2>
-        <div style="display:flex;gap:10px;align-items:flex-end;">
-            <div style="flex:1;">
-                <input id="inputCupom" type="text" placeholder="Digite seu cupom" style="width:100%;background:#333;border:1px solid #444;border-radius:8px;padding:10px 14px;color:#eee;font-size:0.95em;outline:none;text-transform:uppercase;" />
-            </div>
-            <button onclick="aplicarCupom()" style="background:#00BFFF;color:#111;border:none;border-radius:8px;padding:10px 20px;cursor:pointer;font-weight:bold;white-space:nowrap;">Aplicar</button>
+    <div class="section">
+        <div class="section-title"><i class="fa-solid fa-tag"></i> Cupom de Desconto</div>
+        <div class="cupom-row">
+            <input id="inputCupom" type="text" placeholder="Digite seu cupom" />
+            <button class="btn-cupom" onclick="aplicarCupom()">Aplicar</button>
         </div>
         <div id="cupomStatus" style="margin-top:10px;font-size:0.9em;"></div>
-    </section>
+    </div>
 
     <!-- PIX -->
-    <section class="section">
-        <h2>💚 Pagar com PIX</h2>
+    <div class="section">
+        <div class="section-title"><i class="fa-brands fa-pix"></i> Pagar com PIX</div>
         <div class="qr-container">
             <img id="qrCode" src="" alt="QR Code PIX">
         </div>
         <div id="pixKey">Aguardando geração do código...</div>
         <div id="status"></div>
-        <div class="btn-group" style="margin-top:15px;">
-            <button id="btnPix" class="btn-pix" disabled>Pagar no App do Banco</button>
-            <button id="copyPix" class="btn-copy" disabled>Copiar Código PIX</button>
+        <div class="btn-group">
+            <button id="btnPix" class="btn-pix" disabled>
+                <i class="fa-brands fa-pix"></i> Pagar no App do Banco
+            </button>
+            <button id="copyPix" class="btn-copy" disabled>
+                <i class="fa-regular fa-copy"></i> Copiar Código PIX
+            </button>
         </div>
-    </section>
+    </div>
 
-    <!-- CARTÃO -->
-    <section class="section">
-        <h2>💳 Pagar com Cartão</h2>
-        <p style="text-align:center;color:#aaa;font-size:0.95em;margin-bottom:20px;">
-            Pagamento seguro via Mercado Pago — crédito, débito e parcelamento
-        </p>
-        <button id="btnCard" class="btn-card" disabled>
-            <svg class="mp-logo" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="16" cy="16" r="16" fill="#009EE3"/>
-                <path d="M8 13h16v6H8z" fill="white" opacity="0.9"/>
-                <path d="M8 13h16v2H8z" fill="white"/>
-            </svg>
-            Pagar com Cartão via Mercado Pago
+    <!-- WHATSAPP -->
+    <div class="section">
+        <div class="section-title"><i class="fa-brands fa-whatsapp" style="color:#25D366;"></i> Finalizar via WhatsApp</div>
+        <p style="color:#aaa;font-size:0.9em;margin-bottom:15px;">Prefere falar diretamente? Finalize seu pedido pelo WhatsApp e combine o pagamento conosco.</p>
+        <button class="btn-whatsapp" onclick="finalizarWhatsApp()">
+            <i class="fa-brands fa-whatsapp" style="font-size:1.3em;"></i>
+            Finalizar via WhatsApp
         </button>
-        <div id="cardStatus"></div>
-    </section>
+    </div>
 
 </div>
-<script>
-const formatPrice = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);
 
-// Verifica se está logado
+<!-- MODAL AVISO PIX -->
+<div id="modalPix" class="modal">
+    <div class="modal-content">
+        <div style="font-size:2.5em;margin-bottom:15px;">💳</div>
+        <h3 style="color:#DC143C;margin-bottom:10px;">Atenção antes de pagar</h3>
+        <p style="color:#ccc;font-size:0.92em;line-height:1.7;margin-bottom:20px;">
+            Após o pagamento via PIX, nossa equipe irá confirmar e processar seu pedido em até <b style="color:#DC143C;">48 horas úteis</b>.<br><br>
+            Guarde o comprovante e entre em contato pelo WhatsApp se tiver dúvidas.
+        </p>
+        <button onclick="confirmarPix()" style="background:#32BCAD;color:#fff;border:none;padding:13px 30px;border-radius:30px;font-weight:bold;cursor:pointer;font-size:0.95em;width:100%;margin-bottom:10px;">
+            Entendi, pagar com PIX
+        </button>
+        <button onclick="document.getElementById('modalPix').classList.remove('active')" style="background:transparent;color:#888;border:none;padding:10px;cursor:pointer;font-size:0.9em;width:100%;">
+            Cancelar
+        </button>
+    </div>
+</div>
+
+<script>
+const formatPrice = v => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+let totalCarrinho = 0;
+let cartGlobal = [];
+let cupomAtivo = null;
+let pixConfirmado = false;
+
+// ===== VERIFICAR LOGIN =====
 const usuarioLogado = localStorage.getItem('usuarioNome');
 if (!usuarioLogado) {
     localStorage.setItem('redirectAposLogin', 'checkout.html');
@@ -165,63 +240,42 @@ if (!usuarioLogado) {
     window.location.href = '/login.html';
 }
 
-function setStatus(msg, loading = false) {
-    document.getElementById('status').innerHTML = loading
-        ? '<span class="spinner"></span>'+msg : msg;
-}
-function setCardStatus(msg) {
-    document.getElementById('cardStatus').innerHTML = msg;
-}
-
-// Máscara CPF
+// ===== MÁSCARAS =====
 document.getElementById('e-cpf').addEventListener('input', function() {
     let v = this.value.replace(/\D/g,'');
-    v = v.replace(/(\d{3})(\d)/,'$1.$2');
-    v = v.replace(/(\d{3})(\d)/,'$1.$2');
-    v = v.replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+    v = v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
     this.value = v;
 });
-
-// Máscara Telefone
 document.getElementById('e-telefone').addEventListener('input', function() {
     let v = this.value.replace(/\D/g,'');
-    if(v.length <= 10) v = v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{4})(\d)/,'$1-$2');
+    if(v.length<=10) v = v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{4})(\d)/,'$1-$2');
     else v = v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d)/,'$1-$2');
     this.value = v;
 });
-
-// Máscara CEP
 document.getElementById('e-cep').addEventListener('input', function() {
-    let v = this.value.replace(/\D/g,'');
-    v = v.replace(/(\d{5})(\d)/,'$1-$2');
+    let v = this.value.replace(/\D/g,'').replace(/(\d{5})(\d)/,'$1-$2');
     this.value = v;
 });
+document.getElementById('e-cep').addEventListener('keypress', (e) => { if(e.key==='Enter') buscarCep(); });
 
-// Buscar CEP
+// ===== CEP =====
 async function buscarCep() {
     const cep = document.getElementById('e-cep').value.replace(/\D/g,'');
     const status = document.getElementById('cepStatus');
-    if(cep.length !== 8) { status.textContent = '⚠️ CEP inválido.'; return; }
-    status.textContent = 'Buscando...';
+    if(cep.length!==8){status.textContent='⚠️ CEP inválido.';return;}
+    status.textContent='Buscando...';
     try {
-        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-        const data = await res.json();
-        if(data.erro) { status.textContent = '❌ CEP não encontrado. Preencha manualmente.'; return; }
-        document.getElementById('e-rua').value = data.logradouro || '';
-        document.getElementById('e-bairro').value = data.bairro || '';
-        document.getElementById('e-cidade').value = data.localidade || '';
-        document.getElementById('e-estado').value = data.uf || '';
-        status.textContent = '✅ Endereço preenchido!';
+        const data = await fetch(`https://viacep.com.br/ws/${cep}/json/`).then(r=>r.json());
+        if(data.erro){status.textContent='❌ CEP não encontrado. Preencha manualmente.';return;}
+        document.getElementById('e-rua').value = data.logradouro||'';
+        document.getElementById('e-bairro').value = data.bairro||'';
+        document.getElementById('e-cidade').value = data.localidade||'';
+        document.getElementById('e-estado').value = data.uf||'';
+        status.textContent='✅ Endereço preenchido!';
+        status.style.color='#00ff88';
         document.getElementById('e-numero').focus();
-    } catch(e) {
-        status.textContent = '❌ Erro ao buscar CEP. Preencha manualmente.';
-    }
+    } catch(e){ status.textContent='❌ Erro ao buscar CEP.'; }
 }
-
-// Enter no CEP busca automaticamente
-document.getElementById('e-cep').addEventListener('keypress', function(e) {
-    if(e.key === 'Enter') buscarCep();
-});
 
 function getEntrega() {
     return {
@@ -237,149 +291,151 @@ function getEntrega() {
         estado: document.getElementById('e-estado').value.trim(),
     };
 }
-
 function validarEntrega() {
     const e = getEntrega();
     return e.nome && e.cpf && e.telefone && e.cep && e.rua && e.numero && e.bairro && e.cidade && e.estado;
 }
 
-let totalCarrinho = 0;
-let cartGlobal = [];
-let cupomAtivo = null;
-
+// ===== CUPOM =====
 async function aplicarCupom() {
     const codigo = document.getElementById('inputCupom').value.trim();
     const statusEl = document.getElementById('cupomStatus');
-    if (!codigo) { statusEl.innerHTML = '<span style="color:#ff4d4d;">Digite um cupom.</span>'; return; }
-    statusEl.innerHTML = 'Verificando...';
+    if(!codigo){statusEl.innerHTML='<span style="color:#ff4d4d;">Digite um cupom.</span>';return;}
+    statusEl.innerHTML='<span style="color:#aaa;">Verificando...</span>';
     try {
-        const res = await fetch('/api/cupom/validar', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ codigo })
-        });
-        const data = await res.json();
-        if (data.valido) {
+        const data = await fetch('/api/cupom/validar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({codigo})}).then(r=>r.json());
+        if(data.valido){
             cupomAtivo = data;
-            const totalDescPix = totalCarrinho * (1 - data.desconto_pix / 100);
-            const totalDescCartao = totalCarrinho * (1 - data.desconto_cartao / 100);
-            statusEl.innerHTML = '<span style="color:#00ff88;">&#10003; Cupom <b>' + data.codigo + '</b> aplicado! PIX: ' + data.desconto_pix + '% off | Cartao: ' + data.desconto_cartao + '% off</span>';
+            const totalDesc = totalCarrinho*(1-data.desconto_pix/100);
+            statusEl.innerHTML = `<span style="color:#00ff88;">✔ Cupom <b>${data.codigo}</b> aplicado! ${data.desconto_pix}% de desconto no PIX.</span>`;
             document.getElementById('totalLabel').innerHTML =
-                '<span style="text-decoration:line-through;color:#888;font-size:0.85em;">' + formatPrice(totalCarrinho) + '</span> ' +
-                '<span style="color:#00ff88;font-weight:bold;">' + formatPrice(totalDescPix) + '</span> ' +
-                '<small style="color:#aaa;"> com cupom (PIX)</small>';
-            await generatePix(totalDescPix, cartGlobal);
-            await prepareCard(cartGlobal, totalDescCartao);
+                `<span style="text-decoration:line-through;color:#666;font-size:0.85em;">${formatPrice(totalCarrinho)}</span> ` +
+                `<span style="color:#00ff88;">${formatPrice(totalDesc)}</span>`;
+            await generatePix(totalDesc, cartGlobal);
         } else {
             cupomAtivo = null;
-            statusEl.innerHTML = '<span style="color:#ff4d4d;">&#10007; ' + data.message + '</span>';
+            statusEl.innerHTML = `<span style="color:#ff4d4d;">✗ ${data.message}</span>`;
             document.getElementById('totalLabel').textContent = formatPrice(totalCarrinho);
             await generatePix(totalCarrinho, cartGlobal);
-            await prepareCard(cartGlobal, totalCarrinho);
         }
-    } catch(e) {
-        statusEl.innerHTML = '<span style="color:#ff4d4d;">Erro ao verificar cupom.</span>';
-    }
+    } catch(e){ statusEl.innerHTML='<span style="color:#ff4d4d;">Erro ao verificar cupom.</span>'; }
 }
 
+// ===== CARREGAR CART =====
 async function loadCart() {
     let cart;
-    try { cart = JSON.parse(localStorage.getItem('carrinho')) || null; }
-    catch(e) { cart = null; }
-    if (!cart || cart.length === 0) {
-        cart = [{ nome: 'VARG Salt • 30g', preco: 2.00, quantidade: 1, img: 'https://via.placeholder.com/80?text=VARG' }];
+    try { cart = JSON.parse(localStorage.getItem('carrinho')) || []; } catch(e){ cart = []; }
+    if (!cart.length) {
+        document.getElementById('itemsList').innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Carrinho vazio. <a href="/index.html" style="color:#DC143C;">Voltar à loja</a></p>';
+        return;
     }
     cartGlobal = cart;
-    let html = '';
-    let totalGeral = 0;
+    let html = '', total = 0;
     cart.forEach(i => {
-        let price = parseFloat(i.preco || 0);
-        let qtd = parseInt(i.quantidade || 1);
-        totalGeral += price * qtd;
+        const sub = parseFloat(i.preco)*parseInt(i.quantidade);
+        total += sub;
         html += `<div class="item">
             <img src="${i.img}" alt="${i.nome}">
             <div class="item-info">
                 <h4>${i.nome}</h4>
-                <p>Quantidade: ${qtd}x</p>
-                <p>Unidade: ${formatPrice(price)}</p>
+                <p>Qtd: ${i.quantidade}x &nbsp;|&nbsp; Unit: ${formatPrice(i.preco)}</p>
             </div>
-            <div class="item-price">${formatPrice(price * qtd)}</div>
+            <div class="item-price">${formatPrice(sub)}</div>
         </div>`;
     });
     document.getElementById('itemsList').innerHTML = html;
-    document.getElementById('totalLabel').textContent = formatPrice(totalGeral);
-    totalCarrinho = totalGeral;
-    await generatePix(totalGeral, cart);
-    await prepareCard(cart, totalGeral);
+    document.getElementById('totalLabel').textContent = formatPrice(total);
+    totalCarrinho = total;
+    await generatePix(total, cart);
+}
+
+// ===== PIX =====
+function setStatus(msg, loading=false) {
+    document.getElementById('status').innerHTML = loading
+        ? `<span class="spinner"></span>${msg}` : msg;
 }
 
 async function generatePix(valor, cart) {
     setStatus('Gerando QR Code PIX...', true);
+    document.getElementById('btnPix').disabled = true;
+    document.getElementById('copyPix').disabled = true;
     try {
         const entrega = getEntrega();
-        const pedidoId = Date.now();
-        localStorage.setItem('pedidoId', String(pedidoId).slice(-6));
-        localStorage.setItem('metodoPagamento', 'PIX');
-
         const res = await fetch('/pix', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: Math.round(valor * 100), cart, entrega, nome: entrega.nome, pedidoId, cupom: cupomAtivo ? cupomAtivo.codigo : null })
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({
+                amount: Math.round(valor*100), cart, entrega,
+                nome: entrega.nome || usuarioLogado,
+                cupom: cupomAtivo ? cupomAtivo.codigo : null
+            })
         });
         const data = await res.json();
-        if (data.success && data.pix_code) {
+        if(data.success && data.pix_code){
             const qr = document.getElementById('qrCode');
-            if (data.qr_image) { qr.src = data.qr_image; qr.style.display = 'block'; }
+            if(data.qr_image){ qr.src=data.qr_image; qr.style.display='block'; }
             document.getElementById('pixKey').textContent = data.pix_code;
             window.pixCode = data.pix_code;
             document.getElementById('btnPix').disabled = false;
             document.getElementById('copyPix').disabled = false;
-            setStatus('✅ PIX gerado! Escaneie o QR Code ou copie o código.');
+            setStatus('✅ PIX gerado! Escaneie ou copie o código.');
         } else {
-            setStatus('❌ Erro: '+(data.error || 'Resposta inesperada.'));
-            document.getElementById('pixKey').textContent = data.error || 'Erro';
+            setStatus('❌ Erro: '+(data.error||'Resposta inesperada.'));
+            document.getElementById('pixKey').textContent = data.error||'Erro ao gerar PIX';
         }
-    } catch(e) {
-        setStatus('❌ Não foi possível conectar ao servidor.');
+    } catch(e){ setStatus('❌ Não foi possível conectar ao servidor.'); }
+}
+
+// ===== BOTÕES PIX =====
+document.getElementById('copyPix').addEventListener('click', async () => {
+    if(!validarEntrega()){ alert('Preencha todos os dados de entrega antes de pagar.'); return; }
+    document.getElementById('modalPix').classList.add('active');
+});
+document.getElementById('btnPix').addEventListener('click', () => {
+    if(!validarEntrega()){ alert('Preencha todos os dados de entrega antes de pagar.'); return; }
+    document.getElementById('modalPix').classList.add('active');
+});
+async function confirmarPix() {
+    document.getElementById('modalPix').classList.remove('active');
+    if(window.pixCode) {
+        try { await navigator.clipboard.writeText(window.pixCode); } catch(e){}
+        localStorage.setItem('metodoPagamento','PIX');
+        localStorage.setItem('pedidoId', String(Date.now()).slice(-6));
+        window.location.href = '/confirmação.html';
     }
 }
 
-async function prepareCard(cart, total) {
-    try {
-        const res = await fetch('/mp-preference', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cart, total })
-        });
-        const data = await res.json();
-        if (data.init_point) {
-            window.mpInitPoint = data.init_point;
-            document.getElementById('btnCard').disabled = false;
-            setCardStatus('✅ Pronto para pagar com cartão.');
-        } else {
-            setCardStatus('❌ Erro ao preparar pagamento com cartão.');
-        }
-    } catch(e) {
-        setCardStatus('❌ Erro ao conectar com Mercado Pago.');
+// ===== WHATSAPP =====
+function finalizarWhatsApp() {
+    if(!validarEntrega()){
+        alert('Por favor, preencha todos os dados de entrega antes de continuar.');
+        return;
     }
+    const entrega = getEntrega();
+    const cart = JSON.parse(localStorage.getItem('carrinho') || '[]');
+    const total = cupomAtivo
+        ? totalCarrinho*(1-cupomAtivo.desconto_pix/100)
+        : totalCarrinho;
+
+    const itensTexto = cart.map(i => `  • ${i.quantidade}x ${i.nome} — ${formatPrice(i.preco*i.quantidade)}`).join('\n');
+    const cupomTexto = cupomAtivo ? `\n🏷️ Cupom: ${cupomAtivo.codigo} (${cupomAtivo.desconto_pix}% off)` : '';
+    const msg = `🐺 *Novo Pedido VARG*\n\n` +
+        `👤 *Cliente:* ${entrega.nome}\n` +
+        `📞 *Telefone:* ${entrega.telefone}\n` +
+        `📧 *Email:* ${localStorage.getItem('usuarioEmail')||'-'}\n\n` +
+        `📦 *Produtos:*\n${itensTexto}\n\n` +
+        `💰 *Total: ${formatPrice(total)}*${cupomTexto}\n\n` +
+        `🏠 *Endereço:*\n${entrega.rua}, ${entrega.numero}${entrega.complemento?' '+entrega.complemento:''}\n${entrega.bairro} — ${entrega.cidade}/${entrega.estado}\nCEP: ${entrega.cep}`;
+
+    const phone = '5512988875509';
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+    localStorage.setItem('metodoPagamento', 'WhatsApp');
+    localStorage.setItem('pedidoId', String(Date.now()).slice(-6));
+    localStorage.removeItem('carrinho');
+    setTimeout(() => { window.location.href = '/confirmação.html'; }, 1500);
 }
 
 document.addEventListener('DOMContentLoaded', loadCart);
-
-document.getElementById('copyPix').addEventListener('click', async () => {
-    if(!validarEntrega()) { alert('Por favor, preencha todos os dados de entrega antes de pagar.'); return; }
-    if (window.pixCode) { await navigator.clipboard.writeText(window.pixCode); alert('Código PIX copiado!'); }
-});
-
-document.getElementById('btnPix').addEventListener('click', () => {
-    if(!validarEntrega()) { alert('Por favor, preencha todos os dados de entrega antes de pagar.'); return; }
-    if (window.pixCode) { window.location.href = 'https://nubank.com.br/cobrar/pix?payload='+encodeURIComponent(window.pixCode); }
-});
-
-document.getElementById('btnCard').addEventListener('click', () => {
-    if(!validarEntrega()) { alert('Por favor, preencha todos os dados de entrega antes de pagar.'); return; }
-    if (window.mpInitPoint) { window.open(window.mpInitPoint, '_blank'); }
-});
 </script>
 </body>
 </html>

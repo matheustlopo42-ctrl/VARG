@@ -73,6 +73,7 @@
         });
         const data = await response.json();
         if (data.success) {
+          if (data.token) localStorage.setItem("varg_token", data.token);
           localStorage.setItem('usuarioNome', data.nome);
           localStorage.setItem('usuarioEmail', email);
           const redirect = localStorage.getItem('redirectAposLogin');
@@ -125,6 +126,7 @@
         msg.style.color = data.success ? '#00ff88' : '#ff4d4d';
         msg.style.display = 'block';
         if (data.success) {
+          if (data.token) localStorage.setItem("varg_token", data.token);
           this.textContent = 'Enviado!';
         } else {
           this.disabled = false;
