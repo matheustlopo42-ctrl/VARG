@@ -1,90 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meus Pedidos - VARG</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; }
-    header { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.95); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 1px solid #222; }
-    nav ul { list-style: none; display: flex; gap: 25px; }
-    nav ul li a { color: #fff; font-weight: 600; text-decoration: none; transition: 0.3s; }
-    nav ul li a:hover { color: #DC143C; }
-    .sair-btn { color: #DC143C !important; }
-    .main { max-width: 900px; margin: 0 auto; padding: 100px 20px 40px; }
-    h2 { color: #00BFFF; margin-bottom: 25px; font-size: 1.8em; }
-    .pedido-card { background: #1a1a1a; border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid #333; }
-    .pedido-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #333; }
-    .pedido-id { color: #00BFFF; font-weight: bold; font-size: 0.9em; }
-    .pedido-data { color: #888; font-size: 0.85em; }
-    .pedido-status { padding: 5px 12px; border-radius: 20px; font-size: 0.85em; font-weight: bold; }
-    .status-pago { background: rgba(0,255,136,0.15); color: #00ff88; border: 1px solid #00ff88; }
-    .status-pendente { background: rgba(255,165,0,0.15); color: orange; border: 1px solid orange; }
-    .pedido-itens { margin-bottom: 15px; }
-    .pedido-item { display: flex; justify-content: space-between; padding: 8px 0; color: #ccc; font-size: 0.9em; border-bottom: 1px solid #222; }
-    .pedido-item:last-child { border-bottom: none; }
-    .pedido-total { text-align: right; color: #DC143C; font-weight: bold; font-size: 1.1em; }
-    .pedido-entrega { background: #111; border-radius: 8px; padding: 12px; margin-top: 10px; font-size: 0.85em; color: #aaa; }
-    .pedido-entrega strong { color: #00BFFF; display: block; margin-bottom: 5px; }
-    .vazio { text-align: center; padding: 60px 20px; color: #555; }
-    .vazio i { font-size: 4em; margin-bottom: 20px; display: block; }
-    .vazio a { color: #00BFFF; text-decoration: none; }
-    .spinner { text-align: center; padding: 60px; color: #555; font-size: 1.1em; }
-    .erro { text-align: center; padding: 40px; color: #ff4d4d; }
-    .busca { margin-bottom: 20px; }
-    .busca input { width: 100%; padding: 12px 16px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 0.95em; outline: none; }
-    .busca input:focus { border-color: #00BFFF; }
-    .busca input::placeholder { color: #555; }
-  </style>
-  <style>
-    header { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.95); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 1px solid #222; }
-    nav ul { list-style: none; display: flex; gap: 25px; align-items: center; flex-wrap: wrap; }
-    nav ul li a { color: #fff; font-weight: 600; text-decoration: none; transition: 0.3s; font-size: 15px; }
-    nav ul li a:hover { color: #DC143C; }
-    nav ul li { position: relative; }
-    .dropdown-content { display: none; position: absolute; top: 100%; left: 0; background-color: #111; min-width: 180px; border: 1px solid #333; border-radius: 4px; box-shadow: 0 8px 16px rgba(0,0,0,0.6); list-style: none; padding: 0; }
-    .dropdown-content li a { padding: 12px 15px; font-size: 0.9em; border-bottom: 1px solid #222; display: block; }
-    nav ul li:hover .dropdown-content { display: block; }
-    .cart-icon { color: #00BFFF; font-size: 1.4rem; cursor: pointer; }
-  </style>
-
-
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
-
-
-<style>header:not(.slim){display:none!important}body{padding-top:59px!important}</style>
-
-<style>
-.slim-cart-btn{position:relative;background:none;border:1px solid #333;border-radius:10px;padding:5px 10px;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase;color:#ccc;transition:all .2s;white-space:nowrap}
-.slim-cart-btn:hover{border-color:#DC143C;color:#DC143C}
-.slim-cart-count{background:#DC143C;color:#fff;border-radius:50%;width:18px;height:18px;font-size:.6rem;font-weight:800;display:none;align-items:center;justify-content:center;margin-left:2px}
-.slim-cart-count.show{display:flex}
-/* CART DRAWER */
-.slim-cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;opacity:0;pointer-events:none;transition:opacity .3s}
-.slim-cart-overlay.open{opacity:1;pointer-events:all}
-.slim-cart-drawer{position:fixed;top:0;right:0;bottom:0;width:400px;max-width:95vw;background:#111;z-index:2001;transform:translateX(100%);transition:transform .3s ease;display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(0,0,0,.5)}
-.slim-cart-drawer.open{transform:translateX(0)}
-.slim-cart-head{padding:18px 22px;border-bottom:1px solid #333;display:flex;align-items:center;justify-content:space-between}
-.slim-cart-head h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.3rem;text-transform:uppercase;color:#fff}
-.slim-cart-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888;line-height:1}
-.slim-cart-close:hover{color:#DC143C}
-.slim-cart-items{flex:1;overflow-y:auto;padding:14px 22px}
-.slim-cart-foot{padding:18px 22px;border-top:1px solid #333;background:#0f0f0f}
-.slim-cart-total-row{display:flex;justify-content:space-between;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.4rem;color:#fff;margin-bottom:14px}
-.slim-cart-total-row span:last-child{color:#DC143C}
-.slim-btn-checkout{display:block;width:100%;padding:13px;background:#DC143C;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;letter-spacing:.1em;text-transform:uppercase;border:none;border-radius:10px;cursor:pointer;text-align:center;text-decoration:none;transition:.2s}
-.slim-btn-checkout:hover{background:#b01030}
-.slim-btn-limpar{display:block;text-align:center;margin-top:8px;font-size:.8rem;color:#555;cursor:pointer;background:none;border:none;text-decoration:underline}
-.slim-btn-limpar:hover{color:#DC143C}
-</style>
-
-
-
-<script>
-// Aplica traduções assim que DOM + dicionário estiverem prontos
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title data-i18n="orders.title">Meus Pedidos — VARG</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script>
 (function() {
   function applyAll() {
     var lang = localStorage.getItem('varg_lang') || 'pt';
@@ -102,41 +25,22 @@
       var val = dict[key] && (dict[key][lang] || dict[key]['pt'] || dict[key]['en']);
       if (val) el.placeholder = val;
     });
-    // atualiza ← Loja
-    document.querySelectorAll('.slim-back').forEach(function(el) {
-      var val = dict['nav.home'] && (dict['nav.home'][lang] || dict['nav.home']['pt']);
-      if (val) el.textContent = '← ' + val;
-    });
     return true;
   }
-
-  // Tenta aplicar quando DOM carregar
   document.addEventListener('DOMContentLoaded', function() {
-    if (!applyAll()) {
-      // dicionário ainda não carregou, espera
-      var tries = 0;
-      var iv = setInterval(function() {
-        tries++;
-        if (applyAll() || tries > 60) clearInterval(iv);
-      }, 30);
-    }
+    if (!applyAll()) { var t=0,iv=setInterval(function(){t++;if(applyAll()||t>60)clearInterval(iv);},30); }
   });
-
-  // Também aplica quando idioma muda
   document.addEventListener('vargLangChanged', applyAll);
-
-  // Expõe para o i18n-init chamar
   window.PEP_LANG_APPLY = applyAll;
 })();
 </script>
-<script src="/i18n.js"></script>
-<script src="/i18n-init.js"></script>
-<style>
-:root{--red:#DC143C;--red2:#b01030;--border:#333}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Barlow',sans-serif;background:#0a0a0a;color:#eee;min-height:100vh;padding-top:61px}
-    :root{--red:#DC143C;--red2:#b01030;--dark:#0a0a0a;--mid:#1a1a1a;--muted:#888;--border:#333;--cream:#0f0f0f;--amber:#DC143C}
+  <script src="/i18n.js"></script>
+  <script src="/i18n-init.js"></script>
+  <style>
+    :root{--red:#DC143C;--red2:#b01030;--border:#333}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Barlow',sans-serif;background:#0a0a0a;color:#eee;min-height:100vh;padding-top:61px}
+        :root{--red:#DC143C;--red2:#b01030;--dark:#0a0a0a;--mid:#1a1a1a;--muted:#888;--border:#333;--cream:#0f0f0f;--amber:#DC143C}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Barlow',sans-serif;background:#0a0a0a;color:#eee;min-height:100vh}
 
@@ -231,7 +135,6 @@ body{font-family:'Barlow',sans-serif;background:#0a0a0a;color:#eee;min-height:10
     @media(min-width:769px){.hamburger{display:none!important}}
 
     /* TOAST */
-
     .cart-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #222;align-items:center}
     .cart-item:last-child{border:none}
     .cart-item-img{width:58px;height:58px;background:#1a1a1a;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;border:1px solid #333}
@@ -273,7 +176,37 @@ body{font-family:'Barlow',sans-serif;background:#0a0a0a;color:#eee;min-height:10
     .modal-btn-cadastro{background:transparent;color:#00BFFF;padding:13px;border:1px solid #00BFFF;border-radius:8px;font-weight:700;cursor:pointer;font-size:.95rem;font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em;text-transform:uppercase}
     .modal-btn-voltar{background:transparent;color:#555;padding:10px;border:none;border-radius:8px;cursor:pointer;font-size:.88rem}
 
-</style>
+    .main{max-width:900px;margin:0 auto;padding:50px 20px 40px}
+    h2{color:#00BFFF;margin-bottom:25px;font-size:1.8em;font-family:'Barlow Condensed',sans-serif;font-weight:900}
+    .pedido-card{background:#1a1a1a;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #333}
+    .pedido-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:15px;padding-bottom:15px;border-bottom:1px solid #333}
+    .pedido-id{color:#00BFFF;font-weight:bold;font-size:.9em}
+    .pedido-data{color:#888;font-size:.85em}
+    .pedido-status{padding:5px 12px;border-radius:20px;font-size:.85em;font-weight:bold}
+    .status-pago{background:rgba(0,255,136,.15);color:#00ff88;border:1px solid #00ff88}
+    .status-pendente{background:rgba(255,165,0,.15);color:orange;border:1px solid orange}
+    .pedido-itens{margin-bottom:15px}
+    .pedido-item{display:flex;justify-content:space-between;padding:8px 0;color:#ccc;font-size:.9em;border-bottom:1px solid #222}
+    .pedido-item:last-child{border-bottom:none}
+    .pedido-total{text-align:right;color:#DC143C;font-weight:bold;font-size:1.1em}
+    .pedido-entrega{background:#111;border-radius:8px;padding:12px;margin-top:10px;font-size:.85em;color:#aaa}
+    .vazio{text-align:center;padding:60px 20px;color:#555}
+    .vazio i{font-size:4em;margin-bottom:20px;display:block}
+    .vazio a{color:#00BFFF;text-decoration:none}
+    .spinner{text-align:center;padding:60px;color:#555}
+    .busca{margin-bottom:20px}
+    .busca input{width:100%;padding:12px 16px;background:#1a1a1a;border:1px solid #333;border-radius:8px;color:#fff;font-size:.95em;outline:none;font-family:'Barlow',sans-serif}
+    .busca input:focus{border-color:#00BFFF}
+    .busca input::placeholder{color:#555}
+    
+    footer{background:#050505;color:#eee;padding:50px 24px 20px;margin-top:60px;border-top:1px solid #111}
+    .footer-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;padding-bottom:36px;border-bottom:1px solid #1a1a1a}
+    .footer-col h4{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:14px}
+    .footer-col a{display:block;font-size:.86rem;color:#666;text-decoration:none;margin-bottom:8px;transition:color .2s}
+    .footer-col a:hover{color:var(--red)}
+    .footer-col p{font-size:.86rem;color:#666;margin-bottom:6px}
+    .footer-bottom{max-width:1100px;margin:16px auto 0;text-align:center;font-size:.78rem;color:#333}
+  </style>
 </head>
 <body>
 <!-- MOBILE MENU -->
@@ -367,125 +300,80 @@ body{font-family:'Barlow',sans-serif;background:#0a0a0a;color:#eee;min-height:10
   </div>
 </div>
 
-
-
-    <div id="listaPedidos">
-      <div class="spinner"><i class="fa-solid fa-spinner fa-spin"></i> Carregando pedidos...</div>
+  <div class="main">
+    <h2><i class="fa-solid fa-box" style="margin-right:10px;"></i><span data-i18n="orders.title">Meus Pedidos</span></h2>
+    <div class="busca"><input type="text" id="busca" placeholder="🔍 Buscar por ID..." oninput="filtrar()" /></div>
+    <div id="listaPedidos"><div class="spinner"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div></div>
+  </div>
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col"><h4>VARG</h4><p data-i18n="footer.desc">Equipando os mais fortes desde sempre.</p></div>
+    <div class="footer-col">
+      <h4 data-i18n="footer.institutional">Institucional</h4>
+      <a href="/quem-somos.html" data-i18n="footer.about">Quem Somos</a>
+      <a href="/termos-de-uso.html" data-i18n="footer.terms">Termos de Uso</a>
+      <a href="/politica-privacidade.html" data-i18n="footer.privacy">Privacidade</a>
+      <a href="/envio-e-prazos.html" data-i18n="footer.shipping">Envio e Prazos</a>
+    </div>
+    <div class="footer-col">
+      <h4 data-i18n="footer.support">Suporte</h4>
+      <a href="/duvidas-frequentes.html" data-i18n="footer.faq">Dúvidas</a>
+      <a href="/trocas-e-devolucoes.html" data-i18n="footer.returns">Devoluções</a>
+      <a href="/rastrear-pedido.html" data-i18n="footer.trackorder">Rastrear</a>
+    </div>
+    <div class="footer-col">
+      <h4 data-i18n="footer.contact">Contato</h4>
+      <p>contato@vargmatilha.com.br</p><p>São José dos Campos - SP</p>
     </div>
   </div>
-
-  <script>
-    const nome = localStorage.getItem('usuarioNome');
-    const email = localStorage.getItem('usuarioEmail');
-
-    if (!nome) {
-      window.location.href = '/login.html';
-    } else {
-      document.getElementById('userName').textContent = nome;
-    }
-
-    document.getElementById('btnSair').addEventListener('click', (e) => {
-      e.preventDefault();
-      localStorage.removeItem('usuarioNome');
-      localStorage.removeItem('usuarioEmail');
-      window.location.href = '/login.html';
-    });
-
-    const formatPrice = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
-    let todosPedidos = [];
-
-    async function carregarPedidos() {
-      try {
-        const res = await fetch('/api/pedidos');
-        const todos = await res.json();
-
-        // Filtra apenas pedidos deste usuário pelo email ou nome
-        todosPedidos = todos.filter(p =>
-          (email && p.cliente_email && p.cliente_email.toLowerCase() === email.toLowerCase()) ||
-          (nome && p.cliente_nome && p.cliente_nome.toLowerCase() === nome.toLowerCase())
-        ).filter(p => p.status === 'pago');
-
-        renderizarPedidos(todosPedidos);
-      } catch (err) {
-        document.getElementById('listaPedidos').innerHTML = `<div class="erro"><i class="fa-solid fa-circle-exclamation"></i> Erro ao carregar pedidos. Tente novamente.</div>`;
-      }
-    }
-
-    function renderizarPedidos(pedidos) {
-      const container = document.getElementById('listaPedidos');
-      if (pedidos.length === 0) {
-        container.innerHTML = `
-          <div class="vazio">
-            <i class="fa-solid fa-box-open"></i>
-            <p>Você ainda não tem pedidos.</p>
-            <p style="margin-top:10px;"><a href="/index.html">Ir às compras →</a></p>
-          </div>`;
-        return;
-      }
-
-      container.innerHTML = pedidos.map(p => {
-        let itens = [];
-        try { itens = JSON.parse(p.itens || '[]'); } catch(e) {}
-
-        let entrega = null;
-        try { entrega = p.entrega ? JSON.parse(p.entrega) : null; } catch(e) {}
-
-        const itensHtml = itens.length > 0
-          ? itens.map(i => `<div class="pedido-item"><span>${i.quantidade}x ${i.nome}</span><span>${formatPrice(i.preco * i.quantidade)}</span></div>`).join('')
-          : `<div class="pedido-item"><span>Produto VARG</span><span>${formatPrice(p.valor)}</span></div>`;
-
-        const entregaHtml = entrega
-          ? `<div class="pedido-entrega"><strong><i class="fa-solid fa-truck"></i> Endereço de Entrega</strong>${entrega.rua}, ${entrega.numero}${entrega.complemento ? ' ' + entrega.complemento : ''} — ${entrega.bairro}, ${entrega.cidade}/${entrega.estado} — CEP: ${entrega.cep}</div>`
-          : '';
-
-        const envioStatusHtml = p.status_envio === 'enviado' && p.codigo_rastreio
-          ? `<div class="pedido-entrega" style="border-left-color:#00BFFF;margin-top:10px;">
-               <strong style="color:#00BFFF;"><i class="fa-solid fa-box"></i> Envio</strong>
-               <span style="color:#00ff88;font-weight:bold;">✅ Enviado</span><br>
-               <span>Código de rastreio: <b style="color:#fff;">${p.codigo_rastreio}</b></span><br>
-               <a href="https://rastreamento.correios.com.br/app/index.php?numero=${p.codigo_rastreio}" target="_blank" style="color:#00BFFF;font-size:0.9em;">🔍 Rastrear nos Correios →</a>
-             </div>`
-          : p.status === 'pago'
-            ? `<div class="pedido-entrega" style="margin-top:10px;">
-                 <strong><i class="fa-solid fa-box"></i> Envio</strong>
-                 <span style="color:orange;">⏳ Aguardando envio</span>
-               </div>`
-            : '';
-
-        return `
-          <div class="pedido-card">
-            <div class="pedido-header">
-              <div>
-                <div class="pedido-id"># ${p.external_id || p.payment_id?.slice(0,16) || '—'}</div>
-                <div class="pedido-data">${new Date(p.criado_em).toLocaleString('pt-BR')}</div>
-              </div>
-              <span class="pedido-status status-${p.status}">${p.status === 'pago' ? '✅ Pago' : '⏳ Pendente'}</span>
-            </div>
-            <div class="pedido-itens">${itensHtml}</div>
-            <div class="pedido-total">Total: ${formatPrice(p.valor)}</div>
-            ${entregaHtml}
-            ${envioStatusHtml}
-          </div>`;
-      }).join('');
-    }
-
-    function filtrar() {
-      const termo = document.getElementById('busca').value.toLowerCase();
-      const filtrados = todosPedidos.filter(p =>
-        (p.external_id || '').toLowerCase().includes(termo) ||
-        (p.payment_id || '').toLowerCase().includes(termo)
-      );
-      renderizarPedidos(filtrados);
-    }
-
-    carregarPedidos();
-  </script>
-  
-
-
-
-
+  <div class="footer-bottom">© 2026 VARG — A Matilha. <span data-i18n="footer.rights">Todos os direitos reservados.</span></div>
+</footer>
 <script>
+var formatPrice = function(v){return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);};
+var todosPedidos = [];
+
+var nomeUsuario = localStorage.getItem('usuarioNome');
+var emailUsuario = localStorage.getItem('usuarioEmail');
+if (!nomeUsuario) { window.location.href = '/login.html'; }
+
+async function carregarPedidos() {
+  try {
+    var res = await fetch('/api/pedidos');
+    var todos = await res.json();
+    todosPedidos = todos.filter(function(p) {
+      return (emailUsuario && p.cliente_email && p.cliente_email.toLowerCase() === emailUsuario.toLowerCase())
+          || (nomeUsuario && p.cliente_nome && p.cliente_nome.toLowerCase() === nomeUsuario.toLowerCase());
+    }).filter(function(p){return p.status==='pago';});
+    renderizarPedidos(todosPedidos);
+  } catch(err) {
+    document.getElementById('listaPedidos').innerHTML = '<div style="color:#ff4d4d;text-align:center;padding:40px">Erro ao carregar pedidos.</div>';
+  }
+}
+
+function renderizarPedidos(pedidos) {
+  var container = document.getElementById('listaPedidos');
+  if (!pedidos.length) {
+    container.innerHTML = '<div class="vazio"><i class="fa-solid fa-box-open"></i><p>Você ainda não tem pedidos.</p><p style="margin-top:10px"><a href="/index.html">Ir às compras →</a></p></div>';
+    return;
+  }
+  container.innerHTML = pedidos.map(function(p) {
+    var itens=[];try{itens=JSON.parse(p.itens||'[]');}catch(e){}
+    var entrega=null;try{entrega=p.entrega?JSON.parse(p.entrega):null;}catch(e){}
+    var itensHtml=itens.length>0?itens.map(function(i){return '<div class="pedido-item"><span>'+i.quantidade+'x '+i.nome+'</span><span>'+formatPrice(i.preco*i.quantidade)+'</span></div>';}).join(''):'<div class="pedido-item"><span>Produto VARG</span><span>'+formatPrice(p.valor)+'</span></div>';
+    var entregaHtml=entrega?'<div class="pedido-entrega">'+entrega.rua+', '+entrega.numero+' — '+entrega.cidade+'/'+entrega.estado+' — CEP: '+entrega.cep+'</div>':'';
+    var envioHtml=p.status_envio==='enviado'&&p.codigo_rastreio?'<div class="pedido-entrega" style="margin-top:8px;color:#00BFFF">📦 Enviado — Rastreio: <b>'+p.codigo_rastreio+'</b><br><a href="https://rastreamento.correios.com.br/app/index.php?numero='+p.codigo_rastreio+'" target="_blank" style="color:#DC143C">Rastrear →</a></div>':p.status==='pago'?'<div class="pedido-entrega" style="margin-top:8px;color:orange">⏳ Aguardando envio</div>':'';
+    return '<div class="pedido-card"><div class="pedido-header"><div><div class="pedido-id"># '+(p.external_id||p.payment_id||'—')+'</div><div class="pedido-data">'+new Date(p.criado_em).toLocaleString('pt-BR')+'</div></div><span class="pedido-status status-'+p.status+'">'+( p.status==='pago'?'✅ Pago':'⏳ Pendente')+'</span></div><div class="pedido-itens">'+itensHtml+'</div><div class="pedido-total">Total: '+formatPrice(p.valor)+'</div>'+entregaHtml+envioHtml+'</div>';
+  }).join('');
+}
+
+function filtrar() {
+  var termo = document.getElementById('busca').value.toLowerCase();
+  var filtrados = todosPedidos.filter(function(p){return (p.external_id||'').toLowerCase().includes(termo)||(p.payment_id||'').toLowerCase().includes(termo);});
+  renderizarPedidos(filtrados);
+}
+
+carregarPedidos();
+
 // ===== CATÁLOGO (para busca) =====
 var CATALOGO_HDR = [
   {id:'varg-salt', nome:'VARG Salt 30g', cat:'Smelling Salt', preco:2.00, img:'/img/smelling.png'},
@@ -616,6 +504,7 @@ if(modalLoginEl){
 }
 
 document.addEventListener('DOMContentLoaded', renderizarCarrinho);
+
 </script>
 </body>
 </html>

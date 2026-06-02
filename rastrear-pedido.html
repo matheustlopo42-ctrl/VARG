@@ -7,51 +7,40 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-
   <script>
-  (function() {
-    function applyAll() {
-      var lang = localStorage.getItem('varg_lang') || 'pt';
-      var dict = window.PEPMASTERS_I18N;
-      if (!dict) return false;
-      document.querySelectorAll('[data-i18n]').forEach(function(el) {
-        var key = el.getAttribute('data-i18n');
-        var val = dict[key] && (dict[key][lang] || dict[key]['pt'] || dict[key]['en']);
-        if (!val) return;
-        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = val;
-        else el.innerHTML = val;
-      });
-      document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
-        var key = el.getAttribute('data-i18n-placeholder');
-        var val = dict[key] && (dict[key][lang] || dict[key]['pt'] || dict[key]['en']);
-        if (val) el.placeholder = val;
-      });
-      document.querySelectorAll('.slim-back').forEach(function(el) {
-        var val = dict['nav.home'] && (dict['nav.home'][lang] || dict['nav.home']['pt']);
-        if (val) el.textContent = '← ' + val;
-      });
-      return true;
-    }
-    document.addEventListener('DOMContentLoaded', function() {
-      if (!applyAll()) {
-        var tries = 0;
-        var iv = setInterval(function() { tries++; if (applyAll() || tries > 60) clearInterval(iv); }, 30);
-      }
+(function() {
+  function applyAll() {
+    var lang = localStorage.getItem('varg_lang') || 'pt';
+    var dict = window.PEPMASTERS_I18N;
+    if (!dict) return false;
+    document.querySelectorAll('[data-i18n]').forEach(function(el) {
+      var key = el.getAttribute('data-i18n');
+      var val = dict[key] && (dict[key][lang] || dict[key]['pt'] || dict[key]['en']);
+      if (!val) return;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = val;
+      else el.innerHTML = val;
     });
-    document.addEventListener('vargLangChanged', applyAll);
-    window.PEP_LANG_APPLY = applyAll;
-  })();
-  </script>
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
+      var key = el.getAttribute('data-i18n-placeholder');
+      var val = dict[key] && (dict[key][lang] || dict[key]['pt'] || dict[key]['en']);
+      if (val) el.placeholder = val;
+    });
+    return true;
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    if (!applyAll()) { var t=0,iv=setInterval(function(){t++;if(applyAll()||t>60)clearInterval(iv);},30); }
+  });
+  document.addEventListener('vargLangChanged', applyAll);
+  window.PEP_LANG_APPLY = applyAll;
+})();
+</script>
   <script src="/i18n.js"></script>
   <script src="/i18n-init.js"></script>
-
-  
-<style>
-:root{--red:#DC143C;--red2:#b01030;--border:#333}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Barlow',sans-serif;background:#0a0a0a;color:#eee;min-height:100vh;padding-top:61px}
-    :root{--red:#DC143C;--red2:#b01030;--dark:#0a0a0a;--mid:#1a1a1a;--muted:#888;--border:#333;--cream:#0f0f0f;--amber:#DC143C}
+  <style>
+    :root{--red:#DC143C;--red2:#b01030;--border:#333}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Barlow',sans-serif;background:#0a0a0a;color:#eee;min-height:100vh;padding-top:61px}
+        :root{--red:#DC143C;--red2:#b01030;--dark:#0a0a0a;--mid:#1a1a1a;--muted:#888;--border:#333;--cream:#0f0f0f;--amber:#DC143C}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Barlow',sans-serif;background:#0a0a0a;color:#eee;min-height:100vh}
 
@@ -146,7 +135,6 @@ body{font-family:'Barlow',sans-serif;background:#0a0a0a;color:#eee;min-height:10
     @media(min-width:769px){.hamburger{display:none!important}}
 
     /* TOAST */
-
     .cart-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #222;align-items:center}
     .cart-item:last-child{border:none}
     .cart-item-img{width:58px;height:58px;background:#1a1a1a;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;border:1px solid #333}
@@ -188,7 +176,34 @@ body{font-family:'Barlow',sans-serif;background:#0a0a0a;color:#eee;min-height:10
     .modal-btn-cadastro{background:transparent;color:#00BFFF;padding:13px;border:1px solid #00BFFF;border-radius:8px;font-weight:700;cursor:pointer;font-size:.95rem;font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em;text-transform:uppercase}
     .modal-btn-voltar{background:transparent;color:#555;padding:10px;border:none;border-radius:8px;cursor:pointer;font-size:.88rem}
 
-</style>
+    .page-wrap{max-width:800px;margin:0 auto;padding:50px 24px 80px}
+    .page-hero{text-align:center;padding:50px 20px 40px;border-bottom:1px solid #1a1a1a;margin-bottom:40px}
+    .page-hero h1{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(2rem,5vw,3rem);text-transform:uppercase;letter-spacing:.04em;color:#fff;margin-bottom:10px}
+    .page-hero p{color:#888;font-size:.9rem;letter-spacing:.06em;text-transform:uppercase}
+    .search-box{background:#1a1a1a;border-radius:12px;padding:24px;margin-bottom:30px;border:1px solid #222}
+    .search-box label{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9rem;color:var(--red);margin-bottom:12px;letter-spacing:.06em;text-transform:uppercase}
+    .search-input-group{display:flex;gap:10px}
+    .search-input-group input{flex:1;background:#111;border:1px solid #333;border-radius:8px;padding:12px 16px;color:#eee;font-size:.95rem;outline:none;font-family:'Barlow',sans-serif;transition:border .2s}
+    .search-input-group input:focus{border-color:var(--red)}
+    .search-input-group input::placeholder{color:#444}
+    .search-input-group button{background:var(--red);color:#fff;border:none;border-radius:8px;padding:12px 20px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9rem;letter-spacing:.06em;text-transform:uppercase;transition:.2s}
+    .search-input-group button:hover{background:var(--red2)}
+    #resultadoRastreio{display:none;background:#1a1a1a;border-left:4px solid var(--red);border-radius:8px;padding:24px;margin-bottom:30px}
+    #resultadoRastreio h3{color:#fff;margin-bottom:14px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.1rem;text-transform:uppercase;letter-spacing:.06em}
+    .info-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+    .info-card{background:#1a1a1a;border-radius:10px;padding:20px;border:1px solid #222}
+    .info-card h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1rem;color:var(--red);margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;gap:8px}
+    .info-card p{color:#888;font-size:.88rem;line-height:1.7}
+    .info-card a{color:var(--red);text-decoration:none}
+    
+    footer{background:#050505;color:#eee;padding:50px 24px 20px;margin-top:60px;border-top:1px solid #111}
+    .footer-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;padding-bottom:36px;border-bottom:1px solid #1a1a1a}
+    .footer-col h4{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:14px}
+    .footer-col a{display:block;font-size:.86rem;color:#666;text-decoration:none;margin-bottom:8px;transition:color .2s}
+    .footer-col a:hover{color:var(--red)}
+    .footer-col p{font-size:.86rem;color:#666;margin-bottom:6px}
+    .footer-bottom{max-width:1100px;margin:16px auto 0;text-align:center;font-size:.78rem;color:#333}
+  </style>
 </head>
 <body>
 <!-- MOBILE MENU -->
@@ -282,63 +297,31 @@ body{font-family:'Barlow',sans-serif;background:#0a0a0a;color:#eee;min-height:10
   </div>
 </div>
 
-
-</div>
-
-  <div class="slim-cart-items" id="slimCartItems"></div>
-  <div class="slim-cart-foot" id="slimCartFoot" style="display:none">
-    <div class="slim-cart-total-row"><span data-i18n="cart.total">Total</span><span id="slimCartTotal">R$ 0,00</span></div>
-    <a href="/checkout.html" class="slim-btn-checkout" data-i18n="cart.checkout">Finalizar Pedido</a>
-    <button class="slim-btn-limpar" onclick="slimLimparCart()" data-i18n="cart.clear">Limpar carrinho</button>
-  </div>
-</div>
-
-
-
 <div class="page-wrap">
   <div class="page-hero">
     <h1 data-i18n="track.title">Rastrear Pedido</h1>
     <p data-i18n="track.subtitle">Acompanhe o status da sua entrega</p>
   </div>
-
   <div class="search-box">
     <label><i class="fa-solid fa-magnifying-glass"></i> <span data-i18n="track.label">Digite o código de rastreio</span></label>
     <div class="search-input-group">
-      <input type="text" id="trackingCode"
-        data-i18n-placeholder="track.ph"
-        placeholder="Ex: 203411 (número do pedido)"
-        onkeypress="if(event.key==='Enter') buscarRastreio()"/>
+      <input type="text" id="trackingCode" data-i18n-placeholder="track.ph" placeholder="Ex: 203411" onkeypress="if(event.key==='Enter') buscarRastreio()"/>
       <button onclick="buscarRastreio()" data-i18n="track.btn">Rastrear</button>
     </div>
   </div>
-
   <div id="resultadoRastreio">
     <h3>📦 <span data-i18n="track.result">Resultado da Busca</span></h3>
     <div id="rastreioConteudo"></div>
   </div>
-
   <div class="info-cards">
-    <div class="info-card">
-      <h3><i class="fa-solid fa-envelope"></i> <span data-i18n="track.nocode.title">Não tem o código?</span></h3>
-      <p data-i18n="track.nocode.text">O código de rastreio é enviado automaticamente para o e-mail cadastrado assim que o pedido é postado. Verifique sua caixa de entrada ou spam.</p>
-    </div>
-    <div class="info-card">
-      <h3><i class="fa-solid fa-clock"></i> <span data-i18n="track.deadline.title">Prazos</span></h3>
-      <p data-i18n="track.deadline.text">Após a postagem, o prazo de entrega varia conforme a região. Confira a tabela de prazos na página Envio e Prazos.</p>
-    </div>
-    <div class="info-card">
-      <h3><i class="fa-solid fa-circle-question"></i> <span data-i18n="track.help.title">Ajuda</span></h3>
-      <p data-i18n="track.help.text">Se tiver dúvidas sobre o status do seu pedido, entre em contato pelo e-mail contato@vargmatilha.com.br informando o número do pedido.</p>
-    </div>
+    <div class="info-card"><h3><i class="fa-solid fa-envelope"></i> <span data-i18n="track.nocode.title">Não tem o código?</span></h3><p data-i18n="track.nocode.text">O código de rastreio é enviado automaticamente para o e-mail cadastrado assim que o pedido é postado.</p></div>
+    <div class="info-card"><h3><i class="fa-solid fa-clock"></i> <span data-i18n="track.deadline.title">Prazos</span></h3><p data-i18n="track.deadline.text">Após a postagem, o prazo de entrega varia conforme a região.</p></div>
+    <div class="info-card"><h3><i class="fa-solid fa-circle-question"></i> <span data-i18n="track.help.title">Ajuda</span></h3><p data-i18n="track.help.text">Se tiver dúvidas, entre em contato pelo e-mail contato@vargmatilha.com.br informando o número do pedido.</p></div>
   </div>
 </div>
-
 <footer>
   <div class="footer-grid">
-    <div class="footer-col">
-      <h4>VARG</h4>
-      <p data-i18n="footer.desc">Equipando os mais fortes desde sempre.</p>
-    </div>
+    <div class="footer-col"><h4>VARG</h4><p data-i18n="footer.desc">Equipando os mais fortes desde sempre.</p></div>
     <div class="footer-col">
       <h4 data-i18n="footer.institutional">Institucional</h4>
       <a href="/quem-somos.html" data-i18n="footer.about">Quem Somos</a>
@@ -354,96 +337,36 @@ body{font-family:'Barlow',sans-serif;background:#0a0a0a;color:#eee;min-height:10
     </div>
     <div class="footer-col">
       <h4 data-i18n="footer.contact">Contato</h4>
-      <p>contato@vargmatilha.com.br</p>
-      <p>São José dos Campos - SP</p>
+      <p>contato@vargmatilha.com.br</p><p>São José dos Campos - SP</p>
     </div>
   </div>
   <div class="footer-bottom">© 2026 VARG — A Matilha. <span data-i18n="footer.rights">Todos os direitos reservados.</span></div>
 </footer>
-
 <script>
 async function buscarRastreio() {
-  const codigo = document.getElementById('trackingCode').value.trim();
-  const div = document.getElementById('resultadoRastreio');
-  const conteudo = document.getElementById('rastreioConteudo');
+  var codigo = document.getElementById('trackingCode').value.trim();
+  var div = document.getElementById('resultadoRastreio');
+  var conteudo = document.getElementById('rastreioConteudo');
   if (!codigo) return;
   div.style.display = 'block';
   conteudo.innerHTML = '<p style="color:#888">Buscando...</p>';
   try {
-    const res = await fetch('/api/rastrear?codigo=' + encodeURIComponent(codigo));
-    const data = await res.json();
-    if (data.encontrado) {
-      const statusColor = data.status === 'pago' ? '#00ff88' : data.status === 'enviado' ? '#00BFFF' : 'orange';
-      conteudo.innerHTML = `
-        <p style="margin-bottom:8px"><strong style="color:#ccc">Pedido:</strong> <span style="color:#fff">#${data.external_id || codigo}</span></p>
-        <p style="margin-bottom:8px"><strong style="color:#ccc">Status:</strong> <span style="color:${statusColor};font-weight:bold">${data.status}</span></p>
-        ${data.codigo_rastreio ? `<p style="margin-bottom:8px"><strong style="color:#ccc">Código dos Correios:</strong> <span style="color:#00BFFF;font-family:monospace">${data.codigo_rastreio}</span></p>
-        <a href="https://rastreamento.correios.com.br/app/index.php?numero=${data.codigo_rastreio}" target="_blank" style="display:inline-block;margin-top:10px;background:var(--red,#DC143C);color:#fff;padding:8px 18px;border-radius:20px;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.88rem;letter-spacing:.06em;text-transform:uppercase">
-          🔍 Rastrear nos Correios →
-        </a>` : '<p style="color:orange;margin-top:8px">⏳ Ainda não foi postado. Aguarde.</p>'}`;
+    var res = await fetch('/api/rastrear?codigo=' + encodeURIComponent(codigo));
+    var d = await res.json();
+    if (d.encontrado) {
+      var cor = d.status==='pago'?'#00ff88':d.status==='enviado'?'#00BFFF':'orange';
+      conteudo.innerHTML = '<p style="margin-bottom:8px"><strong style="color:#ccc">Pedido:</strong> <span style="color:#fff">#' + (d.external_id||codigo) + '</span></p>'
+        + '<p style="margin-bottom:8px"><strong style="color:#ccc">Status:</strong> <span style="color:'+cor+';font-weight:bold">'+d.status+'</span></p>'
+        + (d.codigo_rastreio ? '<p style="margin-bottom:8px"><strong style="color:#ccc">Rastreio:</strong> <span style="color:#00BFFF;font-family:monospace">'+d.codigo_rastreio+'</span></p><a href="https://rastreamento.correios.com.br/app/index.php?numero='+d.codigo_rastreio+'" target="_blank" style="display:inline-block;margin-top:10px;background:#DC143C;color:#fff;padding:8px 18px;border-radius:20px;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.88rem;letter-spacing:.06em;text-transform:uppercase">🔍 Rastrear nos Correios →</a>'
+        : '<p style="color:orange;margin-top:8px">⏳ Ainda não postado. Aguarde.</p>');
     } else {
-      conteudo.innerHTML = '<p style="color:#ff4d4d">❌ Pedido não encontrado. Verifique o código e tente novamente.</p>';
+      conteudo.innerHTML = '<p style="color:#ff4d4d">❌ Pedido não encontrado. Verifique o código.</p>';
     }
   } catch(e) {
     conteudo.innerHTML = '<p style="color:#ff4d4d">❌ Erro ao buscar. Tente novamente.</p>';
   }
 }
 
-// CART
-function slimAbrirCart(){document.getElementById('slimCartDrawer').classList.add('open');document.getElementById('slimCartOverlay').classList.add('open');document.body.style.overflow='hidden';slimRenderCart();}
-function slimFecharCart(){document.getElementById('slimCartDrawer').classList.remove('open');document.getElementById('slimCartOverlay').classList.remove('open');document.body.style.overflow='';}
-function slimLimparCart(){localStorage.removeItem('carrinho');slimRenderCart();}
-function slimChgQty(nome,d){var c=JSON.parse(localStorage.getItem('carrinho')||'[]');var i=c.find(function(x){return x.nome===nome;});if(i){i.quantidade+=d;if(i.quantidade<=0)c=c.filter(function(x){return x.nome!==nome;});}localStorage.setItem('carrinho',JSON.stringify(c));slimRenderCart();}
-function slimRmItem(nome){var c=JSON.parse(localStorage.getItem('carrinho')||'[]').filter(function(x){return x.nome!==nome;});localStorage.setItem('carrinho',JSON.stringify(c));slimRenderCart();}
-function slimRenderCart(){
-  var items=document.getElementById('slimCartItems'),foot=document.getElementById('slimCartFoot'),badge=document.getElementById('slimCartBadge');
-  var cart=JSON.parse(localStorage.getItem('carrinho')||'[]');
-  if(!cart.length){if(items)items.innerHTML='<p style="color:#555;text-align:center;padding:40px 0;font-size:.9rem">Carrinho vazio.</p>';if(foot)foot.style.display='none';if(badge)badge.classList.remove('show');return;}
-  var total=0,html='<div style="display:flex;flex-direction:column;gap:12px">';
-  cart.forEach(function(item){var sub=item.preco*item.quantidade;total+=sub;
-    html+='<div style="display:flex;align-items:center;gap:10px;border-bottom:1px solid #222;padding-bottom:12px">'
-      +'<img src="'+item.img+'" style="width:46px;height:46px;object-fit:cover;border-radius:6px;border:1px solid #333">'
-      +'<div style="flex:1;min-width:0"><div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:.9rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+item.nome+'</div>'
-      +'<div style="display:flex;align-items:center;gap:6px;margin-top:4px">'
-      +'<button onclick="slimChgQty(\''+item.nome.replace(/'/g,"\\'")+'\',-1)" style="background:#333;color:#fff;border:none;width:20px;height:20px;border-radius:50%;cursor:pointer">−</button>'
-      +'<span style="color:#fff;font-size:.88rem">'+item.quantidade+'</span>'
-      +'<button onclick="slimChgQty(\''+item.nome.replace(/'/g,"\\'")+'\',1)" style="background:#333;color:#fff;border:none;width:20px;height:20px;border-radius:50%;cursor:pointer">+</button>'
-      +'<button onclick="slimRmItem(\''+item.nome.replace(/'/g,"\\'")+'\');" style="background:none;border:none;color:#555;cursor:pointer;margin-left:auto">🗑</button></div>'
-      +'<span style="color:#DC143C;font-weight:700;font-size:.82rem">R$ '+sub.toFixed(2).replace('.',',')+'</span>'
-      +'</div></div>';
-  });
-  html+='</div>';
-  if(items)items.innerHTML=html;
-  if(document.getElementById('slimCartTotal'))document.getElementById('slimCartTotal').textContent='R$ '+total.toFixed(2).replace('.',',');
-  if(foot)foot.style.display='';
-  if(badge){badge.textContent=cart.reduce(function(a,i){return a+i.quantidade;},0);badge.classList.add('show');}
-}
-function slimToggleMob(){var m=document.getElementById('slimMobMenu'),o=document.getElementById('slimMobOverlay'),h=document.getElementById('slimHamburger');m.classList.toggle('open');o.classList.toggle('open');if(h)h.classList.toggle('open');}
-// AUTH
-(function waitDict(){
-  function renderAuth(){
-    var nome=localStorage.getItem('usuarioNome');
-    var lang=(window.PEP_LANG&&window.PEP_LANG.get())||localStorage.getItem('varg_lang')||'pt';
-    var dict=window.PEPMASTERS_I18N||{};
-    var t=function(k){return(dict[k]&&(dict[k][lang]||dict[k]['pt']||dict[k]['en']))||k;};
-    var s="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.78rem;text-transform:uppercase;text-decoration:none;white-space:nowrap;padding:4px 7px;border-radius:6px;transition:.2s;";
-    var a=document.getElementById('slimAuthArea');
-    if(a){a.innerHTML=nome
-      ?'<a href="/meus-pedidos.html" style="'+s+'color:#ccc;" onmouseover="this.style.color=\'#DC143C\'" onmouseout="this.style.color=\'#ccc\'">'+t('nav.orders')+'</a><a href="#" onclick="localStorage.removeItem(\'usuarioNome\');localStorage.removeItem(\'usuarioEmail\');location.href=\'/index.html\';" style="'+s+'color:#DC143C;">'+t('nav.logout')+'</a>'
-      :'<a href="/login.html" style="'+s+'color:#DC143C;border:1px solid #DC143C;border-radius:8px;">'+t('nav.login')+'</a><a href="/cadastro.html" style="'+s+'background:#DC143C;color:#fff;border-radius:8px;">'+t('nav.register')+'</a>';}
-    var sm=document.getElementById('slimMobAuth');
-    if(sm){sm.innerHTML=nome
-      ?'<a href="/meus-pedidos.html" class="sm-login">'+t('nav.orders')+'</a><a href="#" class="sm-reg" onclick="localStorage.removeItem(\'usuarioNome\');location.href=\'/index.html\';">'+t('nav.logout')+'</a>'
-      :'<a href="/login.html" class="sm-login">'+t('nav.login')+'</a><a href="/cadastro.html" class="sm-reg">'+t('nav.register')+'</a>';}
-    if(window.PEP_LANG_APPLY) window.PEP_LANG_APPLY();
-  }
-  if(window.PEPMASTERS_I18N){renderAuth();}
-  else{var tries=0,iv=setInterval(function(){tries++;if(window.PEPMASTERS_I18N){clearInterval(iv);renderAuth();}else if(tries>40)clearInterval(iv);},50);}
-  document.addEventListener('vargLangChanged',renderAuth);
-})();
-document.addEventListener('DOMContentLoaded',slimRenderCart);
-</script>
-<script>
 // ===== CATÁLOGO (para busca) =====
 var CATALOGO_HDR = [
   {id:'varg-salt', nome:'VARG Salt 30g', cat:'Smelling Salt', preco:2.00, img:'/img/smelling.png'},
@@ -574,6 +497,7 @@ if(modalLoginEl){
 }
 
 document.addEventListener('DOMContentLoaded', renderizarCarrinho);
+
 </script>
 </body>
 </html>
