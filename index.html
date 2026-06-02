@@ -661,9 +661,8 @@ function renderAuth() {
   const authArea=document.getElementById('authArea');
   const mobileAuth=document.getElementById('mobileAuth');
   if(nome) {
-    authArea.innerHTML=`<span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.82rem;color:#ccc;white-space:nowrap;">🐺 ${nome}</span>
-      <a href="/meus-pedidos.html" style="color:#ccc;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.78rem;text-transform:uppercase;text-decoration:none;white-space:nowrap;" onmouseover="this.style.color='#DC143C'" onmouseout="this.style.color='#ccc'">Pedidos</a>
-      <a href="#" id="btnSair" style="color:#DC143C;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.78rem;text-transform:uppercase;text-decoration:none;">Sair</a>`;
+    authArea.innerHTML=`<a href="/meus-pedidos.html" style="color:#ccc;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.82rem;text-transform:uppercase;text-decoration:none;white-space:nowrap;padding:4px 7px;border-radius:6px;transition:.2s;" onmouseover="this.style.color='#DC143C'" onmouseout="this.style.color='#ccc'" data-i18n="nav.orders">Pedidos</a>
+      <a href="#" id="btnSair" style="color:#DC143C;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.82rem;text-transform:uppercase;text-decoration:none;white-space:nowrap;padding:4px 7px;" data-i18n="nav.logout">Sair</a>`;
     document.getElementById('btnSair').onclick=e=>{e.preventDefault();localStorage.removeItem('usuarioNome');localStorage.removeItem('usuarioEmail');window.location.reload();};
     if(mobileAuth) mobileAuth.innerHTML=`<a href="/meus-pedidos.html" class="btn-login">Pedidos</a><a href="#" onclick="localStorage.removeItem('usuarioNome');localStorage.removeItem('usuarioEmail');location.reload();" class="btn-cadastro">Sair</a>`;
   } else {
