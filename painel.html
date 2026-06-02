@@ -297,5 +297,96 @@ function slimRenderCart(){
 }
 document.addEventListener('DOMContentLoaded', slimRenderCart);
 </script>
+
+<script>
+(function waitAuth() {
+  // Espera i18n carregar
+  function renderAuth() {
+    var nome = localStorage.getItem('usuarioNome');
+    var lang = (window.PEP_LANG && window.PEP_LANG.get()) || localStorage.getItem('varg_lang') || 'pt';
+    var dict = window.PEPMASTERS_I18N || {};
+    var t = function(k) { return (dict[k] && (dict[k][lang] || dict[k]['pt'] || dict[k]['en'])) || k; };
+
+    // ---- AUTH AREA (desktop) ----
+    var a = document.getElementById('hdrAuthArea') || document.getElementById('slimAuthArea');
+    if (a) {
+      var s = "font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.78rem;text-transform:uppercase;text-decoration:none;white-space:nowrap;padding:4px 7px;border-radius:6px;transition:.2s;";
+      if (nome) {
+        a.innerHTML =
+          '<a href="/meus-pedidos.html" style="' + s + 'color:#ccc;" onmouseover="this.style.color=\'#DC143C\'" onmouseout="this.style.color=\'#ccc\'">' + t('nav.orders') + '</a>' +
+          '<a href="#" onclick="localStorage.removeItem(\'usuarioNome\');localStorage.removeItem(\'usuarioEmail\');location.href=\'/index.html\';" style="' + s + 'color:#DC143C;">' + t('nav.logout') + '</a>';
+      } else {
+        a.innerHTML =
+          '<a href="/login.html" style="' + s + 'color:#DC143C;border:1px solid #DC143C;border-radius:8px;">' + t('nav.login') + '</a>' +
+          '<a href="/cadastro.html" style="' + s + 'background:#DC143C;color:#fff;border-radius:8px;">' + t('nav.register') + '</a>';
+      }
+    }
+
+    // ---- AUTH AREA (index desktop) ----
+    var a2 = document.getElementById('authArea');
+    if (a2) {
+      var s2 = "font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.82rem;text-transform:uppercase;text-decoration:none;white-space:nowrap;padding:4px 7px;border-radius:6px;transition:.2s;";
+      if (nome) {
+        a2.innerHTML =
+          '<a href="/meus-pedidos.html" style="' + s2 + 'color:#ccc;" onmouseover="this.style.color=\'#DC143C\'" onmouseout="this.style.color=\'#ccc\'">' + t('nav.orders') + '</a>' +
+          '<a href="#" id="btnSair" style="' + s2 + 'color:#DC143C;">' + t('nav.logout') + '</a>';
+        var bs = document.getElementById('btnSair');
+        if (bs) bs.onclick = function(e) { e.preventDefault(); localStorage.removeItem('usuarioNome'); localStorage.removeItem('usuarioEmail'); window.location.reload(); };
+      } else {
+        a2.innerHTML =
+          '<a href="/login.html" class="btn-login" style="' + s2 + '">' + t('nav.login') + '</a>' +
+          '<a href="/cadastro.html" class="btn-cadastro" style="' + s2 + '">' + t('nav.register') + '</a>';
+      }
+    }
+
+    // ---- MOBILE AUTH (index) ----
+    var m = document.getElementById('mobileAuth');
+    if (m) {
+      if (nome) {
+        m.innerHTML =
+          '<a href="/meus-pedidos.html" class="btn-login">' + t('nav.orders') + '</a>' +
+          '<a href="#" class="btn-cadastro" onclick="localStorage.removeItem(\'usuarioNome\');localStorage.removeItem(\'usuarioEmail\');location.reload();">' + t('nav.logout') + '</a>';
+      } else {
+        m.innerHTML =
+          '<a href="/login.html" class="btn-login">' + t('nav.login') + '</a>' +
+          '<a href="/cadastro.html" class="btn-cadastro">' + t('nav.register') + '</a>';
+      }
+    }
+
+    // ---- SLIM MOBILE AUTH (páginas secundárias) ----
+    var sm = document.getElementById('slimMobAuth');
+    if (sm) {
+      if (nome) {
+        sm.innerHTML =
+          '<a href="/meus-pedidos.html" class="sm-login">' + t('nav.orders') + '</a>' +
+          '<a href="#" class="sm-reg" onclick="localStorage.removeItem(\'usuarioNome\');localStorage.removeItem(\'usuarioEmail\');location.href=\'/index.html\';">' + t('nav.logout') + '</a>';
+      } else {
+        sm.innerHTML = '<a href="/login.html" class="sm-login">' + t('nav.login') + '</a><a href="/cadastro.html" class="sm-reg">' + t('nav.register') + '</a>';
+      }
+    }
+
+    // ← Loja traduzido
+    document.querySelectorAll('.slim-back').forEach(function(el) {
+      el.textContent = '← ' + t('nav.home');
+    });
+  }
+
+  // Aguarda dicionário i18n
+  if (window.PEPMASTERS_I18N) {
+    renderAuth();
+  } else {
+    var tries = 0;
+    var iv = setInterval(function() {
+      tries++;
+      if (window.PEPMASTERS_I18N) { clearInterval(iv); renderAuth(); }
+      else if (tries > 40) clearInterval(iv);
+    }, 50);
+  }
+
+  // Reaplica quando idioma muda
+  document.addEventListener('vargLangChanged', renderAuth);
+document.addEventListener('vargLangChanged', function() { if(window.PEP_LANG_APPLY) window.PEP_LANG_APPLY(); });
+})();
+</script>
 </body>
 </html>

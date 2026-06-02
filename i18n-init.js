@@ -19,6 +19,8 @@
     if (typeof window.renderFaq === 'function') window.renderFaq();
     if (typeof window.renderAuth === 'function') window.renderAuth();
     if (typeof window.atualizarBadge === 'function') window.atualizarBadge();
+    // Notifica todos os scripts de auth dinâmico
+    document.dispatchEvent(new CustomEvent('vargLangChanged'));
   }
 
   function apply(lang) {
@@ -136,8 +138,29 @@
     }
   }
 
+
+  // Reaplicar i18n em subárvore (para elementos gerados via JS)
+  function applyEl(root, lang) {
+    var dict = window.PEPMASTERS_I18N;
+    if (!dict || !root) return;
+    root.querySelectorAll('[data-i18n]').forEach(function(el) {
+      var key = el.getAttribute('data-i18n');
+      var val = dict[key] && (dict[key][lang] || dict[key]['pt'] || dict[key]['en']);
+      if (!val) return;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = val;
+      else el.textContent = val;
+    });
+    root.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
+      var key = el.getAttribute('data-i18n-placeholder');
+      var val = dict[key] && (dict[key][lang] || dict[key]['pt'] || dict[key]['en']);
+      if (val) el.placeholder = val;
+    });
+  }
+  window.PEP_LANG_APPLY = function() { apply(getLang()); };
+
   // API global (mantém compatibilidade com PEPMASTERS)
   window.PEP_LANG = {
+    applyEl: function(root) { applyEl(root, getLang()); },
     get: getLang,
     set: setLang,
     t: function (key) {

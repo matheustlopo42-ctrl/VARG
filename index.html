@@ -678,20 +678,32 @@ function toggleMobileMenu(){ const m=document.getElementById('mobileMenu'),o=doc
 
 // ===== AUTH =====
 function renderAuth() {
-  const nome=localStorage.getItem('usuarioNome');
-  const authArea=document.getElementById('authArea');
-  const mobileAuth=document.getElementById('mobileAuth');
-  if(nome) {
-    authArea.innerHTML=`<a href="/meus-pedidos.html" style="color:#ccc;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.82rem;text-transform:uppercase;text-decoration:none;white-space:nowrap;padding:4px 7px;border-radius:6px;transition:.2s;" onmouseover="this.style.color='#DC143C'" onmouseout="this.style.color='#ccc'" data-i18n="nav.orders">Pedidos</a>
-      <a href="#" id="btnSair" style="color:#DC143C;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.82rem;text-transform:uppercase;text-decoration:none;white-space:nowrap;padding:4px 7px;" data-i18n="nav.logout">Sair</a>`;
-    document.getElementById('btnSair').onclick=e=>{e.preventDefault();localStorage.removeItem('usuarioNome');localStorage.removeItem('usuarioEmail');window.location.reload();};
-    if(mobileAuth) mobileAuth.innerHTML='<a href="/meus-pedidos.html" class="btn-login" data-i18n="nav.orders">Pedidos</a><a href="#" class="btn-cadastro" onclick="localStorage.removeItem(\'usuarioNome\');localStorage.removeItem(\'usuarioEmail\');location.reload();" data-i18n="nav.logout">Sair</a>';
+  var nome = localStorage.getItem('usuarioNome');
+  var lang = (window.PEP_LANG && window.PEP_LANG.get()) || localStorage.getItem('varg_lang') || 'pt';
+  var dict = window.PEPMASTERS_I18N || {};
+  var t = function(k) { return (dict[k] && (dict[k][lang] || dict[k]['pt'] || dict[k]['en'])) || k; };
+  var authArea = document.getElementById('authArea');
+  var mobileAuth = document.getElementById('mobileAuth');
+  var s = "font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.82rem;text-transform:uppercase;text-decoration:none;white-space:nowrap;padding:4px 7px;border-radius:6px;transition:.2s;";
+  if (nome) {
+    if (authArea) authArea.innerHTML =
+      '<a href="/meus-pedidos.html" style="' + s + 'color:#ccc;" onmouseover="this.style.color=\'#DC143C\'" onmouseout="this.style.color=\'#ccc\'">' + t('nav.orders') + '</a>' +
+      '<a href="#" id="btnSair" style="' + s + 'color:#DC143C;">' + t('nav.logout') + '</a>';
+    var bs = document.getElementById('btnSair');
+    if (bs) bs.onclick = function(e) { e.preventDefault(); localStorage.removeItem('usuarioNome'); localStorage.removeItem('usuarioEmail'); window.location.reload(); };
+    if (mobileAuth) mobileAuth.innerHTML =
+      '<a href="/meus-pedidos.html" class="btn-login">' + t('nav.orders') + '</a>' +
+      '<a href="#" class="btn-cadastro" onclick="localStorage.removeItem(\'usuarioNome\');localStorage.removeItem(\'usuarioEmail\');location.reload();">' + t('nav.logout') + '</a>';
   } else {
-    authArea.innerHTML=`<a href="/login.html" class="btn-login" data-i18n="nav.login">Login</a><a href="/cadastro.html" class="btn-cadastro" data-i18n="nav.register">Cadastrar</a>`;
-    if(mobileAuth) mobileAuth.innerHTML='<a href="/login.html" class="btn-login" data-i18n="nav.login">Login</a><a href="/cadastro.html" class="btn-cadastro" data-i18n="nav.register">Cadastrar</a>';
+    if (authArea) authArea.innerHTML =
+      '<a href="/login.html" class="btn-login">' + t('nav.login') + '</a>' +
+      '<a href="/cadastro.html" class="btn-cadastro">' + t('nav.register') + '</a>';
+    if (mobileAuth) mobileAuth.innerHTML =
+      '<a href="/login.html" class="btn-login">' + t('nav.login') + '</a>' +
+      '<a href="/cadastro.html" class="btn-cadastro">' + t('nav.register') + '</a>';
   }
-  if(window.PEP_LANG) window.PEP_LANG.set(window.PEP_LANG.get());
 }
+
 
 // MODAL LOGIN
 function fecharModalLogin(){ document.getElementById('modalLogin').classList.remove('open'); }
