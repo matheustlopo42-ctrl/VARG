@@ -273,4 +273,19 @@ window.PEPMASTERS_I18N = {
   "btn.cancel":       { en:"Cancel",                     pt:"Cancelar",                     es:"Cancelar",                     de:"Abbrechen",                      fr:"Annuler" },
   "size.label":       { en:"Size:",                      pt:"Tam:",                         es:"Talla:",                       de:"Größe:",                         fr:"Taille:" },
 
+  // ===== RASTREAR PEDIDO =====
+  "track.title":       { en:"Track Order",           pt:"Rastrear Pedido",              es:"Rastrear Pedido",              de:"Bestellung verfolgen",          fr:"Suivre la commande" },
+  "track.subtitle":    { en:"Track your delivery status", pt:"Acompanhe o status da sua entrega", es:"Sigue el estado de tu entrega", de:"Verfolgen Sie Ihren Lieferstatus", fr:"Suivez le statut de votre livraison" },
+  "track.label":       { en:"Enter tracking code",   pt:"Digite o código de rastreio",  es:"Ingresa el código de seguimiento", de:"Tracking-Code eingeben",       fr:"Entrez le code de suivi" },
+  "track.ph":          { en:"Ex: 203411 (order number)", pt:"Ex: 203411 (número do pedido)", es:"Ej: 203411 (número de pedido)", de:"Bsp: 203411 (Bestellnummer)",  fr:"Ex: 203411 (numéro de commande)" },
+  "track.result":      { en:"Search Result",          pt:"Resultado da Busca",           es:"Resultado de la Búsqueda",     de:"Suchergebnis",                  fr:"Résultat de la recherche" },
+  "track.nocode.title":{ en:"No tracking code?",      pt:"Não tem o código?",            es:"¿No tienes el código?",        de:"Kein Tracking-Code?",           fr:"Pas de code de suivi?" },
+  "track.nocode.text": { en:"The tracking code is sent automatically to your registered email once the order is shipped. Check your inbox or spam.", pt:"O código de rastreio é enviado automaticamente para o e-mail cadastrado assim que o pedido é postado. Verifique sua caixa de entrada ou spam.", es:"El código se envía automáticamente al correo registrado. Revisa tu bandeja de entrada o spam.", de:"Der Tracking-Code wird automatisch an Ihre registrierte E-Mail gesendet. Überprüfen Sie Posteingang oder Spam.", fr:"Le code est envoyé automatiquement à l'e-mail enregistré. Vérifiez votre boîte de réception ou spam." },
+  "track.deadline.title":{ en:"Deadlines",            pt:"Prazos",                       es:"Plazos",                       de:"Fristen",                       fr:"Délais" },
+  "track.deadline.text":{ en:"After shipping, delivery time varies by region. Check the shipping page for details.", pt:"Após a postagem, o prazo de entrega varia conforme a região. Confira a tabela de prazos na página Envio e Prazos.", es:"Después del envío, el tiempo de entrega varía según la región.", de:"Nach dem Versand variiert die Lieferzeit je nach Region.", fr:"Après l'expédition, le délai de livraison varie selon la région." },
+  "track.help.title":  { en:"Help",                   pt:"Ajuda",                        es:"Ayuda",                        de:"Hilfe",                         fr:"Aide" },
+  "track.help.text":   { en:"If you have questions about your order status, contact us at contato@vargmatilha.com.br with your order number.", pt:"Se tiver dúvidas sobre o status do seu pedido, entre em contato pelo e-mail contato@vargmatilha.com.br informando o número do pedido.", es:"Si tienes dudas, contáctanos en contato@vargmatilha.com.br con tu número de pedido.", de:"Bei Fragen kontaktieren Sie uns unter contato@vargmatilha.com.br mit Ihrer Bestellnummer.", fr:"Pour toute question, contactez-nous à contato@vargmatilha.com.br avec votre numéro de commande." },
+  "track.btn":         { en:"Track",                  pt:"Rastrear",                     es:"Rastrear",                     de:"Verfolgen",                     fr:"Suivre" },
+  "track.shipping.link":{ en:"Shipping & Deadlines",  pt:"Envio e Prazos",               es:"Envíos y Plazos",              de:"Versand & Fristen",             fr:"Expédition et délais" },
+
 };
