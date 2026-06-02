@@ -37,7 +37,7 @@ window.PEPMASTERS_I18N = {
   "products.search":  { en:"Search product...",  pt:"Buscar produto...",     es:"Buscar producto...", de:"Produkt suchen...",    fr:"Rechercher produit..." },
   "cat.salt":         { en:"Smelling Salt",       pt:"Smelling Salt",         es:"Smelling Salt",      de:"Riechsalz",            fr:"Sel d'éveil" },
   "cat.shirt":        { en:"Shirt",               pt:"Camiseta",              es:"Camiseta",           de:"Shirt",                fr:"T-shirt" },
-  "btn.add":          { en:"Add to Cart",         pt:"Adicionar ao Carrinho", es:"Agregar al Carrito", de:"In den Warenkorb",     fr:"Ajouter au panier" },
+  // btn.add definido abaixo
   "btn.soldout":      { en:"Sold Out",            pt:"Esgotado",              es:"Agotado",            de:"Ausverkauft",          fr:"Épuisé" },
   "btn.confirm":      { en:"Confirm",             pt:"Confirmar",             es:"Confirmar",          de:"Bestätigen",           fr:"Confirmer" },
   "btn.cancel":       { en:"Cancel",              pt:"Cancelar",              es:"Cancelar",           de:"Abbrechen",            fr:"Annuler" },
@@ -247,5 +247,30 @@ window.PEPMASTERS_I18N = {
   "footer.profile":     { en:"My Profile",           pt:"Meu Perfil",            es:"Mi Perfil",           de:"Mein Profil",           fr:"Mon Profil" },
   "footer.account":     { en:"My Account",           pt:"Minha Conta",           es:"Mi Cuenta",           de:"Mein Konto",            fr:"Mon Compte" },
   "nav.faq":            { en:"FAQ",                  pt:"Dúvidas",               es:"Preguntas",           de:"FAQ",                   fr:"FAQ" },
+
+  // ===== HERO INDEX =====
+  "hero.eyebrow":     { en:"Smelling Salt & Equipment",  pt:"Smelling Salt & Equipamentos", es:"Smelling Salt & Equipamiento", de:"Riechsalz & Ausrüstung",         fr:"Sel odorant & Équipement" },
+  "hero.title":       { en:"The Pack",                   pt:"A Matilha",                    es:"La Manada",                    de:"Das Rudel",                      fr:"La Meute" },
+
+  // ===== BRAND ABOUT (index) =====
+  "brand.title":      { en:"VARG — THE PACK",            pt:"VARG — A MATILHA",             es:"VARG — LA MANADA",             de:"VARG — DAS RUDEL",               fr:"VARG — LA MEUTE" },
+  "brand.p1":         { en:"VARG was born from strength, discipline and the mindset of those who never back down. A brand created for athletes who live the constant pursuit of physical and mental evolution.", pt:"A VARG nasceu da força, da disciplina e da mentalidade de quem não recua. Somos uma marca criada para atletas, praticantes e indivíduos que vivem a busca constante por evolução física e mental.", es:"VARG nació de la fuerza, la disciplina y la mentalidad de quienes nunca retroceden. Una marca creada para atletas que viven la búsqueda constante de evolución.", de:"VARG entstand aus Stärke, Disziplin und der Mentalität derer, die nie zurückweichen. Eine Marke für Athleten, die die ständige Suche nach körperlicher und geistiger Weiterentwicklung leben.", fr:"VARG est né de la force, de la discipline et de la mentalité de ceux qui ne reculent jamais. Une marque créée pour les athlètes qui vivent la quête constante d'évolution physique et mentale." },
+  "brand.p2":         { en:"More than products, we create symbols of performance, identity and belonging. Those who wear VARG don't train alone — they train as a pack.", pt:"Mais do que produtos, criamos símbolos de performance, identidade e pertencimento. Quem veste VARG não treina sozinho — treina em matilha.", es:"Más que productos, creamos símbolos de rendimiento, identidad y pertenencia. Quien viste VARG no entrena solo — entrena en manada.", de:"Mehr als Produkte schaffen wir Symbole für Leistung, Identität und Zugehörigkeit. Wer VARG trägt, trainiert nicht allein — er trainiert im Rudel.", fr:"Plus que des produits, nous créons des symboles de performance, d'identité et d'appartenance. Ceux qui portent VARG ne s'entraînent pas seuls — ils s'entraînent en meute." },
+
+  // ===== VER MAIS / MENOS =====
+  "home.verMais":     { en:"See all products ↓",         pt:"Ver todos os produtos ↓",      es:"Ver todos los productos ↓",    de:"Alle Produkte anzeigen ↓",        fr:"Voir tous les produits ↓" },
+  "home.verMenos":    { en:"See less ↑",                 pt:"Ver menos ↑",                  es:"Ver menos ↑",                  de:"Weniger anzeigen ↑",             fr:"Voir moins ↑" },
+  "home.topsellers":  { en:"Top Sellers",                pt:"Top Sellers",                  es:"Más Vendidos",                 de:"Bestseller",                     fr:"Meilleures ventes" },
+
+  // ===== PRODUTOS - CATEGORIA =====
+  "cat.salt":         { en:"Smelling Salt",              pt:"Smelling Salt",                es:"Smelling Salt",                de:"Riechsalz",                      fr:"Sel odorant" },
+  "cat.shirt":        { en:"T-shirt",                    pt:"Camiseta",                     es:"Camiseta",                     de:"T-Shirt",                        fr:"T-shirt" },
+
+  // ===== BOTÕES PRODUTO =====
+  "btn.add":          { en:"Add to Cart",                pt:"Adicionar",                    es:"Agregar",                      de:"In den Warenkorb",               fr:"Ajouter" },
+  "btn.soldout":      { en:"Sold Out",                   pt:"Esgotado",                     es:"Agotado",                      de:"Ausverkauft",                    fr:"Épuisé" },
+  "btn.confirm":      { en:"Confirm",                    pt:"Confirmar",                    es:"Confirmar",                    de:"Bestätigen",                     fr:"Confirmer" },
+  "btn.cancel":       { en:"Cancel",                     pt:"Cancelar",                     es:"Cancelar",                     de:"Abbrechen",                      fr:"Annuler" },
+  "size.label":       { en:"Size:",                      pt:"Tam:",                         es:"Talla:",                       de:"Größe:",                         fr:"Taille:" },
 
 };

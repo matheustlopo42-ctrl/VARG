@@ -288,6 +288,9 @@
     }
   });
   document.addEventListener('vargLangChanged', applyAll);
+document.addEventListener('vargLangChanged', function() {
+  if (typeof renderGrid === 'function') { renderGrid(); }
+});
   window.PEP_LANG_APPLY = applyAll;
 })();
 </script>
@@ -374,8 +377,8 @@
 <!-- HERO -->
 <section class="hero">
   <div class="hero-content">
-    <p class="hero-eyebrow">Smelling Salt &amp; Equipamentos</p>
-    <h1>VARG<br><span>A Matilha</span></h1>
+    <p class="hero-eyebrow" data-i18n="hero.eyebrow">Smelling Salt &amp; Equipamentos</p>
+    <h1>VARG<br><span data-i18n="hero.title">A Matilha</span></h1>
     <p data-i18n="hero.subtitle">Smelling salts e equipamentos exclusivos para powerlifters de elite.</p>
     <a href="#produtos" class="hero-cta" data-i18n="hero.cta">Ver Produtos</a>
   </div>
@@ -440,9 +443,9 @@
   <div class="brand-about-grid">
     <div class="brand-image"></div>
     <div class="brand-text">
-      <h3>VARG — A MATILHA</h3>
-      <p>A VARG nasceu da força, da disciplina e da mentalidade de quem não recua. Somos uma marca criada para atletas, praticantes e indivíduos que vivem a busca constante por evolução física e mental.</p>
-      <p>Mais do que produtos, criamos símbolos de performance, identidade e pertencimento. Quem veste VARG não treina sozinho — treina em matilha.</p>
+      <h3 data-i18n="brand.title">VARG — A MATILHA</h3>
+      <p data-i18n="brand.p1">A VARG nasceu da força, da disciplina e da mentalidade de quem não recua. Somos uma marca criada para atletas, praticantes e indivíduos que vivem a busca constante por evolução física e mental.</p>
+      <p data-i18n="brand.p2">Mais do que produtos, criamos símbolos de performance, identidade e pertencimento. Quem veste VARG não treina sozinho — treina em matilha.</p>
     </div>
   </div>
 </section>
@@ -519,12 +522,12 @@
 <script>
 // ===== CATÁLOGO =====
 const CATALOGO = [
-  { id:'varg-salt',              nome:'VARG Salt 30g',                            precoAntes:2.50,  preco:2.00,  img:'img/smelling.png', catClass:'salt',  temTamanho:false },
-  { id:'camiseta-preta-branco',  nome:'Camiseta VARG preta com logo branco',      precoAntes:109.90,preco:89.90, img:'img/1.png',        catClass:'shirt', temTamanho:true  },
-  { id:'camiseta-preta-azul',    nome:'Camiseta VARG preta com logo azul',        precoAntes:109.90,preco:89.90, img:'img/2.png',        catClass:'shirt', temTamanho:true  },
-  { id:'camiseta-branca-preto',  nome:'Camiseta VARG branca com logo preto',      precoAntes:109.90,preco:89.90, img:'img/3.png',        catClass:'shirt', temTamanho:true  },
-  { id:'camiseta-preta-dourado', nome:'Camiseta VARG preta com logo dourado',     precoAntes:109.90,preco:89.90, img:'img/4.png',        catClass:'shirt', temTamanho:true  },
-  { id:'camiseta-azul-branco',   nome:'Camiseta VARG azul marinho com logo branco',precoAntes:109.90,preco:89.90,img:'img/5.png',        catClass:'shirt', temTamanho:true  },
+  { id:'varg-salt',              nomes:{pt:'VARG Salt 30g',en:'VARG Salt 30g',es:'VARG Salt 30g',de:'VARG Riechsalz 30g',fr:'VARG Sel odorant 30g'}, nome:'VARG Salt 30g', cats:{pt:'Smelling Salt',en:'Smelling Salt',es:'Smelling Salt',de:'Riechsalz',fr:'Sel odorant'}, precoAntes:2.50,  preco:2.00,  img:'img/smelling.png', catClass:'salt',  temTamanho:false },
+  { id:'camiseta-preta-branco',  nomes:{pt:'Camiseta VARG preta com logo branco',en:'VARG Black T-shirt white logo',es:'Camiseta VARG negra logo blanco',de:'VARG Schwarzes T-Shirt weißes Logo',fr:'T-shirt VARG noir logo blanc'}, nome:'Camiseta VARG preta com logo branco', cats:{pt:'Camiseta',en:'T-shirt',es:'Camiseta',de:'T-Shirt',fr:'T-shirt'}, precoAntes:109.90,preco:89.90, img:'img/1.png', catClass:'shirt', temTamanho:true  },
+  { id:'camiseta-preta-azul',    nomes:{pt:'Camiseta VARG preta com logo azul',en:'VARG Black T-shirt blue logo',es:'Camiseta VARG negra logo azul',de:'VARG Schwarzes T-Shirt blaues Logo',fr:'T-shirt VARG noir logo bleu'}, nome:'Camiseta VARG preta com logo azul', cats:{pt:'Camiseta',en:'T-shirt',es:'Camiseta',de:'T-Shirt',fr:'T-shirt'}, precoAntes:109.90,preco:89.90, img:'img/2.png', catClass:'shirt', temTamanho:true  },
+  { id:'camiseta-branca-preto',  nomes:{pt:'Camiseta VARG branca com logo preto',en:'VARG White T-shirt black logo',es:'Camiseta VARG blanca logo negro',de:'VARG Weißes T-Shirt schwarzes Logo',fr:'T-shirt VARG blanc logo noir'}, nome:'Camiseta VARG branca com logo preto', cats:{pt:'Camiseta',en:'T-shirt',es:'Camiseta',de:'T-Shirt',fr:'T-shirt'}, precoAntes:109.90,preco:89.90, img:'img/3.png', catClass:'shirt', temTamanho:true  },
+  { id:'camiseta-preta-dourado', nomes:{pt:'Camiseta VARG preta com logo dourado',en:'VARG Black T-shirt gold logo',es:'Camiseta VARG negra logo dorado',de:'VARG Schwarzes T-Shirt goldenes Logo',fr:'T-shirt VARG noir logo doré'}, nome:'Camiseta VARG preta com logo dourado', cats:{pt:'Camiseta',en:'T-shirt',es:'Camiseta',de:'T-Shirt',fr:'T-shirt'}, precoAntes:109.90,preco:89.90, img:'img/4.png', catClass:'shirt', temTamanho:true  },
+  { id:'camiseta-azul-branco',   nomes:{pt:'Camiseta VARG azul marinho com logo branco',en:'VARG Navy T-shirt white logo',es:'Camiseta VARG azul marino logo blanco',de:'VARG Marineblau T-Shirt weißes Logo',fr:'T-shirt VARG bleu marine logo blanc'}, nome:'Camiseta VARG azul marinho com logo branco', cats:{pt:'Camiseta',en:'T-shirt',es:'Camiseta',de:'T-Shirt',fr:'T-shirt'}, precoAntes:109.90,preco:89.90, img:'img/5.png', catClass:'shirt', temTamanho:true  },
 ];
 const TOP_SELLERS = ['varg-salt','camiseta-preta-branco','camiseta-preta-dourado'];
 const TAMANHOS = ['P','M','G','GG','XGG','3GG','4GG','5GG'];
@@ -534,17 +537,22 @@ const descPct = (a,p) => Math.round((1-p/a)*100);
 
 function mkCard(p, estoqueMap) {
   const isShirt = p.temTamanho;
-  const tamSel = isShirt ? `<div class="size-selector"><label data-i18n="size.label">Tam:</label><select class="size-opt">${TAMANHOS.map(t=>`<option value="${t}">${t}</option>`).join('')}</select></div>` : '';
+  const lang = (window.PEP_LANG && window.PEP_LANG.get()) || localStorage.getItem('varg_lang') || 'pt';
+  const dict = window.PEPMASTERS_I18N || {};
+  const t = function(k) { return (dict[k] && (dict[k][lang] || dict[k]['pt'] || dict[k]['en'])) || k; };
+  const nomeLocal = (p.nomes && p.nomes[lang]) || p.nomes && p.nomes['pt'] || p.nome;
+  const catLocal = (p.cats && p.cats[lang]) || p.cats && p.cats['pt'] || (p.catClass==='salt'?'Smelling Salt':'Camiseta');
+  const tamSel = isShirt ? `<div class="size-selector"><label data-i18n="size.label">${t('size.label')}</label><select class="size-opt">${TAMANHOS.map(t=>`<option value="${t}">${t}</option>`).join('')}</select></div>` : '';
   const esgotado = estoqueMap && !isShirt && (estoqueMap[p.id+'|unico']===0);
   const pct = descPct(p.precoAntes, p.preco);
   const btnHtml = esgotado
-    ? `<button class="esgotado" onclick="abrirEspera('${p.id}','unico')" data-i18n="btn.soldout">Esgotado</button>`
-    : `<div style="width:100%">${tamSel}<div class="card-qtd-selector" id="qtd-${p.id}"><div class="qtd-row"><button class="qtd-btn" onclick="mudaQtd('${p.id}',-1)">−</button><span class="qtd-display" id="qn-${p.id}">1</span><button class="qtd-btn" onclick="mudaQtd('${p.id}',1)">+</button></div><button class="qtd-confirmar" onclick="confirmarAdd('${p.id}')">Confirmar</button><button class="qtd-cancelar" onclick="cancelarAdd('${p.id}')">Cancelar</button></div><button class="btn-add" id="btn-${p.id}" onclick="iniciarAdd('${p.id}')" data-i18n="btn.add">Adicionar</button></div>`;
+    ? `<button class="esgotado" onclick="abrirEspera('${p.id}','unico')">${t('btn.soldout')}</button>`
+    : `<div style="width:100%">${tamSel}<div class="card-qtd-selector" id="qtd-${p.id}"><div class="qtd-row"><button class="qtd-btn" onclick="mudaQtd('${p.id}',-1)">−</button><span class="qtd-display" id="qn-${p.id}">1</span><button class="qtd-btn" onclick="mudaQtd('${p.id}',1)">+</button></div><button class="qtd-confirmar" onclick="confirmarAdd('${p.id}')">${t('btn.confirm')}</button><button class="qtd-cancelar" onclick="cancelarAdd('${p.id}')">${t('btn.cancel')}</button></div><button class="btn-add" id="btn-${p.id}" onclick="iniciarAdd('${p.id}')">${t('btn.add')}</button></div>`;
   return `<div class="card" id="card-${p.id}">
-    <div class="card-img-wrap"><img src="${p.img}" alt="${p.nome}" loading="lazy"/></div>
+    <div class="card-img-wrap"><img src="${p.img}" alt="${nomeLocal}" loading="lazy"/></div>
     <div class="card-body">
-      <div class="card-cat-label">${p.catClass==='salt'?'Smelling Salt':'Camiseta'}</div>
-      <div class="card-name">${p.nome}</div>
+      <div class="card-cat-label">${catLocal}</div>
+      <div class="card-name">${nomeLocal}</div>
       <div class="card-price-wrap">
         <span class="card-price-antes">${fmt(p.precoAntes)}</span>
         <div class="card-price-row"><span class="card-price">${fmt(p.preco)}</span><span class="card-price-badge">-${pct}%</span></div>
@@ -580,13 +588,15 @@ function renderGrid() {
 }
 
 function toggleTodosProdutos() {
-  const el = document.getElementById('todosProdutos');
-  const btn = document.getElementById('btnVerMais');
-  const open = el.classList.toggle('aberto');
+  var el = document.getElementById('todosProdutos');
+  var btn = document.getElementById('btnVerMais');
+  var open = el.classList.toggle('aberto');
+  var lang = (window.PEP_LANG && window.PEP_LANG.get()) || localStorage.getItem('varg_lang') || 'pt';
+  var dict = window.PEPMASTERS_I18N || {};
+  var t = function(k) { return (dict[k] && (dict[k][lang] || dict[k]['pt'] || dict[k]['en'])) || k; };
   btn.setAttribute('data-i18n', open ? 'home.verMenos' : 'home.verMais');
-  btn.textContent = open ? 'Ver menos ↑' : 'Ver todos os produtos ↓';
+  btn.textContent = open ? t('home.verMenos') : t('home.verMais');
   if(open) el.scrollIntoView({behavior:'smooth',block:'start'});
-  if(window.PEP_LANG) window.PEP_LANG.set(window.PEP_LANG.get());
 }
 
 // QTD LOGIC
