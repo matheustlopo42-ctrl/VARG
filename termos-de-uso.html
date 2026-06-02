@@ -372,16 +372,90 @@ body{padding-top:59px}
 </style>
 
 <style>header:not(.slim){display:none!important}body{padding-top:59px!important}</style>
+
+<style>
+.slim-cart-btn{position:relative;background:none;border:1px solid #333;border-radius:10px;padding:5px 10px;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase;color:#ccc;transition:all .2s;white-space:nowrap}
+.slim-cart-btn:hover{border-color:#DC143C;color:#DC143C}
+.slim-cart-count{background:#DC143C;color:#fff;border-radius:50%;width:18px;height:18px;font-size:.6rem;font-weight:800;display:none;align-items:center;justify-content:center;margin-left:2px}
+.slim-cart-count.show{display:flex}
+/* CART DRAWER */
+.slim-cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;opacity:0;pointer-events:none;transition:opacity .3s}
+.slim-cart-overlay.open{opacity:1;pointer-events:all}
+.slim-cart-drawer{position:fixed;top:0;right:0;bottom:0;width:400px;max-width:95vw;background:#111;z-index:2001;transform:translateX(100%);transition:transform .3s ease;display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(0,0,0,.5)}
+.slim-cart-drawer.open{transform:translateX(0)}
+.slim-cart-head{padding:18px 22px;border-bottom:1px solid #333;display:flex;align-items:center;justify-content:space-between}
+.slim-cart-head h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.3rem;text-transform:uppercase;color:#fff}
+.slim-cart-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888;line-height:1}
+.slim-cart-close:hover{color:#DC143C}
+.slim-cart-items{flex:1;overflow-y:auto;padding:14px 22px}
+.slim-cart-foot{padding:18px 22px;border-top:1px solid #333;background:#0f0f0f}
+.slim-cart-total-row{display:flex;justify-content:space-between;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.4rem;color:#fff;margin-bottom:14px}
+.slim-cart-total-row span:last-child{color:#DC143C}
+.slim-btn-checkout{display:block;width:100%;padding:13px;background:#DC143C;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;letter-spacing:.1em;text-transform:uppercase;border:none;border-radius:10px;cursor:pointer;text-align:center;text-decoration:none;transition:.2s}
+.slim-btn-checkout:hover{background:#b01030}
+.slim-btn-limpar{display:block;text-align:center;margin-top:8px;font-size:.8rem;color:#555;cursor:pointer;background:none;border:none;text-decoration:underline}
+.slim-btn-limpar:hover{color:#DC143C}
+</style>
+
+<style>
+/* MOBILE SLIM */
+@media(max-width:768px){
+  .slim-inner{padding:0 10px;gap:6px}
+  .slim-back{display:none}
+  .slim-right{gap:6px}
+}
+/* SLIM MOBILE MENU */
+.slim-mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9998}
+.slim-mob-overlay.open{display:block}
+.slim-mob-menu{position:fixed;top:0;left:0;bottom:0;width:82%;max-width:290px;background:#0f0f0f;border-right:2px solid #DC143C;z-index:9999;padding:72px 18px 24px;overflow-y:auto;transform:translateX(-110%);transition:transform .3s ease;visibility:hidden}
+.slim-mob-menu.open{transform:translateX(0);visibility:visible}
+.slim-mob-menu a{display:block;padding:12px 8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;color:#eee;text-decoration:none;border-bottom:1px solid #1a1a1a;letter-spacing:.04em;text-transform:uppercase}
+.slim-mob-menu a:hover{color:#DC143C}
+.slim-mob-auth{display:flex;gap:8px;margin-top:14px}
+.slim-mob-auth a{padding:10px 14px;border-radius:28px;text-align:center;flex:1;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.85rem;text-transform:uppercase;text-decoration:none;border:none}
+.slim-mob-auth .sm-login{border:1px solid #333!important;color:#eee!important;background:none}
+.slim-mob-auth .sm-reg{background:#DC143C;color:#fff!important}
+/* HAMBURGER SLIM */
+.slim-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:5px}
+.slim-hamburger span{display:block;width:20px;height:2px;background:#fff;border-radius:2px;transition:all .3s}
+.slim-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.slim-hamburger.open span:nth-child(2){opacity:0}
+.slim-hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+@media(max-width:768px){.slim-hamburger{display:flex!important}}
+@media(min-width:769px){.slim-hamburger{display:none!important}}
+</style>
 </head>
 <body>
+
+<!-- SLIM CART DRAWER -->
+<div class="slim-cart-overlay" id="slimCartOverlay" onclick="slimFecharCart()"></div>
+<div class="slim-cart-drawer" id="slimCartDrawer">
+  <div class="slim-cart-head">
+    <h2>Carrinho</h2>
+    <button class="slim-cart-close" onclick="slimFecharCart()">✕</button>
+  </div>
+  <div class="slim-cart-items" id="slimCartItems"></div>
+  <div class="slim-cart-foot" id="slimCartFoot" style="display:none">
+    <div class="slim-cart-total-row"><span>Total</span><span id="slimCartTotal">R$ 0,00</span></div>
+    <a href="/checkout.html" class="slim-btn-checkout">Finalizar Pedido</a>
+    <button class="slim-btn-limpar" onclick="slimLimparCart()">Limpar carrinho</button>
+  </div>
+</div>
 <header class="slim">
   <div class="slim-inner">
+    <button class="slim-hamburger" id="slimHamburger" onclick="slimToggleMob()"><span></span><span></span><span></span></button>
     <a href="/index.html" class="slim-logo">
       <img src="/img/lobovinho-removebg-preview.png" alt="VARG"/>
       <span>VARG</span>
     </a>
-    <div class="slim-right">
+            <div class="slim-right" style="display:flex;align-items:center;gap:8px;">
       <a href="/index.html" class="slim-back" data-i18n="nav.home">← Loja</a>
+      <button class="slim-cart-btn" onclick="slimAbrirCart()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.98 1.61h9.72a2 2 0 001.98-1.61L23 6H6"/></svg>
+        Carrinho
+        <span class="slim-cart-count" id="slimCartBadge">0</span>
+      </button>
+      <div id="slimAuthArea" style="display:flex;align-items:center;gap:6px;"></div>
     </div>
   </div>
 </header>
@@ -693,5 +767,46 @@ function hdrToggleMob(){var m=document.getElementById('hdrMobMenu'),o=document.g
         });
     </script>
   
+
+<script>
+function slimAbrirCart(){document.getElementById('slimCartDrawer').classList.add('open');document.getElementById('slimCartOverlay').classList.add('open');document.body.style.overflow='hidden';slimRenderCart();}
+function slimFecharCart(){document.getElementById('slimCartDrawer').classList.remove('open');document.getElementById('slimCartOverlay').classList.remove('open');document.body.style.overflow='';}
+function slimLimparCart(){localStorage.removeItem('carrinho');slimRenderCart();}
+function slimChgQty(nome,d){var c=JSON.parse(localStorage.getItem('carrinho')||'[]');var i=c.find(function(x){return x.nome===nome;});if(i){i.quantidade+=d;if(i.quantidade<=0)c=c.filter(function(x){return x.nome!==nome;});}localStorage.setItem('carrinho',JSON.stringify(c));slimRenderCart();}
+function slimRmItem(nome){var c=JSON.parse(localStorage.getItem('carrinho')||'[]').filter(function(x){return x.nome!==nome;});localStorage.setItem('carrinho',JSON.stringify(c));slimRenderCart();}
+function slimRenderCart(){
+  var items=document.getElementById('slimCartItems');
+  var foot=document.getElementById('slimCartFoot');
+  var badge=document.getElementById('slimCartBadge');
+  var cart=JSON.parse(localStorage.getItem('carrinho')||'[]');
+  if(!cart.length){
+    if(items) items.innerHTML='<p style="color:#555;text-align:center;padding:40px 0;font-size:.9rem">Carrinho vazio.</p>';
+    if(foot) foot.style.display='none';
+    if(badge) badge.classList.remove('show');
+    return;
+  }
+  var total=0,html='<div style="display:flex;flex-direction:column;gap:12px">';
+  cart.forEach(function(item){
+    var sub=item.preco*item.quantidade; total+=sub;
+    html+='<div style="display:flex;align-items:center;gap:10px;border-bottom:1px solid #222;padding-bottom:12px">'
+      +'<img src="'+item.img+'" style="width:46px;height:46px;object-fit:cover;border-radius:6px;border:1px solid #333">'
+      +'<div style="flex:1;min-width:0"><div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:.9rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+item.nome+'</div>'
+      +'<div style="display:flex;align-items:center;gap:6px;margin-top:4px">'
+      +'<button onclick="slimChgQty(\''+item.nome.replace(/'/g,"\'")+'\', -1)" style="background:#333;color:#fff;border:none;width:20px;height:20px;border-radius:50%;cursor:pointer;font-size:.85rem">−</button>'
+      +'<span style="color:#fff;font-size:.88rem">'+item.quantidade+'</span>'
+      +'<button onclick="slimChgQty(\''+item.nome.replace(/'/g,"\'")+'\', 1)" style="background:#333;color:#fff;border:none;width:20px;height:20px;border-radius:50%;cursor:pointer;font-size:.85rem">+</button>'
+      +'<button onclick="slimRmItem(\''+item.nome.replace(/'/g,"\'")+'\');" style="background:none;border:none;color:#555;cursor:pointer;margin-left:auto;font-size:.9rem">🗑</button>'
+      +'</div>'
+      +'<span style="color:#DC143C;font-weight:700;font-size:.82rem;font-family:\'Barlow Condensed\',sans-serif">R$ '+sub.toFixed(2).replace('.',',')+'</span>'
+      +'</div></div>';
+  });
+  html+='</div>';
+  if(items) items.innerHTML=html;
+  if(document.getElementById('slimCartTotal')) document.getElementById('slimCartTotal').textContent='R$ '+total.toFixed(2).replace('.',',');
+  if(foot) foot.style.display='';
+  if(badge){badge.textContent=cart.reduce(function(a,i){return a+i.quantidade;},0);badge.classList.add('show');}
+}
+document.addEventListener('DOMContentLoaded', slimRenderCart);
+</script>
 </body>
 </html>
