@@ -357,8 +357,10 @@ async function buscarRastreio() {
       var cor = d.status==='pago'?'#00ff88':d.status==='enviado'?'#00BFFF':'orange';
       conteudo.innerHTML = '<p style="margin-bottom:8px"><strong style="color:#ccc">Pedido:</strong> <span style="color:#fff">#' + (d.external_id||codigo) + '</span></p>'
         + '<p style="margin-bottom:8px"><strong style="color:#ccc">Status:</strong> <span style="color:'+cor+';font-weight:bold">'+d.status+'</span></p>'
-        + (d.codigo_rastreio ? '<p style="margin-bottom:8px"><strong style="color:#ccc">Rastreio:</strong> <span style="color:#00BFFF;font-family:monospace">'+d.codigo_rastreio+'</span></p><a href="https://rastreamento.correios.com.br/app/index.php?numero='+d.codigo_rastreio+'" target="_blank" style="display:inline-block;margin-top:10px;background:#DC143C;color:#fff;padding:8px 18px;border-radius:20px;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.88rem;letter-spacing:.06em;text-transform:uppercase">🔍 Rastrear nos Correios →</a>'
-        : '<p style="color:orange;margin-top:8px">⏳ Ainda não postado. Aguarde.</p>');
+        + (d.codigo_rastreio
+          ? '<p style="margin-bottom:8px"><strong style="color:#ccc">Rastreio:</strong> <span style="color:#00BFFF;font-family:monospace">'+d.codigo_rastreio+'</span></p>'
+            + '<a href="https://rastreamento.correios.com.br/app/index.php?numero='+d.codigo_rastreio+'" target="_blank" style="display:inline-block;margin-top:10px;background:#DC143C;color:#fff;padding:8px 18px;border-radius:20px;text-decoration:none;font-weight:700;font-size:.88rem;text-transform:uppercase">🔍 Rastrear nos Correios →</a>'
+          : '<p style="color:orange;margin-top:8px">⏳ Ainda não postado. Aguarde.</p>');
     } else {
       conteudo.innerHTML = '<p style="color:#ff4d4d">❌ Pedido não encontrado. Verifique o código.</p>';
     }
