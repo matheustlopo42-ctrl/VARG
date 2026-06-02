@@ -1,441 +1,444 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout - VARG</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #111; color: #eee; font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; }
-        header {
-            position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.95);
-            padding: 12px 25px; display: flex; justify-content: space-between; align-items: center;
-            z-index: 1000; border-bottom: 1px solid #222;
-        }
-        header a { color: #fff; text-decoration: none; font-weight: bold; font-size: 1.1em; letter-spacing: 2px; }
-        header a:hover { color: #DC143C; }
-        .cart-back { color: #888; font-size: 0.9em; text-decoration: none; display: flex; align-items: center; gap: 6px; }
-        .cart-back:hover { color: #DC143C; }
-        .container { max-width: 900px; margin: 0 auto; padding: 90px 20px 40px; }
-        .section {
-            background: #1a1a1a; border-radius: 15px; padding: 25px;
-            margin-bottom: 25px; border: 1px solid #333;
-        }
-        .section-title {
-            color: #DC143C; font-size: 1.2em; font-weight: bold;
-            margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
-        }
-        /* ITENS */
-        .item { display: flex; align-items: center; gap: 15px; padding: 15px; margin-bottom: 15px; background: rgba(220,20,60,0.05); border-left: 4px solid #DC143C; border-radius: 10px; }
-        .item img { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; border: 1px solid #333; }
-        .item-info h4 { color: #DC143C; margin-bottom: 5px; }
-        .item-info p { color: #ccc; font-size: 0.9em; margin: 2px 0; }
-        .item-price { font-weight: bold; color: #DC143C; font-size: 1.2em; margin-left: auto; white-space: nowrap; }
-        .total-line { text-align: right; font-size: 1.1em; color: #DC143C; padding-top: 15px; border-top: 1px solid #333; margin-top: 10px; }
-        /* FORM */
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .form-grid .full { grid-column: 1 / -1; }
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-group label { font-size: 0.82em; color: #DC143C; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-group input {
-            background: #222; border: 1px solid #444; border-radius: 8px;
-            padding: 10px 14px; color: #eee; font-size: 0.95em; outline: none; transition: border 0.2s;
-        }
-        .form-group input:focus { border-color: #DC143C; }
-        .form-group input::placeholder { color: #555; }
-        .cep-row { display: flex; gap: 10px; align-items: flex-end; }
-        .cep-row input { flex: 1; }
-        .btn-cep { background: #DC143C; color: #fff; border: none; border-radius: 8px; padding: 10px 16px; cursor: pointer; font-weight: bold; font-size: 0.9em; white-space: nowrap; transition: 0.2s; }
-        .btn-cep:hover { background: #b01030; }
-        /* CUPOM */
-        .cupom-row { display: flex; gap: 10px; }
-        .cupom-row input {
-            flex: 1; background: #222; border: 1px solid #444; border-radius: 8px;
-            padding: 10px 14px; color: #eee; font-size: 0.95em; outline: none; text-transform: uppercase;
-        }
-        .cupom-row input:focus { border-color: #DC143C; }
-        .btn-cupom { background: #DC143C; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; cursor: pointer; font-weight: bold; white-space: nowrap; transition: 0.2s; }
-        .btn-cupom:hover { background: #b01030; }
-        /* PIX */
-        .qr-container { display: flex; justify-content: center; margin: 20px 0; }
-        #qrCode { max-width: 240px; border-radius: 12px; border: 4px solid #fff; display: none; }
-        #pixKey {
-            background: #222; padding: 14px; border-radius: 8px; color: #DC143C;
-            word-break: break-all; text-align: center; font-family: monospace; font-size: 0.88em;
-            border: 1px solid #333; margin: 10px 0;
-        }
-        .btn-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 15px; }
-        .btn-pix {
-            background: #32BCAD; color: white; padding: 14px 28px; border: none;
-            border-radius: 30px; cursor: pointer; font-weight: bold; font-size: 0.95em; transition: 0.3s;
-        }
-        .btn-pix:hover { background: #25a091; }
-        .btn-pix:disabled { background: #444; cursor: not-allowed; }
-        .btn-copy {
-            background: #DC143C; color: white; padding: 14px 28px; border: none;
-            border-radius: 30px; cursor: pointer; font-weight: bold; font-size: 0.95em; transition: 0.3s;
-        }
-        .btn-copy:hover { background: #b01030; }
-        .btn-copy:disabled { background: #444; cursor: not-allowed; }
-        /* WHATSAPP */
-        .btn-whatsapp {
-            width: 100%; background: #25D366; color: white; padding: 16px; border: none;
-            border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 1em; transition: 0.3s;
-            display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px;
-        }
-        .btn-whatsapp:hover { background: #1eaa55; transform: translateY(-2px); box-shadow: 0 5px 20px rgba(37,211,102,0.3); }
-        /* STATUS */
-        #status { text-align: center; margin-top: 10px; font-size: 0.9em; color: #aaa; }
-        .spinner { display: inline-block; width: 16px; height: 16px; border: 3px solid #444; border-top-color: #DC143C; border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle; margin-right: 6px; }
-        @keyframes spin { to { transform: rotate(360deg) } }
-        /* MODAL AVISO PIX */
-        .modal { display: none; position: fixed; z-index: 4000; inset: 0; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal.active { display: flex; }
-        .modal-content { background: #1a1a1a; padding: 35px; border-radius: 15px; width: 90%; max-width: 460px; text-align: center; position: relative; border: 1px solid #333; }
-        /* RESPONSIVE */
-        @media (max-width: 600px) {
-            .form-grid { grid-template-columns: 1fr; }
-            .form-grid .full { grid-column: 1; }
-        }
-    </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checkout — VARG</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--red:#DC143C;--red2:#b01030;--dark:#0a0a0a;--border:#333}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Barlow',sans-serif;background:#0a0a0a;color:#eee;min-height:100vh}
+    header{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(0,0,0,0.97);border-bottom:2px solid var(--red);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+    header a{color:#eee;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.1rem;letter-spacing:.04em}
+    header a:hover{color:var(--red)}
+    .back-link{color:#888;font-size:.9rem;display:flex;align-items:center;gap:6px}
+    .back-link:hover{color:var(--red)}
+    .container{max-width:900px;margin:0 auto;padding:76px 20px 60px}
+    .section{background:#111;border-radius:14px;padding:24px;margin-bottom:22px;border:1px solid #222}
+    .section-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.15rem;color:#fff;margin-bottom:18px;display:flex;align-items:center;gap:10px;text-transform:uppercase;letter-spacing:.06em}
+    .section-title span{color:var(--red)}
+
+    /* ITEMS */
+    .item{display:flex;align-items:center;gap:14px;padding:13px;margin-bottom:12px;background:rgba(220,20,60,.05);border-left:3px solid var(--red);border-radius:8px}
+    .item img{width:72px;height:72px;border-radius:8px;object-fit:cover;border:1px solid #333}
+    .item-info h4{color:var(--red);margin-bottom:4px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1rem}
+    .item-info p{color:#888;font-size:.85rem;margin:1px 0}
+    .item-price{font-weight:900;color:var(--red);font-size:1.1rem;margin-left:auto;white-space:nowrap;font-family:'Barlow Condensed',sans-serif}
+    .total-line{text-align:right;font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;color:#fff;padding-top:14px;border-top:1px solid #222;margin-top:8px}
+
+    /* FORM */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .form-grid .full{grid-column:1/-1}
+    .form-group{display:flex;flex-direction:column;gap:5px}
+    .form-group label{font-size:.78rem;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+    .form-group input{background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:10px 13px;color:#eee;font-size:.92rem;outline:none;transition:border .2s;font-family:'Barlow',sans-serif}
+    .form-group input:focus{border-color:var(--red)}
+    .form-group input::placeholder{color:#444}
+    .cep-row{display:flex;gap:8px;align-items:flex-end}
+    .cep-row input{flex:1}
+    .btn-cep{background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:700;font-size:.85rem;white-space:nowrap;font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em;text-transform:uppercase}
+    .btn-cep:hover{background:var(--red2)}
+
+    /* CUPOM */
+    .cupom-row{display:flex;gap:8px}
+    .cupom-row input{flex:1;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:10px 13px;color:#eee;font-size:.92rem;outline:none;text-transform:uppercase;font-family:'Barlow',sans-serif}
+    .cupom-row input:focus{border-color:var(--red)}
+    .btn-cupom{background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 18px;cursor:pointer;font-weight:700;font-size:.85rem;white-space:nowrap;font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em;text-transform:uppercase}
+    .btn-cupom:hover{background:var(--red2)}
+
+    /* PAYMENT TABS */
+    .pay-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+    .pay-tab{flex:1;min-width:100px;padding:10px;border:1px solid #333;border-radius:8px;background:none;color:#888;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.88rem;letter-spacing:.06em;text-transform:uppercase;transition:all .2s;text-align:center}
+    .pay-tab.active{border-color:var(--red);color:#fff;background:rgba(220,20,60,.12)}
+    .pay-panel{display:none}
+    .pay-panel.active{display:block}
+
+    /* PIX */
+    .qr-container{display:flex;justify-content:center;margin:16px 0}
+    #qrCode{max-width:220px;border-radius:10px;border:4px solid #fff;display:none}
+    #pixKey{background:#1a1a1a;padding:12px;border-radius:8px;color:var(--red);word-break:break-all;text-align:center;font-family:monospace;font-size:.85em;border:1px solid #333;margin:10px 0}
+    .btn-group{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+    .btn-pix{background:#32BCAD;color:#fff;padding:12px 24px;border:none;border-radius:30px;cursor:pointer;font-weight:700;font-size:.9rem;font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em;text-transform:uppercase;transition:.2s}
+    .btn-pix:hover{background:#25a091}
+    .btn-pix:disabled,.btn-copy:disabled{background:#333;color:#555;cursor:not-allowed}
+    .btn-copy{background:var(--red);color:#fff;padding:12px 24px;border:none;border-radius:30px;cursor:pointer;font-weight:700;font-size:.9rem;font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em;text-transform:uppercase;transition:.2s}
+    .btn-copy:hover:not(:disabled){background:var(--red2)}
+
+    /* CRIPTO */
+    .crypto-box{background:#1a1a1a;border-radius:10px;padding:20px;border:1px solid #333;margin-bottom:16px}
+    .crypto-addr{font-family:monospace;font-size:.8em;color:#00BFFF;word-break:break-all;background:#111;padding:10px;border-radius:6px;border:1px solid #333;margin:10px 0;text-align:center}
+    .crypto-amount{font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:900;color:#00ff88;text-align:center;margin:12px 0}
+    .crypto-amount small{font-size:.7em;color:#888;display:block;font-weight:400;font-family:'Barlow',sans-serif}
+    .btn-group-crypto{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:12px 0}
+    .btn-crypto{padding:10px 20px;border:none;border-radius:20px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;transition:.2s}
+    .btn-copy-addr{background:#00BFFF;color:#111}
+    .btn-copy-addr:hover{opacity:.85}
+    .btn-copy-amount{background:#00ff88;color:#111}
+    .btn-copy-amount:hover{opacity:.85}
+    .crypto-warning{background:rgba(255,165,0,.1);border:1px solid rgba(255,165,0,.3);border-radius:8px;padding:12px;font-size:.82rem;color:orange;margin-top:12px;line-height:1.6}
+    .crypto-status{text-align:center;margin-top:12px;font-size:.88rem;color:#888}
+    .crypto-qr-wrap{display:flex;justify-content:center;margin:14px 0}
+    .crypto-qr-wrap img{max-width:180px;border-radius:8px;border:3px solid #fff}
+    .btn-confirmar-cripto{width:100%;background:var(--red);color:#fff;border:none;border-radius:10px;padding:14px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-top:14px;transition:.2s}
+    .btn-confirmar-cripto:hover{background:var(--red2)}
+    .network-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(130,71,229,.2);border:1px solid rgba(130,71,229,.4);border-radius:20px;padding:4px 12px;font-size:.78rem;color:#a78bfa;margin-bottom:12px}
+
+    /* WHATSAPP */
+    .btn-whatsapp{width:100%;background:#25D366;color:#fff;padding:15px;border:none;border-radius:12px;cursor:pointer;font-weight:700;font-size:.95rem;font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;transition:.2s}
+    .btn-whatsapp:hover{background:#1eaa55;transform:translateY(-2px)}
+
+    /* STATUS */
+    #pixStatus{text-align:center;margin-top:10px;font-size:.85rem;color:#888}
+    .spinner{display:inline-block;width:14px;height:14px;border:2px solid #444;border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:5px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* MODALS */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:3000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+    .modal-overlay.open{display:flex}
+    .modal-box{background:#111;border-radius:16px;padding:32px;max-width:460px;width:92%;border-top:4px solid var(--red);box-shadow:0 20px 60px rgba(0,0,0,.7);text-align:center}
+    .modal-box h3{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.5rem;color:var(--red);margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em}
+    .modal-box p{color:#aaa;font-size:.88rem;line-height:1.7;margin-bottom:20px}
+    .modal-btn-primary{width:100%;background:var(--red);color:#fff;border:none;border-radius:8px;padding:13px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.95rem;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;margin-bottom:8px}
+    .modal-btn-primary:hover{background:var(--red2)}
+    .modal-btn-cancel{width:100%;background:transparent;color:#666;border:none;padding:10px;cursor:pointer;font-size:.85rem}
+    .modal-btn-cancel:hover{color:#eee}
+
+    @media(max-width:600px){.form-grid{grid-template-columns:1fr}.form-grid .full{grid-column:1}.pay-tab{font-size:.78rem;padding:8px}}
+  </style>
 </head>
 <body>
 
 <header>
-    <a href="/index.html">VARG</a>
-    <a href="/index.html" class="cart-back"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
+  <a href="/index.html" style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.2rem;letter-spacing:.04em;color:#DC143C;">VARG</a>
+  <a href="/index.html" class="back-link">← Voltar</a>
 </header>
 
 <div class="container">
 
-    <!-- ITENS -->
-    <div class="section">
-        <div class="section-title"><i class="fa-solid fa-bag-shopping"></i> Itens do Carrinho</div>
-        <div id="itemsList"></div>
-        <div class="total-line">Total: <strong id="totalLabel">R$ 0,00</strong></div>
-    </div>
+  <!-- ITENS -->
+  <div class="section">
+    <div class="section-title">🛒 <span>Itens</span> do Carrinho</div>
+    <div id="itemsList"></div>
+    <div class="total-line">Total: <strong id="totalLabel">R$ 0,00</strong></div>
+  </div>
 
-    <!-- ENTREGA -->
-    <div class="section">
-        <div class="section-title"><i class="fa-solid fa-truck"></i> Dados de Entrega</div>
-        <div class="form-grid">
-            <div class="form-group full">
-                <label>Nome completo *</label>
-                <input id="e-nome" type="text" placeholder="Seu nome completo" />
-            </div>
-            <div class="form-group">
-                <label>CPF *</label>
-                <input id="e-cpf" type="text" placeholder="000.000.000-00" maxlength="14" />
-            </div>
-            <div class="form-group">
-                <label>Telefone / WhatsApp *</label>
-                <input id="e-telefone" type="text" placeholder="(00) 00000-0000" maxlength="15" />
-            </div>
-            <div class="form-group full">
-                <label>CEP *</label>
-                <div class="cep-row">
-                    <input id="e-cep" type="text" placeholder="00000-000" maxlength="9" />
-                    <button class="btn-cep" onclick="buscarCep()">Buscar</button>
-                </div>
-                <span id="cepStatus" style="font-size:0.8em;color:#aaa;margin-top:4px;"></span>
-            </div>
-            <div class="form-group full">
-                <label>Rua / Logradouro *</label>
-                <input id="e-rua" type="text" placeholder="Rua, Avenida..." />
-            </div>
-            <div class="form-group">
-                <label>Número *</label>
-                <input id="e-numero" type="text" placeholder="123" />
-            </div>
-            <div class="form-group">
-                <label>Complemento</label>
-                <input id="e-complemento" type="text" placeholder="Apto, Bloco..." />
-            </div>
-            <div class="form-group">
-                <label>Bairro *</label>
-                <input id="e-bairro" type="text" placeholder="Bairro" />
-            </div>
-            <div class="form-group">
-                <label>Cidade *</label>
-                <input id="e-cidade" type="text" placeholder="Cidade" />
-            </div>
-            <div class="form-group">
-                <label>Estado *</label>
-                <input id="e-estado" type="text" placeholder="SP" maxlength="2" />
-            </div>
+  <!-- ENTREGA -->
+  <div class="section">
+    <div class="section-title">📦 Dados de <span>Entrega</span></div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Nome completo *</label><input id="e-nome" type="text" placeholder="Seu nome completo"/></div>
+      <div class="form-group"><label>CPF *</label><input id="e-cpf" type="text" placeholder="000.000.000-00" maxlength="14"/></div>
+      <div class="form-group"><label>Telefone / WhatsApp *</label><input id="e-telefone" type="text" placeholder="(00) 00000-0000" maxlength="15"/></div>
+      <div class="form-group full">
+        <label>CEP *</label>
+        <div class="cep-row">
+          <input id="e-cep" type="text" placeholder="00000-000" maxlength="9"/>
+          <button class="btn-cep" onclick="buscarCep()">Buscar</button>
         </div>
+        <span id="cepStatus" style="font-size:.78rem;color:#888;margin-top:4px"></span>
+      </div>
+      <div class="form-group full"><label>Rua *</label><input id="e-rua" type="text" placeholder="Rua, Avenida..."/></div>
+      <div class="form-group"><label>Número *</label><input id="e-numero" type="text" placeholder="123"/></div>
+      <div class="form-group"><label>Complemento</label><input id="e-complemento" type="text" placeholder="Apto, Bloco..."/></div>
+      <div class="form-group"><label>Bairro *</label><input id="e-bairro" type="text" placeholder="Bairro"/></div>
+      <div class="form-group"><label>Cidade *</label><input id="e-cidade" type="text" placeholder="Cidade"/></div>
+      <div class="form-group"><label>Estado *</label><input id="e-estado" type="text" placeholder="SP" maxlength="2"/></div>
     </div>
+  </div>
 
-    <!-- CUPOM -->
-    <div class="section">
-        <div class="section-title"><i class="fa-solid fa-tag"></i> Cupom de Desconto</div>
-        <div class="cupom-row">
-            <input id="inputCupom" type="text" placeholder="Digite seu cupom" />
-            <button class="btn-cupom" onclick="aplicarCupom()">Aplicar</button>
-        </div>
-        <div id="cupomStatus" style="margin-top:10px;font-size:0.9em;"></div>
+  <!-- CUPOM -->
+  <div class="section">
+    <div class="section-title">🏷️ Cupom de <span>Desconto</span></div>
+    <div class="cupom-row">
+      <input id="inputCupom" type="text" placeholder="Digite seu cupom"/>
+      <button class="btn-cupom" onclick="aplicarCupom()">Aplicar</button>
+    </div>
+    <div id="cupomStatus" style="margin-top:10px;font-size:.88rem"></div>
+  </div>
+
+  <!-- PAGAMENTO -->
+  <div class="section">
+    <div class="section-title">💳 <span>Pagamento</span></div>
+    <div class="pay-tabs">
+      <button class="pay-tab active" onclick="setTab('pix',this)">🟢 PIX</button>
+      <button class="pay-tab" onclick="setTab('cripto',this)">🔷 Cripto</button>
+      <button class="pay-tab" onclick="setTab('whatsapp',this)">📱 WhatsApp</button>
     </div>
 
     <!-- PIX -->
-    <div class="section">
-        <div class="section-title"><i class="fa-brands fa-pix"></i> Pagar com PIX</div>
-        <div class="qr-container">
-            <img id="qrCode" src="" alt="QR Code PIX">
+    <div class="pay-panel active" id="panel-pix">
+      <div class="qr-container"><img id="qrCode" src="" alt="QR PIX"/></div>
+      <div id="pixKey">Aguardando geração do código...</div>
+      <div id="pixStatus"></div>
+      <div class="btn-group">
+        <button id="btnPix" class="btn-pix" disabled>Pagar no App</button>
+        <button id="copyPix" class="btn-copy" disabled>Copiar Código</button>
+      </div>
+    </div>
+
+    <!-- CRIPTO -->
+    <div class="pay-panel" id="panel-cripto">
+      <div class="crypto-box">
+        <div style="text-align:center;margin-bottom:12px">
+          <span class="network-badge">🔷 Polygon (MATIC) — taxas quase zero</span>
         </div>
-        <div id="pixKey">Aguardando geração do código...</div>
-        <div id="status"></div>
-        <div class="btn-group">
-            <button id="btnPix" class="btn-pix" disabled>
-                <i class="fa-brands fa-pix"></i> Pagar no App do Banco
-            </button>
-            <button id="copyPix" class="btn-copy" disabled>
-                <i class="fa-regular fa-copy"></i> Copiar Código PIX
-            </button>
+        <p style="font-size:.82rem;color:#888;text-align:center;margin-bottom:8px">Pague com <strong style="color:#eee">USDT ou USDC</strong> na rede Polygon</p>
+        <div class="crypto-qr-wrap"><img id="cryptoQR" src="" alt="QR Cripto" style="display:none"/></div>
+        <div class="crypto-amount" id="cryptoAmount">
+          <small>Carregando cotação...</small>
         </div>
+        <div class="crypto-addr" id="cryptoAddr">0xDA95bb300C7be3E3347d449b14b834Dc3098deAD</div>
+        <div class="btn-group-crypto">
+          <button class="btn-crypto btn-copy-addr" onclick="copiarEndereco()">📋 Copiar Endereço</button>
+          <button class="btn-crypto btn-copy-amount" id="btnCopyAmount" onclick="copiarValor()">💰 Copiar Valor</button>
+        </div>
+        <div class="crypto-warning" id="cryptoWarning">
+          ⚠️ Envie o <strong>valor exato</strong> em USDT ou USDC na rede <strong>Polygon</strong>. Taxas de rede são por conta do comprador. O pagamento é confirmado <strong>manualmente pela nossa equipe em até 24h úteis</strong>.
+        </div>
+        <div class="crypto-status" id="cryptoStatus"></div>
+        <button class="btn-confirmar-cripto" onclick="abrirModalCripto()">✅ Já realizei o pagamento cripto</button>
+      </div>
     </div>
 
     <!-- WHATSAPP -->
-    <div class="section">
-        <div class="section-title"><i class="fa-brands fa-whatsapp" style="color:#25D366;"></i> Finalizar via WhatsApp</div>
-        <p style="color:#aaa;font-size:0.9em;margin-bottom:15px;">Prefere falar diretamente? Finalize seu pedido pelo WhatsApp e combine o pagamento conosco.</p>
-        <button class="btn-whatsapp" onclick="finalizarWhatsApp()">
-            <i class="fa-brands fa-whatsapp" style="font-size:1.3em;"></i>
-            Finalizar via WhatsApp
-        </button>
+    <div class="pay-panel" id="panel-whatsapp">
+      <p style="color:#888;font-size:.88rem;margin-bottom:14px;line-height:1.6">Prefere falar diretamente? Finalize pelo WhatsApp e combine o pagamento conosco.</p>
+      <button class="btn-whatsapp" onclick="finalizarWhatsApp()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.49"/></svg>
+        Finalizar via WhatsApp
+      </button>
     </div>
+  </div>
 
+</div><!-- /container -->
+
+<!-- MODAL PIX AVISO -->
+<div class="modal-overlay" id="modalPix">
+  <div class="modal-box">
+    <div style="font-size:2.2em;margin-bottom:10px">💳</div>
+    <h3>Antes de pagar</h3>
+    <p>Após o PIX, nossa equipe confirma e processa seu pedido em até <strong style="color:#DC143C">48 horas úteis</strong>.<br><br>Guarde o comprovante e fale conosco pelo WhatsApp se tiver dúvidas.</p>
+    <button class="modal-btn-primary" onclick="confirmarPix()">Entendi, pagar com PIX</button>
+    <button class="modal-btn-cancel" onclick="fecharModalPix()">Cancelar</button>
+  </div>
 </div>
 
-<!-- MODAL AVISO PIX -->
-<div id="modalPix" class="modal">
-    <div class="modal-content">
-        <div style="font-size:2.5em;margin-bottom:15px;">💳</div>
-        <h3 style="color:#DC143C;margin-bottom:10px;">Atenção antes de pagar</h3>
-        <p style="color:#ccc;font-size:0.92em;line-height:1.7;margin-bottom:20px;">
-            Após o pagamento via PIX, nossa equipe irá confirmar e processar seu pedido em até <b style="color:#DC143C;">48 horas úteis</b>.<br><br>
-            Guarde o comprovante e entre em contato pelo WhatsApp se tiver dúvidas.
-        </p>
-        <button onclick="confirmarPix()" style="background:#32BCAD;color:#fff;border:none;padding:13px 30px;border-radius:30px;font-weight:bold;cursor:pointer;font-size:0.95em;width:100%;margin-bottom:10px;">
-            Entendi, pagar com PIX
-        </button>
-        <button onclick="document.getElementById('modalPix').classList.remove('active')" style="background:transparent;color:#888;border:none;padding:10px;cursor:pointer;font-size:0.9em;width:100%;">
-            Cancelar
-        </button>
-    </div>
+<!-- MODAL CRIPTO AVISO -->
+<div class="modal-overlay" id="modalCripto">
+  <div class="modal-box">
+    <div style="font-size:2.2em;margin-bottom:10px">⏳</div>
+    <h3>Pagamento Cripto</h3>
+    <p><strong style="color:#eee">Confirmação manual em até 24h úteis.</strong><br><br>Pagamentos via criptomoeda precisam de verificação manual na blockchain. Nossa equipe irá conferir e confirmar seu pedido.<br><br>Você receberá um email de confirmação após a verificação.</p>
+    <button class="modal-btn-primary" onclick="confirmarCripto()">Entendi, finalizar pedido</button>
+    <button class="modal-btn-cancel" onclick="fecharModalCripto()">Cancelar</button>
+  </div>
 </div>
 
+<script src="/i18n.js"></script>
+<script src="/i18n-init.js"></script>
 <script>
-const formatPrice = v => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
-let totalCarrinho = 0;
-let cartGlobal = [];
-let cupomAtivo = null;
-let pixConfirmado = false;
+const fmt = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);
+let totalCarrinho = 0, cartGlobal = [], cupomAtivo = null;
 
-// ===== VERIFICAR LOGIN =====
+// ===== GUARD LOGIN =====
 const usuarioLogado = localStorage.getItem('usuarioNome');
-if (!usuarioLogado) {
-    localStorage.setItem('redirectAposLogin', 'checkout.html');
-    localStorage.setItem('mensagemLogin', 'Para finalizar sua compra, faça login ou crie uma conta.');
-    window.location.href = '/login.html';
+if(!usuarioLogado){
+  localStorage.setItem('redirectAposLogin','checkout.html');
+  localStorage.setItem('mensagemLogin','Para finalizar sua compra, faça login ou crie uma conta.');
+  window.location.href='/login.html';
 }
 
 // ===== MÁSCARAS =====
-document.getElementById('e-cpf').addEventListener('input', function() {
-    let v = this.value.replace(/\D/g,'');
-    v = v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
-    this.value = v;
-});
-document.getElementById('e-telefone').addEventListener('input', function() {
-    let v = this.value.replace(/\D/g,'');
-    if(v.length<=10) v = v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{4})(\d)/,'$1-$2');
-    else v = v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d)/,'$1-$2');
-    this.value = v;
-});
-document.getElementById('e-cep').addEventListener('input', function() {
-    let v = this.value.replace(/\D/g,'').replace(/(\d{5})(\d)/,'$1-$2');
-    this.value = v;
-});
-document.getElementById('e-cep').addEventListener('keypress', (e) => { if(e.key==='Enter') buscarCep(); });
+document.getElementById('e-cpf').addEventListener('input',function(){let v=this.value.replace(/\D/g,'');v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');this.value=v;});
+document.getElementById('e-telefone').addEventListener('input',function(){let v=this.value.replace(/\D/g,'');v=v.length<=10?v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{4})(\d)/,'$1-$2'):v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d)/,'$1-$2');this.value=v;});
+document.getElementById('e-cep').addEventListener('input',function(){this.value=this.value.replace(/\D/g,'').replace(/(\d{5})(\d)/,'$1-$2');});
+document.getElementById('e-cep').addEventListener('keypress',e=>{if(e.key==='Enter') buscarCep();});
 
 // ===== CEP =====
-async function buscarCep() {
-    const cep = document.getElementById('e-cep').value.replace(/\D/g,'');
-    const status = document.getElementById('cepStatus');
-    if(cep.length!==8){status.textContent='⚠️ CEP inválido.';return;}
-    status.textContent='Buscando...';
-    try {
-        const data = await fetch(`https://viacep.com.br/ws/${cep}/json/`).then(r=>r.json());
-        if(data.erro){status.textContent='❌ CEP não encontrado. Preencha manualmente.';return;}
-        document.getElementById('e-rua').value = data.logradouro||'';
-        document.getElementById('e-bairro').value = data.bairro||'';
-        document.getElementById('e-cidade').value = data.localidade||'';
-        document.getElementById('e-estado').value = data.uf||'';
-        status.textContent='✅ Endereço preenchido!';
-        status.style.color='#00ff88';
-        document.getElementById('e-numero').focus();
-    } catch(e){ status.textContent='❌ Erro ao buscar CEP.'; }
+async function buscarCep(){
+  const cep=document.getElementById('e-cep').value.replace(/\D/g,'');
+  const s=document.getElementById('cepStatus');
+  if(cep.length!==8){s.textContent='⚠️ CEP inválido.';return;}
+  s.textContent='Buscando...';s.style.color='#888';
+  try{
+    const d=await fetch(`https://viacep.com.br/ws/${cep}/json/`).then(r=>r.json());
+    if(d.erro){s.textContent='❌ CEP não encontrado.';s.style.color='#ff4d4d';return;}
+    document.getElementById('e-rua').value=d.logradouro||'';
+    document.getElementById('e-bairro').value=d.bairro||'';
+    document.getElementById('e-cidade').value=d.localidade||'';
+    document.getElementById('e-estado').value=d.uf||'';
+    s.textContent='✅ Preenchido!';s.style.color='#00ff88';
+    document.getElementById('e-numero').focus();
+  }catch(e){s.textContent='❌ Erro ao buscar CEP.';s.style.color='#ff4d4d';}
 }
 
-function getEntrega() {
-    return {
-        nome: document.getElementById('e-nome').value.trim(),
-        cpf: document.getElementById('e-cpf').value.trim(),
-        telefone: document.getElementById('e-telefone').value.trim(),
-        cep: document.getElementById('e-cep').value.trim(),
-        rua: document.getElementById('e-rua').value.trim(),
-        numero: document.getElementById('e-numero').value.trim(),
-        complemento: document.getElementById('e-complemento').value.trim(),
-        bairro: document.getElementById('e-bairro').value.trim(),
-        cidade: document.getElementById('e-cidade').value.trim(),
-        estado: document.getElementById('e-estado').value.trim(),
-    };
-}
-function validarEntrega() {
-    const e = getEntrega();
-    return e.nome && e.cpf && e.telefone && e.cep && e.rua && e.numero && e.bairro && e.cidade && e.estado;
+function getEntrega(){return{nome:document.getElementById('e-nome').value.trim(),cpf:document.getElementById('e-cpf').value.trim(),telefone:document.getElementById('e-telefone').value.trim(),cep:document.getElementById('e-cep').value.trim(),rua:document.getElementById('e-rua').value.trim(),numero:document.getElementById('e-numero').value.trim(),complemento:document.getElementById('e-complemento').value.trim(),bairro:document.getElementById('e-bairro').value.trim(),cidade:document.getElementById('e-cidade').value.trim(),estado:document.getElementById('e-estado').value.trim()};}
+function validarEntrega(){const e=getEntrega();return e.nome&&e.cpf&&e.telefone&&e.cep&&e.rua&&e.numero&&e.bairro&&e.cidade&&e.estado;}
+
+// ===== TABS =====
+function setTab(tab,btn){
+  document.querySelectorAll('.pay-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.pay-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-'+tab).classList.add('active');
 }
 
 // ===== CUPOM =====
-async function aplicarCupom() {
-    const codigo = document.getElementById('inputCupom').value.trim();
-    const statusEl = document.getElementById('cupomStatus');
-    if(!codigo){statusEl.innerHTML='<span style="color:#ff4d4d;">Digite um cupom.</span>';return;}
-    statusEl.innerHTML='<span style="color:#aaa;">Verificando...</span>';
-    try {
-        const data = await fetch('/api/cupom/validar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({codigo})}).then(r=>r.json());
-        if(data.valido){
-            cupomAtivo = data;
-            const totalDesc = totalCarrinho*(1-data.desconto_pix/100);
-            statusEl.innerHTML = `<span style="color:#00ff88;">✔ Cupom <b>${data.codigo}</b> aplicado! ${data.desconto_pix}% de desconto no PIX.</span>`;
-            document.getElementById('totalLabel').innerHTML =
-                `<span style="text-decoration:line-through;color:#666;font-size:0.85em;">${formatPrice(totalCarrinho)}</span> ` +
-                `<span style="color:#00ff88;">${formatPrice(totalDesc)}</span>`;
-            await generatePix(totalDesc, cartGlobal);
-        } else {
-            cupomAtivo = null;
-            statusEl.innerHTML = `<span style="color:#ff4d4d;">✗ ${data.message}</span>`;
-            document.getElementById('totalLabel').textContent = formatPrice(totalCarrinho);
-            await generatePix(totalCarrinho, cartGlobal);
-        }
-    } catch(e){ statusEl.innerHTML='<span style="color:#ff4d4d;">Erro ao verificar cupom.</span>'; }
+async function aplicarCupom(){
+  const codigo=document.getElementById('inputCupom').value.trim();
+  const el=document.getElementById('cupomStatus');
+  if(!codigo){el.innerHTML='<span style="color:#ff4d4d">Digite um cupom.</span>';return;}
+  el.innerHTML='<span style="color:#888">Verificando...</span>';
+  try{
+    const d=await fetch('/api/cupom/validar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({codigo})}).then(r=>r.json());
+    if(d.valido){
+      cupomAtivo=d;
+      const totalDesc=totalCarrinho*(1-d.desconto_pix/100);
+      el.innerHTML=`<span style="color:#00ff88">✔ Cupom <b>${d.codigo}</b> — ${d.desconto_pix}% de desconto!</span>`;
+      document.getElementById('totalLabel').innerHTML=`<span style="text-decoration:line-through;color:#555;font-size:.85em">${fmt(totalCarrinho)}</span> <span style="color:#00ff88">${fmt(totalDesc)}</span>`;
+      await generatePix(totalDesc);
+      await carregarCotacaoCripto(totalDesc);
+    }else{
+      cupomAtivo=null;
+      el.innerHTML=`<span style="color:#ff4d4d">✗ ${d.message}</span>`;
+      document.getElementById('totalLabel').textContent=fmt(totalCarrinho);
+      await generatePix(totalCarrinho);
+      await carregarCotacaoCripto(totalCarrinho);
+    }
+  }catch(e){el.innerHTML='<span style="color:#ff4d4d">Erro ao verificar.</span>';}
 }
 
 // ===== CARREGAR CART =====
-async function loadCart() {
-    let cart;
-    try { cart = JSON.parse(localStorage.getItem('carrinho')) || []; } catch(e){ cart = []; }
-    if (!cart.length) {
-        document.getElementById('itemsList').innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Carrinho vazio. <a href="/index.html" style="color:#DC143C;">Voltar à loja</a></p>';
-        return;
-    }
-    cartGlobal = cart;
-    let html = '', total = 0;
-    cart.forEach(i => {
-        const sub = parseFloat(i.preco)*parseInt(i.quantidade);
-        total += sub;
-        html += `<div class="item">
-            <img src="${i.img}" alt="${i.nome}">
-            <div class="item-info">
-                <h4>${i.nome}</h4>
-                <p>Qtd: ${i.quantidade}x &nbsp;|&nbsp; Unit: ${formatPrice(i.preco)}</p>
-            </div>
-            <div class="item-price">${formatPrice(sub)}</div>
-        </div>`;
-    });
-    document.getElementById('itemsList').innerHTML = html;
-    document.getElementById('totalLabel').textContent = formatPrice(total);
-    totalCarrinho = total;
-    await generatePix(total, cart);
+async function loadCart(){
+  let cart;
+  try{cart=JSON.parse(localStorage.getItem('carrinho'))||[];}catch(e){cart=[];}
+  if(!cart.length){document.getElementById('itemsList').innerHTML='<p style="color:#666;text-align:center;padding:20px">Carrinho vazio. <a href="/index.html" style="color:var(--red)">Voltar</a></p>';return;}
+  cartGlobal=cart;
+  let html='',total=0;
+  cart.forEach(i=>{const sub=parseFloat(i.preco)*parseInt(i.quantidade);total+=sub;html+=`<div class="item"><img src="${i.img}" alt="${i.nome}"><div class="item-info"><h4>${i.nome}</h4><p>${i.quantidade}x · Unit: ${fmt(i.preco)}</p></div><div class="item-price">${fmt(sub)}</div></div>`;});
+  document.getElementById('itemsList').innerHTML=html;
+  document.getElementById('totalLabel').textContent=fmt(total);
+  totalCarrinho=total;
+  await generatePix(total);
+  await carregarCotacaoCripto(total);
 }
 
 // ===== PIX =====
-function setStatus(msg, loading=false) {
-    document.getElementById('status').innerHTML = loading
-        ? `<span class="spinner"></span>${msg}` : msg;
+function setPixStatus(msg,loading=false){document.getElementById('pixStatus').innerHTML=loading?`<span class="spinner"></span>${msg}`:msg;}
+async function generatePix(valor){
+  setPixStatus('Gerando QR Code PIX...',true);
+  document.getElementById('btnPix').disabled=true;
+  document.getElementById('copyPix').disabled=true;
+  try{
+    const entrega=getEntrega();
+    const d=await fetch('/pix',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:Math.round(valor*100),cart:cartGlobal,entrega,nome:entrega.nome||usuarioLogado,email:localStorage.getItem('usuarioEmail')||'',cupom:cupomAtivo?cupomAtivo.codigo:null})}).then(r=>r.json());
+    if(d.success&&d.pix_code){
+      const qr=document.getElementById('qrCode');
+      if(d.qr_image){qr.src=d.qr_image;qr.style.display='block';}
+      document.getElementById('pixKey').textContent=d.pix_code;
+      window.pixCode=d.pix_code;
+      document.getElementById('btnPix').disabled=false;
+      document.getElementById('copyPix').disabled=false;
+      setPixStatus('✅ PIX gerado! Escaneie ou copie o código.');
+    }else{setPixStatus('❌ Erro: '+(d.error||'Resposta inesperada.'));}
+  }catch(e){setPixStatus('❌ Não foi possível conectar ao servidor.');}
 }
 
-async function generatePix(valor, cart) {
-    setStatus('Gerando QR Code PIX...', true);
-    document.getElementById('btnPix').disabled = true;
-    document.getElementById('copyPix').disabled = true;
-    try {
-        const entrega = getEntrega();
-        const res = await fetch('/pix', {
-            method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({
-                amount: Math.round(valor*100), cart, entrega,
-                nome: entrega.nome || usuarioLogado,
-                cupom: cupomAtivo ? cupomAtivo.codigo : null
-            })
-        });
-        const data = await res.json();
-        if(data.success && data.pix_code){
-            const qr = document.getElementById('qrCode');
-            if(data.qr_image){ qr.src=data.qr_image; qr.style.display='block'; }
-            document.getElementById('pixKey').textContent = data.pix_code;
-            window.pixCode = data.pix_code;
-            document.getElementById('btnPix').disabled = false;
-            document.getElementById('copyPix').disabled = false;
-            setStatus('✅ PIX gerado! Escaneie ou copie o código.');
-        } else {
-            setStatus('❌ Erro: '+(data.error||'Resposta inesperada.'));
-            document.getElementById('pixKey').textContent = data.error||'Erro ao gerar PIX';
-        }
-    } catch(e){ setStatus('❌ Não foi possível conectar ao servidor.'); }
+// ===== CRIPTO =====
+const CRYPTO_WALLET='0xDA95bb300C7be3E3347d449b14b834Dc3098deAD';
+let cryptoValorUSD=0;
+
+async function carregarCotacaoCripto(valorBRL){
+  document.getElementById('cryptoAmount').innerHTML='<small>Carregando cotação...</small>';
+  try{
+    const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=brl');
+    const d=await r.json();
+    const usdtBrl=d?.tether?.brl||5.0;
+    const valorUsdt=(valorBRL/usdtBrl);
+    cryptoValorUSD=valorUsdt;
+    window.cryptoValorDisplay=valorUsdt.toFixed(6);
+    document.getElementById('cryptoAmount').innerHTML=`<strong>${valorUsdt.toFixed(6)} USDT / USDC</strong><small>≈ ${fmt(valorBRL)} (cotação atual)</small>`;
+    // QR EIP-681
+    const eip681=`ethereum:${CRYPTO_WALLET}@137/transfer?address=${CRYPTO_WALLET}&uint256=${Math.round(valorUsdt*1e6)}`;
+    const qrUrl=`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(eip681)}`;
+    const qrEl=document.getElementById('cryptoQR');
+    qrEl.src=qrUrl; qrEl.style.display='block';
+    document.getElementById('cryptoStatus').textContent='';
+  }catch(e){
+    cryptoValorUSD=(valorBRL/5.0);
+    window.cryptoValorDisplay=cryptoValorUSD.toFixed(6);
+    document.getElementById('cryptoAmount').innerHTML=`<strong>${cryptoValorUSD.toFixed(6)} USDT / USDC</strong><small>Cotação estimada</small>`;
+  }
 }
 
-// ===== BOTÕES PIX =====
-document.getElementById('copyPix').addEventListener('click', async () => {
-    if(!validarEntrega()){ alert('Preencha todos os dados de entrega antes de pagar.'); return; }
-    document.getElementById('modalPix').classList.add('active');
+function copiarEndereco(){navigator.clipboard.writeText(CRYPTO_WALLET).then(()=>{document.getElementById('cryptoStatus').innerHTML='<span style="color:#00ff88">✅ Endereço copiado!</span>';});}
+function copiarValor(){if(window.cryptoValorDisplay){navigator.clipboard.writeText(window.cryptoValorDisplay).then(()=>{document.getElementById('cryptoStatus').innerHTML='<span style="color:#00ff88">✅ Valor copiado!</span>';});}}
+
+function abrirModalCripto(){
+  if(!validarEntrega()){alert('Preencha todos os dados de entrega antes de continuar.');return;}
+  document.getElementById('modalCripto').classList.add('open');
+}
+function fecharModalCripto(){document.getElementById('modalCripto').classList.remove('open');}
+async function confirmarCripto(){
+  fecharModalCripto();
+  // Salva pedido cripto no banco
+  const entrega=getEntrega();
+  const total=cupomAtivo?totalCarrinho*(1-cupomAtivo.desconto_pix/100):totalCarrinho;
+  try{
+    await fetch('/api/pedido-cripto',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      cart:cartGlobal,entrega,total,
+      cryptoValor:window.cryptoValorDisplay,
+      nomeCliente:entrega.nome||usuarioLogado,
+      emailCliente:localStorage.getItem('usuarioEmail')||'',
+      cupom:cupomAtivo?cupomAtivo.codigo:null
+    })});
+  }catch(e){}
+  localStorage.setItem('metodoPagamento','Cripto (USDT/USDC Polygon)');
+  localStorage.setItem('pedidoId',String(Date.now()).slice(-6));
+  localStorage.removeItem('carrinho');
+  window.location.href='/confirmação.html';
+}
+
+// ===== PIX BOTÕES =====
+document.getElementById('copyPix').addEventListener('click',()=>{
+  if(!validarEntrega()){alert('Preencha todos os dados de entrega.');return;}
+  document.getElementById('modalPix').classList.add('open');
 });
-document.getElementById('btnPix').addEventListener('click', () => {
-    if(!validarEntrega()){ alert('Preencha todos os dados de entrega antes de pagar.'); return; }
-    document.getElementById('modalPix').classList.add('active');
+document.getElementById('btnPix').addEventListener('click',()=>{
+  if(!validarEntrega()){alert('Preencha todos os dados de entrega.');return;}
+  document.getElementById('modalPix').classList.add('open');
 });
-async function confirmarPix() {
-    document.getElementById('modalPix').classList.remove('active');
-    if(window.pixCode) {
-        try { await navigator.clipboard.writeText(window.pixCode); } catch(e){}
-        localStorage.setItem('metodoPagamento','PIX');
-        localStorage.setItem('pedidoId', String(Date.now()).slice(-6));
-        window.location.href = '/confirmação.html';
-    }
+function fecharModalPix(){document.getElementById('modalPix').classList.remove('open');}
+async function confirmarPix(){
+  fecharModalPix();
+  if(window.pixCode){try{await navigator.clipboard.writeText(window.pixCode);}catch(e){}}
+  localStorage.setItem('metodoPagamento','PIX');
+  localStorage.setItem('pedidoId',String(Date.now()).slice(-6));
+  localStorage.removeItem('carrinho');
+  window.location.href='/confirmação.html';
 }
 
 // ===== WHATSAPP =====
-function finalizarWhatsApp() {
-    if(!validarEntrega()){
-        alert('Por favor, preencha todos os dados de entrega antes de continuar.');
-        return;
-    }
-    const entrega = getEntrega();
-    const cart = JSON.parse(localStorage.getItem('carrinho') || '[]');
-    const total = cupomAtivo
-        ? totalCarrinho*(1-cupomAtivo.desconto_pix/100)
-        : totalCarrinho;
-
-    const itensTexto = cart.map(i => `  • ${i.quantidade}x ${i.nome} — ${formatPrice(i.preco*i.quantidade)}`).join('\n');
-    const cupomTexto = cupomAtivo ? `\n🏷️ Cupom: ${cupomAtivo.codigo} (${cupomAtivo.desconto_pix}% off)` : '';
-    const msg = `🐺 *Novo Pedido VARG*\n\n` +
-        `👤 *Cliente:* ${entrega.nome}\n` +
-        `📞 *Telefone:* ${entrega.telefone}\n` +
-        `📧 *Email:* ${localStorage.getItem('usuarioEmail')||'-'}\n\n` +
-        `📦 *Produtos:*\n${itensTexto}\n\n` +
-        `💰 *Total: ${formatPrice(total)}*${cupomTexto}\n\n` +
-        `🏠 *Endereço:*\n${entrega.rua}, ${entrega.numero}${entrega.complemento?' '+entrega.complemento:''}\n${entrega.bairro} — ${entrega.cidade}/${entrega.estado}\nCEP: ${entrega.cep}`;
-
-    const phone = '5512988875509';
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
-    localStorage.setItem('metodoPagamento', 'WhatsApp');
-    localStorage.setItem('pedidoId', String(Date.now()).slice(-6));
-    localStorage.removeItem('carrinho');
-    setTimeout(() => { window.location.href = '/confirmação.html'; }, 1500);
+function finalizarWhatsApp(){
+  if(!validarEntrega()){alert('Preencha todos os dados de entrega.');return;}
+  const entrega=getEntrega();
+  const total=cupomAtivo?totalCarrinho*(1-cupomAtivo.desconto_pix/100):totalCarrinho;
+  const itensTexto=cartGlobal.map(i=>`  • ${i.quantidade}x ${i.nome} — ${fmt(i.preco*i.quantidade)}`).join('\n');
+  const cupomTexto=cupomAtivo?`\n🏷️ Cupom: ${cupomAtivo.codigo} (${cupomAtivo.desconto_pix}% off)`:'';
+  const msg=`🐺 *Novo Pedido VARG*\n\n👤 *Cliente:* ${entrega.nome}\n📞 *Tel:* ${entrega.telefone}\n\n📦 *Produtos:*\n${itensTexto}\n\n💰 *Total: ${fmt(total)}*${cupomTexto}\n\n🏠 *Endereço:*\n${entrega.rua}, ${entrega.numero}${entrega.complemento?' '+entrega.complemento:''}\n${entrega.bairro} — ${entrega.cidade}/${entrega.estado}\nCEP: ${entrega.cep}`;
+  window.open(`https://wa.me/5512988875509?text=${encodeURIComponent(msg)}`,'_blank');
+  localStorage.setItem('metodoPagamento','WhatsApp');
+  localStorage.setItem('pedidoId',String(Date.now()).slice(-6));
+  localStorage.removeItem('carrinho');
+  setTimeout(()=>window.location.href='/confirmação.html',1500);
 }
 
-document.addEventListener('DOMContentLoaded', loadCart);
+document.getElementById('modalPix').addEventListener('click',function(e){if(e.target===this)fecharModalPix();});
+document.getElementById('modalCripto').addEventListener('click',function(e){if(e.target===this)fecharModalCripto();});
+
+document.addEventListener('DOMContentLoaded',loadCart);
 </script>
 </body>
 </html>

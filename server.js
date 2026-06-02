@@ -502,6 +502,50 @@ setInterval(async () => {
   } catch (err) { console.error("Erro limpeza:", err.message); }
 }, 6 * 60 * 60 * 1000);
 
+
+// ==================== PEDIDO CRIPTO ====================
+app.post("/api/pedido-cripto", async (req, res) => {
+  const { cart, entrega, total, cryptoValor, nomeCliente, emailCliente, cupom } = req.body;
+  if (!cart || !entrega) return res.json({ success: false, message: "Dados incompletos." });
+  const externalId = "CRIPTO_" + Date.now();
+  try {
+    await pool.query(
+      "INSERT INTO pedidos (payment_id, external_id, cliente_nome, cliente_email, valor, status, itens, entrega, cupom) VALUES ($1, $2, $3, $4, $5, 'pendente', $6, $7, $8)",
+      [externalId, externalId, nomeCliente || entrega.nome || "", emailCliente || "", parseFloat(total), JSON.stringify(cart), JSON.stringify(entrega), cupom || null]
+    );
+    res.json({ success: true, pedidoId: externalId });
+
+    // Email admin
+    const itensHtml = cart.map(i => `<li>${i.quantidade}x ${i.nome}</li>`).join("");
+    await enviarEmail({
+      to: EMAIL_DESTINO,
+      subject: "VARG - Pedido cripto aguardando — " + cryptoValor + " USDT",
+      html: `<h2 style="color:#8B5CF6">🔷 Novo pedido cripto!</h2>
+        <p><b>Cliente:</b> ${nomeCliente}</p>
+        <p><b>Email:</b> ${emailCliente}</p>
+        <p><b>Valor BRL:</b> R$ ${parseFloat(total).toFixed(2)}</p>
+        <p><b>Valor Cripto:</b> ${cryptoValor} USDT/USDC</p>
+        <p><b>Rede:</b> Polygon</p>
+        <p><b>Wallet:</b> 0xDA95bb300C7be3E3347d449b14b834Dc3098deAD</p>
+        <ul>${itensHtml}</ul>
+        <p style="color:orange;font-weight:bold">⚠️ Confirmar manualmente após verificar pagamento na blockchain.</p>
+        <p><a href="https://polygonscan.com/address/0xDA95bb300C7be3E3347d449b14b834Dc3098deAD" style="background:#8B5CF6;color:white;padding:10px 20px;border-radius:20px;text-decoration:none;font-weight:bold;">Ver no Polygonscan</a></p>`
+    }).catch(e => console.error("Erro email cripto:", e.message));
+
+    // Email cliente
+    if (emailCliente) {
+      const emailHtml = emailConfirmacaoCliente({ nome: nomeCliente, pedidoId: externalId, itens: cart, entrega, valor: total, metodo: "Cripto (USDT/USDC Polygon)" });
+      await enviarEmail({ to: emailCliente, subject: "VARG - Pedido recebido! Aguardando confirmação cripto 🔷", html: emailHtml })
+        .catch(e => console.error("Erro email cliente cripto:", e.message));
+    }
+
+    await enviarWhatsApp("VARG - Pedido cripto!\nCliente: " + nomeCliente + "\nValor: R$ " + parseFloat(total).toFixed(2) + " (" + cryptoValor + " USDT)\nID: " + externalId);
+  } catch (err) {
+    console.error("Erro pedido cripto:", err.message);
+    res.json({ success: true });
+  }
+});
+
 // ==================== 404 ====================
 app.use((req, res) => res.status(404).sendFile(path.join(__dirname, "404.html")));
 
