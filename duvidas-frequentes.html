@@ -399,6 +399,34 @@ body{padding-top:59px}
 .slim-btn-limpar{display:block;text-align:center;margin-top:8px;font-size:.8rem;color:#555;cursor:pointer;background:none;border:none;text-decoration:underline}
 .slim-btn-limpar:hover{color:#DC143C}
 </style>
+
+<style>
+/* MOBILE SLIM */
+@media(max-width:768px){
+  .slim-inner{padding:0 10px;gap:6px}
+  .slim-back{display:none}
+  .slim-right{gap:6px}
+}
+/* SLIM MOBILE MENU */
+.slim-mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9998}
+.slim-mob-overlay.open{display:block}
+.slim-mob-menu{position:fixed;top:0;left:0;bottom:0;width:82%;max-width:290px;background:#0f0f0f;border-right:2px solid #DC143C;z-index:9999;padding:72px 18px 24px;overflow-y:auto;transform:translateX(-110%);transition:transform .3s ease;visibility:hidden}
+.slim-mob-menu.open{transform:translateX(0);visibility:visible}
+.slim-mob-menu a{display:block;padding:12px 8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;color:#eee;text-decoration:none;border-bottom:1px solid #1a1a1a;letter-spacing:.04em;text-transform:uppercase}
+.slim-mob-menu a:hover{color:#DC143C}
+.slim-mob-auth{display:flex;gap:8px;margin-top:14px}
+.slim-mob-auth a{padding:10px 14px;border-radius:28px;text-align:center;flex:1;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.85rem;text-transform:uppercase;text-decoration:none;border:none}
+.slim-mob-auth .sm-login{border:1px solid #333!important;color:#eee!important;background:none}
+.slim-mob-auth .sm-reg{background:#DC143C;color:#fff!important}
+/* HAMBURGER SLIM */
+.slim-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:5px}
+.slim-hamburger span{display:block;width:20px;height:2px;background:#fff;border-radius:2px;transition:all .3s}
+.slim-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.slim-hamburger.open span:nth-child(2){opacity:0}
+.slim-hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+@media(max-width:768px){.slim-hamburger{display:flex!important}}
+@media(min-width:769px){.slim-hamburger{display:none!important}}
+</style>
 </head>
 <body>
 
@@ -418,6 +446,7 @@ body{padding-top:59px}
 </div>
 <header class="slim">
   <div class="slim-inner">
+    <button class="slim-hamburger" id="slimHamburger" onclick="slimToggleMob()"><span></span><span></span><span></span></button>
     <a href="/index.html" class="slim-logo">
       <img src="/img/lobovinho-removebg-preview.png" alt="VARG"/>
       <span>VARG</span>
