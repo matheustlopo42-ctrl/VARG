@@ -107,6 +107,41 @@
 
     @media(max-width:600px){.form-grid{grid-template-columns:1fr}.form-grid .full{grid-column:1}.pay-tab{font-size:.78rem;padding:8px}}
   </style>
+
+<script>
+(function() {
+  function applyAll() {
+    var lang = localStorage.getItem('varg_lang') || 'pt';
+    var dict = window.PEPMASTERS_I18N;
+    if (!dict) return false;
+    document.querySelectorAll('[data-i18n]').forEach(function(el) {
+      var key = el.getAttribute('data-i18n');
+      var val = dict[key] && (dict[key][lang] || dict[key]['pt'] || dict[key]['en']);
+      if (!val) return;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = val;
+      else el.innerHTML = val;
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
+      var key = el.getAttribute('data-i18n-placeholder');
+      var val = dict[key] && (dict[key][lang] || dict[key]['pt'] || dict[key]['en']);
+      if (val) el.placeholder = val;
+    });
+    document.querySelectorAll('.slim-back').forEach(function(el) {
+      var val = dict['nav.home'] && (dict['nav.home'][lang] || dict['nav.home']['pt']);
+      if (val) el.textContent = '← ' + val;
+    });
+    return true;
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    if (!applyAll()) {
+      var tries = 0;
+      var iv = setInterval(function() { tries++; if (applyAll() || tries > 60) clearInterval(iv); }, 30);
+    }
+  });
+  document.addEventListener('vargLangChanged', applyAll);
+  window.PEP_LANG_APPLY = applyAll;
+})();
+</script>
 </head>
 <body>
 

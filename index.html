@@ -256,6 +256,41 @@
     .hero-cta{display:inline-block;padding:15px 42px;background:#DC143C;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.05rem;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border-radius:50px;box-shadow:0 6px 24px rgba(220,20,60,.4);transition:transform .15s}
     .hero-cta:hover{transform:translateY(-2px);background:#b01030}
   </style>
+
+<script>
+(function() {
+  function applyAll() {
+    var lang = localStorage.getItem('varg_lang') || 'pt';
+    var dict = window.PEPMASTERS_I18N;
+    if (!dict) return false;
+    document.querySelectorAll('[data-i18n]').forEach(function(el) {
+      var key = el.getAttribute('data-i18n');
+      var val = dict[key] && (dict[key][lang] || dict[key]['pt'] || dict[key]['en']);
+      if (!val) return;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = val;
+      else el.innerHTML = val;
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
+      var key = el.getAttribute('data-i18n-placeholder');
+      var val = dict[key] && (dict[key][lang] || dict[key]['pt'] || dict[key]['en']);
+      if (val) el.placeholder = val;
+    });
+    document.querySelectorAll('.slim-back').forEach(function(el) {
+      var val = dict['nav.home'] && (dict['nav.home'][lang] || dict['nav.home']['pt']);
+      if (val) el.textContent = '← ' + val;
+    });
+    return true;
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    if (!applyAll()) {
+      var tries = 0;
+      var iv = setInterval(function() { tries++; if (applyAll() || tries > 60) clearInterval(iv); }, 30);
+    }
+  });
+  document.addEventListener('vargLangChanged', applyAll);
+  window.PEP_LANG_APPLY = applyAll;
+})();
+</script>
 </head>
 <body>
 
