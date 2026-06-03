@@ -136,6 +136,28 @@
     .varg-banner-desc{font-size:.9rem;color:rgba(255,255,255,.6);line-height:1.7;margin-bottom:28px;max-width:400px}
     .varg-banner-2 .varg-banner-desc{margin-left:auto}
     .varg-banner-btn{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.88rem;letter-spacing:.1em;text-transform:uppercase;padding:13px 32px;background:var(--red);color:#fff;border:none;border-radius:50px;text-decoration:none;cursor:pointer;transition:all .2s;box-shadow:0 4px 20px rgba(220,20,60,.35)}
+    .varg-banner-btn:hover{background:var(--red2);transform:translateY(-2px)}
+    .varg-banner-divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(220,20,60,.3),transparent)}
+    @media(max-width:768px){.varg-banner{height:400px}.varg-banner-content{padding:0 28px;max-width:100%}.varg-banner-2 .varg-banner-content{margin-left:0;text-align:left}.varg-banner-content h2{font-size:2rem}.varg-banner-2 .varg-banner-tag{justify-content:flex-start}.varg-banner-2 .varg-banner-tag::after{display:none}.varg-banner-2 .varg-banner-tag::before{display:block}}
+    .varg-banner{position:relative;width:100%;height:520px;display:flex;align-items:center;overflow:hidden}
+    .varg-banner-bg{position:absolute;inset:0;background-size:cover;background-position:center}
+    .varg-banner-1 .varg-banner-bg{background-image:url('img/banner-varg.png');background-position:top center;filter:brightness(.55)}
+    .varg-banner-2 .varg-banner-bg{background-image:url('img/banner-varg.png');background-position:bottom center;filter:brightness(.45)}
+    .varg-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.88) 0%,rgba(0,0,0,.55) 55%,rgba(0,0,0,.1) 100%)}
+    .varg-banner-2::after{background:linear-gradient(270deg,rgba(0,0,0,.88) 0%,rgba(0,0,0,.55) 55%,rgba(0,0,0,.1) 100%)}
+    .varg-banner-content{position:relative;z-index:1;padding:0 80px;max-width:560px}
+    .varg-banner-2 .varg-banner-content{margin-left:auto;text-align:right}
+    .varg-banner-tag{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;color:var(--red);margin-bottom:10px;display:flex;align-items:center;gap:10px}
+    .varg-banner-tag::before{content:'';display:block;width:28px;height:2px;background:var(--red)}
+    .varg-banner-2 .varg-banner-tag{justify-content:flex-end}
+    .varg-banner-2 .varg-banner-tag::before{display:none}
+    .varg-banner-2 .varg-banner-tag::after{content:'';display:block;width:28px;height:2px;background:var(--red)}
+    .varg-banner-content h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(2.4rem,4.5vw,3.8rem);text-transform:uppercase;letter-spacing:.04em;color:#fff;line-height:1;margin:0 0 8px;text-shadow:0 2px 20px rgba(0,0,0,.8)}
+    .varg-banner-sub{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.95rem;color:rgba(255,255,255,.45);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px}
+    .varg-banner-slogan{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.1rem;color:rgba(255,255,255,.8);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+    .varg-banner-desc{font-size:.9rem;color:rgba(255,255,255,.6);line-height:1.7;margin-bottom:28px;max-width:400px}
+    .varg-banner-2 .varg-banner-desc{margin-left:auto}
+    .varg-banner-btn{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.88rem;letter-spacing:.1em;text-transform:uppercase;padding:13px 32px;background:var(--red);color:#fff;border:none;border-radius:50px;text-decoration:none;cursor:pointer;transition:all .2s;box-shadow:0 4px 20px rgba(220,20,60,.35)}
     .varg-banner-btn:hover{background:var(--red2);transform:translateY(-2px);box-shadow:0 8px 28px rgba(220,20,60,.5)}
     .varg-banner-divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(220,20,60,.3),transparent)}
     @media(max-width:768px){.varg-banner{height:400px}.varg-banner-content{padding:0 28px;max-width:100%}.varg-banner-2 .varg-banner-content{margin-left:0;text-align:left}.varg-banner-2::after{background:linear-gradient(90deg,rgba(0,0,0,.88) 0%,rgba(0,0,0,.55) 55%,rgba(0,0,0,.1) 100%)}.varg-banner-content h2{font-size:2rem}.varg-banner-2 .varg-banner-tag{justify-content:flex-start}.varg-banner-2 .varg-banner-tag::after{display:none}.varg-banner-2 .varg-banner-tag::before{display:block}}
@@ -377,33 +399,27 @@ document.addEventListener('vargLangChanged', function() { if(typeof renderGrid==
   </div>
 </section>
 
-<!-- LAB BANNERS -->
-<div class="lab-banners">
-  <div class="lab-banner lab-banner-1">
-    <div class="lab-banner-bg"></div>
-    <div class="lab-banner-content">
-      <span class="lab-tag" data-i18n="banner1.title">VARG SALT 30g</span>
-      <h2 data-i18n="hero.title">VARG — A Matilha</h2>
-      <p data-i18n="banner1.desc">O smelling salt mais potente para sua performance máxima no treino.</p>
-      <div class="lab-banner-btns">
-        <a href="#smelling-salt" class="lab-btn-primary" data-i18n="banner1.btn">Comprar Agora</a>
-        <a href="quem-somos.html" class="lab-btn-secondary" data-i18n="footer.about">Quem Somos</a>
-      </div>
-      <div class="lab-banner-badges">
-        <span class="lab-badge">🐺 <span data-i18n="banner.shipping">Envio Mundial</span></span>
-        <span class="lab-badge">🔒 <span data-i18n="banner.payment">Pagamento Seguro</span></span>
-        <span class="lab-badge">💪 <span data-i18n="banner.quality">Qualidade Garantida</span></span>
-      </div>
+<!-- BANNERS -->
+<div class="varg-banners">
+  <div class="varg-banner varg-banner-1">
+    <div class="varg-banner-bg"></div>
+    <div class="varg-banner-content">
+      <div class="varg-banner-tag" data-i18n="banner1.tag">Smelling Salt</div>
+      <h2 data-i18n="banner1.title">VARG SALT</h2>
+      <div class="varg-banner-sub" data-i18n="banner1.sub">30g · Fórmula Premium</div>
+      <p class="varg-banner-desc" data-i18n="banner1.desc">Foco máximo e energia explosiva para seus levantamentos mais pesados.</p>
+      <a href="#smelling-salt" class="varg-banner-btn" data-i18n="banner1.cta">Comprar Agora</a>
     </div>
   </div>
-  <div class="lab-banner lab-banner-2">
-    <div class="lab-banner-bg"></div>
-    <div class="lab-banner-content">
-      <span class="lab-tag" data-i18n="banner2.title">VARG WEAR</span>
-      <h2 data-i18n="banner2.desc">Camisetas para quem treina de verdade. Estilo e resistência de matilha.</h2>
-      <div class="lab-banner-btns">
-        <a href="#camisetas" class="lab-btn-primary" data-i18n="banner2.btn">Ver Camisetas</a>
-      </div>
+  <div class="varg-banner-divider"></div>
+  <div class="varg-banner varg-banner-2">
+    <div class="varg-banner-bg"></div>
+    <div class="varg-banner-content">
+      <div class="varg-banner-tag" data-i18n="banner2.tag">Vestuário</div>
+      <h2 data-i18n="banner2.title">VARG APPAREL</h2>
+      <div class="varg-banner-slogan" data-i18n="banner2.slogan">Força. Disciplina. Instinto.</div>
+      <div class="varg-banner-sub" data-i18n="banner2.sub">Vista o Lobo</div>
+      <a href="#camisetas" class="varg-banner-btn" data-i18n="banner2.cta">Ver Camisetas</a>
     </div>
   </div>
 </div>
