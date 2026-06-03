@@ -288,4 +288,16 @@ window.PEPMASTERS_I18N = {
   "track.btn":         { en:"Track",                  pt:"Rastrear",                     es:"Rastrear",                     de:"Verfolgen",                     fr:"Suivre" },
   "track.shipping.link":{ en:"Shipping & Deadlines",  pt:"Envio e Prazos",               es:"Envíos y Plazos",              de:"Versand & Fristen",             fr:"Expédition et délais" },
 
+  // ===== BANNERS INDEX =====
+  "banner1.tag":      { en:"Smelling Salt",              pt:"Smelling Salt",                es:"Smelling Salt",                de:"Riechsalz",                      fr:"Sel odorant" },
+  "banner1.title":    { en:"VARG SALT",                  pt:"VARG SALT",                    es:"VARG SALT",                    de:"VARG SALT",                      fr:"VARG SALT" },
+  "banner1.sub":      { en:"30g · Premium Formula",      pt:"30g · Fórmula Premium",        es:"30g · Fórmula Premium",        de:"30g · Premium-Formel",           fr:"30g · Formule Premium" },
+  "banner1.desc":     { en:"Maximum focus and explosive energy for your heaviest lifts.", pt:"Foco máximo e energia explosiva para seus levantamentos mais pesados.", es:"Máximo enfoque y energía explosiva para tus levantamientos más pesados.", de:"Maximale Konzentration und explosive Energie für Ihre schwersten Hübe.", fr:"Focus maximum et énergie explosive pour vos levées les plus lourdes." },
+  "banner1.cta":      { en:"Buy Now",                    pt:"Comprar Agora",                es:"Comprar Ahora",                de:"Jetzt kaufen",                   fr:"Acheter maintenant" },
+  "banner2.tag":      { en:"Apparel",                    pt:"Vestuário",                    es:"Ropa",                         de:"Bekleidung",                     fr:"Vêtements" },
+  "banner2.title":    { en:"VARG APPAREL",               pt:"VARG APPAREL",                 es:"VARG APPAREL",                 de:"VARG APPAREL",                   fr:"VARG APPAREL" },
+  "banner2.slogan":   { en:"Strength. Discipline. Instinct.", pt:"Força. Disciplina. Instinto.", es:"Fuerza. Disciplina. Instinto.", de:"Stärke. Disziplin. Instinkt.", fr:"Force. Discipline. Instinct." },
+  "banner2.sub":      { en:"Wear the Wolf",              pt:"Vista o Lobo",                 es:"Viste al Lobo",                de:"Trage den Wolf",                 fr:"Portez le Loup" },
+  "banner2.cta":      { en:"See T-shirts",               pt:"Ver Camisetas",                es:"Ver Camisetas",                de:"T-Shirts ansehen",               fr:"Voir les T-shirts" },
+
 };
