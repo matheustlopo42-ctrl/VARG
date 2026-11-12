@@ -43,7 +43,7 @@
     "l.hero.cta2": ["Ver camisetas", "See t-shirts", "Ver camisetas", "T-Shirts ansehen", "Voir les t-shirts"],
     "l.shop.title": ["A loja", "The shop", "La tienda", "Der Shop", "La boutique"],
     "l.shop.all": ["Todos", "All", "Todos", "Alle", "Tous"],
-    "l.about.title": ["Treine em matilha", "Train as a pack", "Entrena en manada", "Trainiere im Rudel", "Entraînez-vous en meute"],
+    "l.about.title": ["Mais que uma marca", "More than a brand", "Más que una marca", "Mehr als eine Marke", "Plus qu'une marque"],
     "l.acc.orders": ["Meus pedidos", "My orders", "Mis pedidos", "Meine Bestellungen", "Mes commandes"],
     "l.acc.profile": ["Meus dados", "My details", "Mis datos", "Meine Daten", "Mes informations"],
     "l.acc.logout": ["Sair", "Log out", "Salir", "Abmelden", "Déconnexion"],

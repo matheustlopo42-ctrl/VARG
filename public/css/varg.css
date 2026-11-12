@@ -1,11 +1,14 @@
 /* VARG — design system da loja */
+/* Rye (títulos) — servida pelo próprio site */
+@font-face{font-family:'Rye';font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/rye-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Rye';font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/rye-latin-ext-400-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+A720-A7FF}
 :root{
   --bg:#0b0b0c; --bg2:#101012; --panel:#141416; --panel2:#1a1a1d; --line:#232327; --line2:#2e2e33;
   --text:#ececee; --muted:#9a9aa2; --dim:#6e6e76;
   --red:#DC143C; --red2:#b30f30; --red-soft:rgba(220,20,60,.12);
   --ok:#22c55e; --warn:#f59e0b; --info:#38bdf8; --danger:#ef4444;
   --radius:14px; --radius-sm:10px;
-  --head:'Barlow Condensed',system-ui,sans-serif; --body:'Barlow',system-ui,sans-serif;
+  --head:'Barlow Condensed',system-ui,sans-serif; --title:'Rye',Georgia,serif; --body:'Barlow',system-ui,sans-serif;
   --max:1240px; --hdr:68px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -358,3 +361,16 @@ select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
   .box{padding:18px}
   .steps .step span{font-size:.7rem}
 }
+
+/* ---------- Títulos com a fonte Rye ---------- */
+.h-display,.section-title,.hero h1,.page-hero h1,.pdp-info h1,.auth-card h1,.box h2,.promo h3,.drawer-head h2,.prose h2,.about .section-title,.card-a h3,.adm-top h1{font-family:var(--title);font-weight:400;letter-spacing:.01em}
+.hero h1{font-size:clamp(3rem,6.6vw,5.6rem);line-height:1.02}
+.section-title{font-size:clamp(1.7rem,3vw,2.4rem);line-height:1.05}
+.page-hero h1{font-size:clamp(2rem,4.4vw,3rem);line-height:1.05}
+.pdp-info h1{font-size:clamp(1.7rem,3vw,2.4rem);line-height:1.08}
+.auth-card h1{font-size:1.75rem;line-height:1.1}
+.promo h3{font-size:1.9rem;line-height:1.05}
+.box h2,.drawer-head h2{font-size:1.15rem;letter-spacing:.02em}
+.prose h2{font-size:1.3rem;letter-spacing:.02em}
+.brand span{font-family:var(--title);font-weight:400;letter-spacing:.12em}
+@media (max-width:600px){.hero h1{font-size:clamp(2.6rem,12vw,3.4rem)}.promo h3{font-size:1.5rem}}
