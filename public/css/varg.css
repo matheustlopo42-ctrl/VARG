@@ -108,7 +108,7 @@ input,select,textarea{font:inherit;color:inherit}
 .hero h1 em{font-style:normal;color:var(--red)}
 .hero p.lead{font-size:1.12rem;color:var(--muted);max-width:30rem;margin:18px 0 30px}
 .hero .ctas{display:flex;gap:12px;flex-wrap:wrap}
-.hero-art{position:relative;aspect-ratio:1/1;border-radius:20px;overflow:hidden;border:1px solid var(--line)}
+.hero-art{position:relative;aspect-ratio:620/510;border-radius:20px;overflow:hidden;border:1px solid var(--line)}
 .hero-art img{width:100%;height:100%;object-fit:cover}
 .hero-art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(5,5,6,.75))}
 .hero-glow{position:absolute;width:700px;height:700px;right:-160px;top:-200px;background:radial-gradient(closest-side,rgba(220,20,60,.22),transparent);z-index:1;pointer-events:none}
@@ -155,6 +155,10 @@ input,select,textarea{font:inherit;color:inherit}
 .promo:hover img{transform:scale(1.03)}
 .promo::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,.05) 30%,rgba(0,0,0,.85))}
 .promo .inner{position:relative;z-index:2}
+.promo-right{background:#050506}
+.promo-right img{left:auto;right:0;width:62%;object-position:50% 20%}
+.promo-right::before{background:linear-gradient(90deg,#050506 36%,rgba(5,5,6,.6) 55%,transparent 80%),linear-gradient(180deg,transparent 60%,rgba(0,0,0,.6))}
+@media (max-width:600px){.promo-right img{width:75%}}
 .promo h3{font-family:var(--head);font-weight:900;font-size:2.2rem;text-transform:uppercase;line-height:1;margin:6px 0 14px}
 
 /* ---------- Sobre ---------- */
