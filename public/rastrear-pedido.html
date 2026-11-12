@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rastrear pedido — VARG</title>
+<meta name="theme-color" content="#0b0b0c">
+<link rel="icon" href="/img/lobovinho-removebg-preview.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/varg.css">
+</head>
+<body>
+<div id="topo"></div>
+<main>
+  <div class="page-hero"><div class="container"><h1>Rastrear pedido</h1><p>Informe o código do pedido (ex.: VG-AB12CD) e o e-mail usado na compra.</p></div></div>
+  <div class="container" style="max-width:720px;padding-bottom:72px">
+    <form class="box" id="form">
+      <div class="row row-2">
+        <div class="field"><label>Código do pedido</label><input class="input" id="codigo" placeholder="VG-XXXXXX" style="text-transform:uppercase"></div>
+        <div class="field"><label>E-mail da compra</label><input class="input" id="email" type="email" autocomplete="email"></div>
+      </div>
+      <button class="btn btn-primary" id="btn">Consultar</button>
+    </form>
+    <div id="resultado"></div>
+  </div>
+</main>
+<div id="rodape"></div>
+<script src="/js/i18n.js"></script>
+<script src="/js/i18n-loja.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/i18n-init.js"></script>
+<script>
+(function () {
+  var V = VARG, esc = V.esc, $ = function (id) { return document.getElementById(id); };
+  var u = V.Sessao.usuario(); if (u) $("email").value = u.email;
+  if (V.param("codigo")) $("codigo").value = V.param("codigo");
+  var dataBR = function (d) { return new Date(d).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }); };
+  $("form").onsubmit = function (e) {
+    e.preventDefault(); var b = $("btn"); V.carregando(b, true);
+    V.api("/api/rastrear?codigo=" + encodeURIComponent($("codigo").value.trim()) + "&email=" + encodeURIComponent($("email").value.trim()))
+      .then(function (p) {
+        $("resultado").innerHTML = '<section class="box"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px"><h2 style="margin:0">' + esc(p.codigo) + '</h2><span class="status st-' + p.status + '">' + esc(p.status_label) + "</span></div>" +
+          (p.codigo_rastreio ? '<p class="muted" style="margin-bottom:16px">' + esc(p.transportadora || "Rastreio") + ': <b style="color:#fff;letter-spacing:.05em">' + esc(p.codigo_rastreio) + '</b> · <a target="_blank" rel="noopener" style="text-decoration:underline" href="https://www.linkcorreios.com.br/?id=' + encodeURIComponent(p.codigo_rastreio) + '">acompanhar envio</a></p>' : "") +
+          '<ul class="timeline">' + p.eventos.slice().reverse().map(function (ev) { return "<li><b>" + esc(ev.status_label) + "</b>" + (ev.nota ? '<div class="muted" style="font-size:.9rem">' + esc(ev.nota) + "</div>" : "") + "<small>" + dataBR(ev.criado_em) + "</small></li>"; }).join("") + "</ul></section>";
+      })
+      .catch(function (err) { $("resultado").innerHTML = '<div class="alert alert-error">' + esc(err.message) + "</div>"; })
+      .finally(function () { V.carregando(b, false); });
+  };
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dúvidas Frequentes — VARG</title>
+<meta name="theme-color" content="#0b0b0c">
+<link rel="icon" href="/img/lobovinho-removebg-preview.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/varg.css">
+</head>
+<body>
+<div id="topo"></div>
+<main>
+  <div class="page-hero"><div class="container">
+    <h1 data-i18n="faq.title">Dúvidas Frequentes</h1>
+  </div></div>
+  <div class="container prose">
+<div class="section-block">
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)"><span data-i18n="faq.q1">O que é o VARG Salt?</span><span class="faq-arrow">▾</span></button><div class="faq-a" data-i18n="faq.a1">O VARG Salt é um smelling salt à base de carbonato de amônio que estimula o sistema nervoso para foco máximo e energia explosiva antes do treino.</div></div>
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)"><span data-i18n="faq.q2">Como é feito o pagamento?</span><span class="faq-arrow">▾</span></button><div class="faq-a" data-i18n="faq.a2">Aceitamos PIX, Cripto (USDT/USDC Polygon) e pedidos via WhatsApp.</div></div>
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)"><span data-i18n="faq.q3">Qual o prazo de entrega?</span><span class="faq-arrow">▾</span></button><div class="faq-a" data-i18n="faq.a3">O prazo de entrega é de 25 a 40 dias úteis para todo o mundo.</div></div>
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)"><span data-i18n="faq.q4">Como rastrear meu pedido?</span><span class="faq-arrow">▾</span></button><div class="faq-a" data-i18n="faq.a4">Após o envio, você receberá um email com o código de rastreio.</div></div>
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)"><span data-i18n="faq.q5">Vocês aceitam devoluções?</span><span class="faq-arrow">▾</span></button><div class="faq-a" data-i18n="faq.a5">Todas as vendas são definitivas. A única exceção é extravio confirmado.</div></div>
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)"><span data-i18n="faq.q6">Posso usar cupom de desconto?</span><span class="faq-arrow">▾</span></button><div class="faq-a" data-i18n="faq.a6">Sim! Insira o código no checkout. O desconto é aplicado automaticamente.</div></div>
+  </div>
+  </div>
+</main>
+<div id="rodape"></div>
+<script src="/js/i18n.js"></script>
+<script src="/js/i18n-loja.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/i18n-init.js"></script>
+<script>
+function toggleFaq(el){el.classList.toggle('open');el.nextElementSibling.classList.toggle('open');}
+</script>
+</body>
+</html>

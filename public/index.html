@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VARG — A Matilha | Smelling Salt e Vestuário</title>
+<meta name="description" content="Smelling salts e vestuário para quem treina pesado. VARG — A Matilha.">
+<meta property="og:title" content="VARG — A Matilha">
+<meta property="og:description" content="Smelling salts e vestuário para quem treina pesado.">
+<meta property="og:image" content="/img/banner-varg.png">
+<meta name="theme-color" content="#0b0b0c">
+<link rel="icon" href="/img/lobovinho-removebg-preview.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/varg.css">
+</head>
+<body>
+<div id="topo"></div>
+<main>
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="container">
+      <div>
+        <p class="eyebrow" data-i18n="l.hero.eyebrow">Smelling salt &amp; vestuário</p>
+        <h1 class="h-display">Vista<br>o <em>lobo</em>.</h1>
+        <p class="lead" data-i18n="l.hero.lead">Smelling salts e roupas para quem treina pesado. Feito para a matilha que não recua.</p>
+        <div class="ctas">
+          <a class="btn btn-primary" href="#loja" data-i18n="l.hero.cta1">Comprar agora</a>
+          <a class="btn btn-ghost" href="/?categoria=camiseta#loja" data-i18n="l.hero.cta2">Ver camisetas</a>
+        </div>
+        <div class="hero-stats">
+          <div><b>30g</b><span>VARG Salt</span></div>
+          <div><b>P–5GG</b><span>VARG Wear</span></div>
+          <div><b>PIX</b><span>Aprovação na hora</span></div>
+        </div>
+      </div>
+      <div class="hero-art"><img src="/img/banner-varg.png" alt="VARG Salt e camisetas VARG Wear" fetchpriority="high"></div>
+    </div>
+  </section>
+
+  <section class="perks">
+    <div class="container">
+      <div class="perk" id="perk1"></div>
+      <div class="perk" id="perk2"></div>
+      <div class="perk" id="perk3"></div>
+      <div class="perk" id="perk4"></div>
+    </div>
+  </section>
+
+  <section class="section" id="loja">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">VARG</p>
+          <h2 class="section-title" data-i18n="l.shop.title">A loja</h2>
+        </div>
+        <div class="chips" id="chips">
+          <button class="chip active" data-cat="" data-i18n="l.shop.all">Todos</button>
+          <button class="chip" data-cat="salt" data-i18n="l.nav.salt">Smelling Salt</button>
+          <button class="chip" data-cat="camiseta" data-i18n="l.nav.apparel">Vestuário</button>
+        </div>
+      </div>
+      <div class="grid" id="grid">
+        <div class="skeleton" style="aspect-ratio:3/4"></div><div class="skeleton" style="aspect-ratio:3/4"></div><div class="skeleton" style="aspect-ratio:3/4"></div><div class="skeleton" style="aspect-ratio:3/4"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="container split">
+      <a class="promo" href="/produto.html?id=varg-salt">
+        <img src="/img/Editedimage_1780447137197.png" alt="" loading="lazy">
+        <div class="inner">
+          <p class="eyebrow">Smelling Salt</p>
+          <h3>VARG Salt 30g</h3>
+          <span class="btn btn-light btn-sm" data-i18n="l.hero.cta1">Comprar agora</span>
+        </div>
+      </a>
+      <a class="promo" href="/?categoria=camiseta#loja">
+        <img src="/img/4.png" alt="" loading="lazy">
+        <div class="inner">
+          <p class="eyebrow">VARG Wear</p>
+          <h3>Força. Disciplina.<br>Instinto.</h3>
+          <span class="btn btn-light btn-sm" data-i18n="l.hero.cta2">Ver camisetas</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="section" style="border-top:1px solid var(--line);background:var(--bg2)">
+    <div class="container about">
+      <div class="art"><img src="/img/lobovinho-removebg-preview.png" alt="Lobo VARG" loading="lazy"></div>
+      <div>
+        <p class="eyebrow">VARG — A Matilha</p>
+        <h2 class="section-title" data-i18n="l.about.title">Treine em matilha</h2>
+        <p data-i18n="brand.p1">A VARG nasceu da força, da disciplina e da mentalidade de quem não recua. Somos uma marca criada para atletas, praticantes e indivíduos que vivem a busca constante por evolução física e mental.</p>
+        <p data-i18n="brand.p2">Mais do que produtos, criamos símbolos de performance, identidade e pertencimento. Quem veste VARG não treina sozinho — treina em matilha.</p>
+        <p style="margin-top:24px"><a class="btn btn-ghost" href="/quem-somos.html" data-i18n="footer.about">Quem somos</a></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="modal" id="modalEspera">
+  <div class="box">
+    <h2 data-i18n="waitlist.title">Avise-me quando voltar</h2>
+    <p class="muted" style="margin-bottom:16px" id="esperaProduto"></p>
+    <div class="field"><label>E-mail</label><input class="input" type="email" id="esperaEmail" autocomplete="email"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" onclick="fecharEspera()" data-i18n="btn.cancel">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1" id="btnEspera" onclick="enviarEspera()" data-i18n="waitlist.btn">Quero ser avisado</button>
+    </div>
+  </div>
+</div>
+
+<div id="rodape"></div>
+<script src="/js/i18n.js"></script>
+<script src="/js/i18n-loja.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/i18n-init.js"></script>
+<script src="/js/vitrine.js"></script>
+<script>
+(function () {
+  var V = VARG, I = V.ICON;
+  var perks = [[I.shield, "l.perk1"], [I.truck, "l.perk2"], [I.star, "l.perk3"], [I.chat, "l.perk4"]];
+  perks.forEach(function (p, i) {
+    document.getElementById("perk" + (i + 1)).innerHTML = p[0] + '<div><b data-i18n="' + p[1] + '.t">' + V.t(p[1] + ".t") + '</b><span data-i18n="' + p[1] + '.d">' + V.t(p[1] + ".d") + "</span></div>";
+  });
+
+  var produtos = [], categoria = V.param("categoria") || "";
+
+  function render() {
+    var lista = produtos.filter(function (p) { return !categoria || p.categoria === categoria; });
+    document.getElementById("grid").innerHTML = lista.map(Vitrine.card).join("") || '<p class="muted">Nenhum produto nesta categoria.</p>';
+    document.querySelectorAll("#chips .chip").forEach(function (c) { c.classList.toggle("active", c.dataset.cat === categoria); });
+  }
+
+  document.getElementById("chips").addEventListener("click", function (e) {
+    var b = e.target.closest(".chip"); if (!b) return;
+    categoria = b.dataset.cat;
+    history.replaceState(null, "", categoria ? "/?categoria=" + categoria + "#loja" : "/#loja");
+    render();
+  });
+  document.addEventListener("vargLangChanged", render);
+
+  V.api("/api/produtos").then(function (l) {
+    produtos = l; Vitrine.produtos = l;
+    V.Carrinho.sincronizar(l);
+    render();
+  }).catch(function () {
+    document.getElementById("grid").innerHTML = '<div class="alert alert-error">Não foi possível carregar os produtos. Recarregue a página.</div>';
+  });
+})();
+</script>
+</body>
+</html>

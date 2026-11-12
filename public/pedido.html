@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pedido — VARG</title>
+<meta name="theme-color" content="#0b0b0c">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/img/lobovinho-removebg-preview.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/varg.css">
+</head>
+<body>
+<div id="topo"></div>
+<main class="container" style="padding:32px 20px 72px;max-width:980px">
+  <a href="/conta.html" class="link-btn">← Meus pedidos</a>
+  <div id="conteudo" style="margin-top:16px"><div class="skeleton" style="height:200px"></div></div>
+</main>
+<div id="rodape"></div>
+<script src="/js/i18n.js"></script>
+<script src="/js/i18n-loja.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/i18n-init.js"></script>
+<script>
+(function () {
+  var V = VARG, esc = V.esc, I = V.ICON, $ = function (id) { return document.getElementById(id); };
+  if (!V.Sessao.exigir()) return;
+  var codigo = (V.param("codigo") || "").toUpperCase();
+  var pedido, poll, carteira = null, cotacaoUsdt = null;
+
+  var ETAPAS = [["pago", "Pago"], ["em_separacao", "Separação"], ["enviado", "Enviado"], ["entregue", "Entregue"]];
+  var ORDEM = { aguardando_pagamento: 0, pago: 1, em_separacao: 2, enviado: 3, entregue: 4 };
+  var dataBR = function (d) { return d ? new Date(d).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : ""; };
+
+  function etapas(p) {
+    if (p.status === "cancelado") return '<div class="alert alert-error">Este pedido foi cancelado.</div>';
+    var n = ORDEM[p.status];
+    return '<div class="steps">' + ETAPAS.map(function (e, i) {
+      var cls = i + 1 <= n ? "done" : i + 1 === n + 1 ? "now" : "";
+      return '<div class="step ' + cls + '"><div class="dot">' + (i + 1 <= n ? I.check : i + 1) + "</div><span>" + e[1] + "</span></div>";
+    }).join("") + "</div>";
+  }
+
+  function blocoPagamento(p) {
+    if (p.status !== "aguardando_pagamento") return "";
+    if (p.metodo === "pix") {
+      if (!p.pix_copia_cola) return '<section class="box"><h2>Pagar com PIX</h2><p class="muted" style="margin-bottom:14px">Ainda não geramos o código PIX deste pedido.</p><button class="btn btn-primary" id="btnPix">Gerar PIX</button></section>';
+      var expirado = p.pix_expira_em && new Date(p.pix_expira_em) < new Date();
+      return '<section class="box"><h2>Pagar com PIX</h2><div class="pix-box">' +
+        '<div class="qr">' + (p.pix_qr ? '<img src="' + esc(p.pix_qr) + '" alt="QR Code PIX">' : '<span class="dim" style="font-size:.8rem;text-align:center">Use o código ao lado</span>') + "</div>" +
+        "<div><p style=\"font-size:1.6rem;font-weight:800;font-family:var(--head)\">" + V.brl(p.total) + '</p><p class="muted" style="font-size:.92rem">Abra o app do seu banco, escolha PIX › Copia e Cola e cole o código. A confirmação é automática.</p>' +
+        '<div class="copy-field"><input class="input" readonly value="' + esc(p.pix_copia_cola) + '" id="pixCode"><button class="btn btn-primary" id="btnCopiar">Copiar</button></div>' +
+        '<p class="dim" style="font-size:.84rem;margin-top:10px" id="pixStatus">' + (expirado ? 'Este código expirou. <button class="link-btn" id="btnPix">Gerar um novo</button>' : '<span class="spin" style="display:inline-block;width:12px;height:12px;border:2px solid var(--line2);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;vertical-align:-1px;margin-right:6px"></span>Aguardando pagamento… esta página atualiza sozinha.') + "</p>" +
+        "</div></div></section>";
+    }
+    if (p.metodo === "cripto") {
+      var usdt = cotacaoUsdt ? (p.total / cotacaoUsdt).toFixed(2) : null;
+      return '<section class="box"><h2>Pagar com cripto</h2>' +
+        (carteira && carteira.carteira
+          ? '<p class="muted" style="margin-bottom:12px">Envie <b style="color:#fff">' + (usdt ? usdt + " USDT" : V.brl(p.total) + " em USDT") + "</b> na rede <b style=\"color:#fff\">" + esc(carteira.rede) + "</b> para a carteira abaixo." + (usdt ? ' <span class="dim">(cotação aproximada: 1 USDT ≈ ' + V.brl(cotacaoUsdt) + ")</span>" : "") + "</p>" +
+            '<div class="copy-field"><input class="input" readonly value="' + esc(carteira.carteira) + '" id="wallet"><button class="btn btn-ghost" id="btnCopiarWallet">Copiar</button></div>' +
+            '<div class="alert alert-info" style="margin-top:14px">Envie somente pela rede ' + esc(carteira.rede) + ". Depois do envio, cole abaixo o hash da transação para agilizar a confirmação (até 24h úteis).</div>" +
+            (p.cripto_tx ? '<p class="muted">Hash informado: <code style="word-break:break-all">' + esc(p.cripto_tx) + "</code></p>" :
+              '<div class="copy-field"><input class="input" id="tx" placeholder="0x..."><button class="btn btn-primary" id="btnTx">Enviar hash</button></div>')
+          : '<p class="muted">Carregando dados da carteira…</p>') + "</section>";
+    }
+    return '<section class="box"><h2>Pagamento pelo WhatsApp</h2><p class="muted">Seu pedido foi registrado. Fale com a gente pelo WhatsApp informando o código <b style="color:#fff">' + esc(p.codigo) + "</b> para combinar o pagamento.</p></section>";
+  }
+
+  function render() {
+    var p = pedido, e = p.endereco || {};
+    $("conteudo").innerHTML =
+      (V.param("novo") ? '<div class="alert alert-ok">Pedido registrado! Enviamos os detalhes para o seu e-mail.</div>' : "") +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px">' +
+      '<div><p class="eyebrow">Pedido</p><h1 class="section-title">' + esc(p.codigo) + '</h1><p class="dim" style="margin-top:6px">' + dataBR(p.criado_em) + '</p></div><span class="status st-' + p.status + '">' + esc(p.status_label) + "</span></div>" +
+      '<section class="box">' + etapas(p) +
+      (p.codigo_rastreio ? '<div style="margin-top:20px;padding:16px;border:1px solid var(--line2);border-radius:10px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center"><div><span class="dim" style="font-size:.82rem">' + esc(p.transportadora || "Código de rastreio") + '</span><div style="font-family:var(--head);font-size:1.3rem;font-weight:800;letter-spacing:.06em">' + esc(p.codigo_rastreio) + '</div></div><a class="btn btn-ghost btn-sm" target="_blank" rel="noopener" href="https://www.linkcorreios.com.br/?id=' + encodeURIComponent(p.codigo_rastreio) + '">Rastrear envio</a></div>' : "") +
+      "</section>" +
+      blocoPagamento(p) +
+      '<div class="row row-2" style="align-items:start">' +
+      '<section class="box"><h2>Itens</h2>' + p.itens.map(function (i) {
+        return '<div style="display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)"><img src="' + esc(i.imagem) + '" style="width:56px;height:56px;border-radius:9px;object-fit:cover" alt=""><div><div style="font-weight:600;font-size:.92rem">' + esc(i.nome) + '</div><div class="dim" style="font-size:.8rem">' + (i.tamanho ? "Tam. " + esc(i.tamanho) + " · " : "") + i.quantidade + "× " + V.brl(i.preco) + "</div></div><span class='price'>" + V.brl(i.preco * i.quantidade) + "</span></div>";
+      }).join("") +
+      '<div style="display:grid;gap:6px;margin-top:14px"><div class="sum-row"><span>Subtotal</span><span>' + V.brl(p.subtotal) + "</span></div>" +
+      (p.desconto > 0 ? '<div class="sum-row"><span>Desconto' + (p.cupom ? " (" + esc(p.cupom) + ")" : "") + "</span><span>− " + V.brl(p.desconto) + "</span></div>" : "") +
+      '<div class="sum-row"><span>Frete</span><span>' + (p.frete > 0 ? V.brl(p.frete) : "Grátis") + '</span></div><div class="sum-row total"><span>Total</span><span>' + V.brl(p.total) + "</span></div></div></section>" +
+      '<div><section class="box"><h2>Entrega</h2><p class="muted">' + esc(p.cliente_nome) + "<br>" + esc(e.rua) + ", " + esc(e.numero) + (e.complemento ? " — " + esc(e.complemento) : "") + "<br>" + esc(e.bairro) + " — " + esc(e.cidade) + "/" + esc(e.estado) + "<br>CEP " + esc((e.cep || "").replace(/(\d{5})(\d{3})/, "$1-$2")) + "</p></section>" +
+      '<section class="box"><h2>Histórico</h2><ul class="timeline">' + (p.eventos || []).slice().reverse().map(function (ev) {
+        return "<li><b>" + esc(ev.status_label) + "</b>" + (ev.nota ? '<div class="muted" style="font-size:.9rem">' + esc(ev.nota) + "</div>" : "") + "<small>" + dataBR(ev.criado_em) + "</small></li>";
+      }).join("") + "</ul></section></div></div>";
+
+    var bc = $("btnCopiar"); if (bc) bc.onclick = function () { navigator.clipboard.writeText(p.pix_copia_cola).then(function () { V.toast("Código PIX copiado"); }); };
+    var bw = $("btnCopiarWallet"); if (bw) bw.onclick = function () { navigator.clipboard.writeText(carteira.carteira).then(function () { V.toast("Endereço copiado"); }); };
+    var bp = $("btnPix"); if (bp) bp.onclick = function () {
+      V.carregando(bp, true);
+      V.api("/api/conta/pedidos/" + codigo + "/pix", { method: "POST", body: {} }).then(function () { carregar(); }).catch(function (e) { V.toast(e.message); V.carregando(bp, false); });
+    };
+    var bt = $("btnTx"); if (bt) bt.onclick = function () {
+      V.carregando(bt, true);
+      V.api("/api/conta/pedidos/" + codigo + "/cripto", { body: { tx: $("tx").value.trim() } }).then(function () { V.toast("Recebemos o hash. Vamos conferir."); carregar(); }).catch(function (e) { V.toast(e.message); V.carregando(bt, false); });
+    };
+  }
+
+  function carregar() {
+    return V.api("/api/conta/pedidos/" + encodeURIComponent(codigo)).then(function (p) {
+      var mudou = !pedido || pedido.status !== p.status;
+      var antes = pedido && pedido.status;
+      pedido = p;
+      document.title = "Pedido " + p.codigo + " — VARG";
+      if (p.metodo === "cripto" && p.status === "aguardando_pagamento" && !carteira) {
+        V.api("/api/carteira-cripto").then(function (c) { carteira = c; render(); });
+        fetch("https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=brl").then(function (r) { return r.json(); }).then(function (d) { cotacaoUsdt = d && d.tether && d.tether.brl; render(); }).catch(function () {});
+      }
+      if (mudou || !poll) render();
+      if (antes === "aguardando_pagamento" && p.status === "pago") V.toast("Pagamento confirmado!");
+      clearInterval(poll); poll = null;
+      if (p.status === "aguardando_pagamento" && p.metodo === "pix" && p.pix_copia_cola) poll = setInterval(carregar, 5000);
+    }).catch(function (e) {
+      if (e.status === 401) return V.Sessao.exigir();
+      $("conteudo").innerHTML = '<div class="empty"><p>' + esc(e.message) + '</p><p style="margin-top:16px"><a class="btn btn-ghost" href="/conta.html">Ver meus pedidos</a></p></div>';
+    });
+  }
+  carregar();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Admin — VARG</title>
+<link rel="icon" href="/img/lobovinho-removebg-preview.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/varg.css">
+<link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body class="adm">
+
+<!-- LOGIN -->
+<div class="auth-wrap hidden" id="telaLogin" style="min-height:100vh">
+  <form class="auth-card" id="formLogin">
+    <div class="brand" style="margin-bottom:22px"><img src="/img/lobovinho-removebg-preview.png" alt=""><span>VARG</span></div>
+    <h1>Painel</h1>
+    <p class="sub">Acesso restrito à administração da loja.</p>
+    <div id="msgLogin"></div>
+    <div class="field"><label>E-mail</label><input class="input" id="admEmail" type="email" autocomplete="username"></div>
+    <div class="field"><label>Senha</label><input class="input" id="admSenha" type="password" autocomplete="current-password"></div>
+    <button class="btn btn-primary btn-block" id="btnLogin">Entrar</button>
+  </form>
+</div>
+
+<!-- APP -->
+<div class="adm-shell hidden" id="app">
+  <aside class="adm-side" id="side">
+    <a class="brand" href="#painel"><img src="/img/lobovinho-removebg-preview.png" alt=""><span>VARG</span></a>
+    <nav id="menu">
+      <a href="#painel" data-r="painel"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM4 20h6v-4H4zM14 4v4h6V4z"/></svg>Painel</a>
+      <a href="#pedidos" data-r="pedidos"><svg viewBox="0 0 24 24"><path d="M6 7h12l-1.2 12.1a2 2 0 0 1-2 1.9H9.2a2 2 0 0 1-2-1.9L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>Pedidos <span class="pill" id="pillPend"></span></a>
+      <a href="#produtos" data-r="produtos"><svg viewBox="0 0 24 24"><path d="M20 7 12 3 4 7v10l8 4 8-4z"/><path d="m4 7 8 4 8-4M12 11v10"/></svg>Produtos</a>
+      <a href="#estoque" data-r="estoque"><svg viewBox="0 0 24 24"><path d="M3 9h18M3 15h18M8 4v16M16 4v16"/></svg>Estoque</a>
+      <a href="#cupons" data-r="cupons"><svg viewBox="0 0 24 24"><path d="M4 7h16v4a2 2 0 0 0 0 4v4H4v-4a2 2 0 0 0 0-4z"/><path d="M10 7v12" stroke-dasharray="2 2"/></svg>Cupons</a>
+      <a href="#clientes" data-r="clientes"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c1-3.5 3.3-5 6-5s5 1.5 6 5M16 4.5a3.5 3.5 0 0 1 0 7M18 15c1.6.6 2.6 2.2 3 5"/></svg>Clientes</a>
+      <a href="#espera" data-r="espera"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21a2 2 0 0 0 4 0"/></svg>Lista de espera</a>
+    </nav>
+    <div class="side-foot">
+      <a href="/" target="_blank">Ver loja ↗</a>
+      <button onclick="Adm.sair()">Sair</button>
+    </div>
+  </aside>
+  <div class="adm-main">
+    <header class="adm-top">
+      <button class="icon-btn adm-menu" onclick="document.getElementById('side').classList.toggle('open')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <h1 id="titulo">Painel</h1>
+      <div id="topAcoes"></div>
+    </header>
+    <div class="adm-content" id="view"></div>
+  </div>
+</div>
+
+<!-- Painel lateral de detalhes -->
+<div class="drawer" id="det"><div class="scrim" onclick="Adm.fecharDet()"></div><aside class="panel adm-det" id="detPanel"></aside></div>
+<div class="modal" id="modal"><div class="box adm-modal" id="modalBox"></div></div>
+<div class="toast" id="toast"></div>
+
+<script src="/admin/admin.js"></script>
+</body>
+</html>

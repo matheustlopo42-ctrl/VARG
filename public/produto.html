@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Produto — VARG</title>
+<meta name="theme-color" content="#0b0b0c">
+<link rel="icon" href="/img/lobovinho-removebg-preview.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/varg.css">
+</head>
+<body>
+<div id="topo"></div>
+<main class="container">
+  <nav class="breadcrumb" id="crumb"><a href="/">VARG</a> / <a href="/#loja">Loja</a></nav>
+  <div class="pdp" id="pdp">
+    <div class="skeleton" style="aspect-ratio:1/1"></div>
+    <div><div class="skeleton" style="height:40px;width:70%;margin-bottom:16px"></div><div class="skeleton" style="height:28px;width:30%"></div></div>
+  </div>
+  <section style="padding-bottom:72px" id="relacionados" class="hidden">
+    <h2 class="section-title" style="font-size:1.8rem;margin-bottom:20px">Você também pode gostar</h2>
+    <div class="grid" id="gridRel"></div>
+  </section>
+</main>
+
+<div class="modal" id="modalEspera">
+  <div class="box">
+    <h2 data-i18n="waitlist.title">Avise-me quando voltar</h2>
+    <p class="muted" style="margin-bottom:16px" id="esperaProduto"></p>
+    <div class="field"><label>E-mail</label><input class="input" type="email" id="esperaEmail" autocomplete="email"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" onclick="fecharEspera()" data-i18n="btn.cancel">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1" id="btnEspera" onclick="enviarEspera()" data-i18n="waitlist.btn">Quero ser avisado</button>
+    </div>
+  </div>
+</div>
+
+<div id="rodape"></div>
+<script src="/js/i18n.js"></script>
+<script src="/js/i18n-loja.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/i18n-init.js"></script>
+<script src="/js/vitrine.js"></script>
+<script>
+(function () {
+  var V = VARG, esc = V.esc, I = V.ICON;
+  var id = V.param("id");
+  var produto, tamanho = null, qtd = 1, img = 0;
+
+  function disponivel() {
+    if (!produto.tamanhos.length) return produto.disponivel;
+    if (!tamanho) return null;
+    var v = produto.variacoes.find(function (x) { return x.tamanho === tamanho; });
+    return v ? v.disponivel : null;
+  }
+
+  function render() {
+    var p = produto;
+    document.title = p.nome + " — VARG";
+    document.getElementById("crumb").innerHTML = '<a href="/">VARG</a> / <a href="/?categoria=' + esc(p.categoria) + '#loja">' + (p.categoria === "salt" ? "Smelling Salt" : "VARG Wear") + "</a> / " + esc(p.nome);
+    var disp = disponivel();
+    var esgotadoSel = p.esgotado || disp === 0;
+    var pct = p.preco_antes ? Math.round((1 - p.preco / p.preco_antes) * 100) : 0;
+
+    var sizes = p.tamanhos.length
+      ? '<div class="opt-label"><span>' + V.t("l.size") + "</span>" + (tamanho ? "<span class='muted'>" + esc(tamanho) + "</span>" : "") + '</div><div class="sizes">' +
+        p.variacoes.map(function (v) {
+          return '<button class="size' + (v.tamanho === tamanho ? " active" : "") + (v.disponivel === 0 ? " off" : "") + '" data-t="' + esc(v.tamanho) + '">' + esc(v.tamanho) + "</button>";
+        }).join("") + "</div>"
+      : "";
+
+    var nota = disp !== null && disp > 0 && disp <= 5 ? '<p class="stock-note">' + V.t("l.left", { n: disp }) + "</p>" : "";
+    var compra = esgotadoSel
+      ? '<button class="btn btn-ghost btn-block" id="btnEsperaPdp">' + V.t("l.card.soldout") + " — " + V.t("l.card.notify") + "</button>"
+      : '<div class="buy-row"><div class="qty lg"><button id="menos">−</button><span>' + qtd + '</span><button id="mais">+</button></div><button class="btn btn-primary" id="btnAdd">' + V.t("l.card.add") + " · " + V.brl(p.preco * qtd) + "</button></div>";
+
+    document.getElementById("pdp").innerHTML =
+      '<div class="gallery"><div class="main"><img src="' + esc(p.imagens[img] || "") + '" alt="' + esc(p.nome) + '"></div>' +
+      (p.imagens.length > 1 ? '<div class="thumbs">' + p.imagens.map(function (src, i) { return '<button class="' + (i === img ? "active" : "") + '" data-i="' + i + '"><img src="' + esc(src) + '" alt=""></button>'; }).join("") + "</div>" : "") +
+      "</div>" +
+      '<div class="pdp-info"><p class="eyebrow">' + (p.categoria === "salt" ? "Smelling Salt" : "VARG Wear") + "</p><h1>" + esc(p.nome) + "</h1>" +
+      '<div class="prices"><span class="price">' + V.brl(p.preco) + "</span>" + (p.preco_antes ? '<span class="strike">' + V.brl(p.preco_antes) + '</span><span class="tag" style="position:static">−' + pct + "%</span>" : "") + "</div>" +
+      '<p class="dim" style="font-size:.88rem">Pagamento via PIX com aprovação na hora</p>' +
+      '<p class="desc">' + esc(p.descricao) + "</p>" + sizes + nota + compra +
+      '<div class="assurances"><div>' + I.shield + "<span>Compra segura: o valor é calculado e conferido no nosso servidor.</span></div><div>" + I.truck + "<span>Envio com código de rastreio, acompanhado pela sua conta.</span></div><div>" + I.chat + '<span>Dúvidas? Veja as <a href="/duvidas-frequentes.html" style="text-decoration:underline">perguntas frequentes</a>.</span></div></div>' +
+      "</div>";
+
+    document.querySelectorAll(".size").forEach(function (b) { b.onclick = function () { tamanho = b.dataset.t; qtd = 1; render(); }; });
+    document.querySelectorAll(".thumbs button").forEach(function (b) { b.onclick = function () { img = +b.dataset.i; render(); }; });
+    var menos = document.getElementById("menos"), mais = document.getElementById("mais");
+    if (menos) menos.onclick = function () { qtd = Math.max(1, qtd - 1); render(); };
+    if (mais) mais.onclick = function () { var lim = disp == null ? 50 : Math.min(50, disp); qtd = Math.min(lim, qtd + 1); render(); };
+    var add = document.getElementById("btnAdd");
+    if (add) add.onclick = function () {
+      if (p.tamanhos.length && !tamanho) { V.toast(V.t("l.pick.size")); return; }
+      V.Carrinho.adicionar(p, tamanho, qtd);
+    };
+    var esp = document.getElementById("btnEsperaPdp");
+    if (esp) esp.onclick = function () { Vitrine.espera(p.id, tamanho || "unico"); };
+  }
+
+  if (!id) { location.href = "/"; return; }
+  Promise.all([V.api("/api/produtos/" + encodeURIComponent(id)), V.api("/api/produtos")]).then(function (r) {
+    produto = r[0]; Vitrine.produtos = r[1];
+    render();
+    var rel = r[1].filter(function (x) { return x.id !== id; }).sort(function (a, b) { return (b.categoria === produto.categoria) - (a.categoria === produto.categoria); }).slice(0, 4);
+    if (rel.length) {
+      document.getElementById("gridRel").innerHTML = rel.map(Vitrine.card).join("");
+      document.getElementById("relacionados").classList.remove("hidden");
+    }
+  }).catch(function () {
+    document.getElementById("pdp").innerHTML = '<div class="empty" style="grid-column:1/-1"><p>Produto não encontrado.</p><p style="margin-top:16px"><a class="btn btn-ghost" href="/">Voltar à loja</a></p></div>';
+  });
+  document.addEventListener("vargLangChanged", function () { if (produto) render(); });
+})();
+</script>
+</body>
+</html>

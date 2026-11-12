@@ -1,0 +1,81 @@
+.adm{display:block}
+.adm-shell{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.adm-side{background:var(--bg2);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:20px;position:sticky;top:0;height:100vh}
+.adm-side .brand{padding:0 8px}
+.adm-side nav{display:flex;flex-direction:column;gap:2px}
+.adm-side nav a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:9px;color:var(--muted);font-weight:500;font-size:.95rem}
+.adm-side nav a:hover{background:var(--panel);color:#fff}
+.adm-side nav a.active{background:var(--panel2);color:#fff}
+.adm-side nav svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.pill{margin-left:auto;background:var(--red);color:#fff;font-size:.72rem;font-weight:700;border-radius:999px;padding:1px 7px}
+.pill:empty{display:none}
+.side-foot{margin-top:auto;display:flex;justify-content:space-between;padding:12px 8px 0;border-top:1px solid var(--line);font-size:.88rem;color:var(--muted)}
+.side-foot a:hover,.side-foot button:hover{color:#fff}
+.adm-main{min-width:0}
+.adm-top{position:sticky;top:0;z-index:50;background:rgba(11,11,12,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);height:64px;display:flex;align-items:center;gap:14px;padding:0 28px}
+.adm-top h1{font-family:var(--head);font-weight:800;font-size:1.45rem;letter-spacing:.06em;text-transform:uppercase;flex:1}
+.adm-top #topAcoes{display:flex;gap:8px}
+.adm-menu{display:none}
+.adm-content{padding:28px;max-width:1400px}
+
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.kpi span{font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-family:var(--head);font-weight:600}
+.kpi b{display:block;font-family:var(--head);font-size:1.9rem;font-weight:800;margin-top:4px;line-height:1.1}
+.kpi small{color:var(--dim);font-size:.82rem}
+.cols{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:20px}
+.card-a{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:20px}
+.card-a h3{font-family:var(--head);font-weight:700;font-size:1rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px;color:var(--muted)}
+.chart{display:flex;align-items:flex-end;gap:3px;height:160px;padding-top:10px}
+.chart .b{flex:1;background:var(--red);opacity:.85;border-radius:3px 3px 0 0;min-height:2px;position:relative}
+.chart .b:hover{opacity:1}
+.chart .b:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#fff;color:#000;font-size:.75rem;font-weight:600;padding:4px 8px;border-radius:6px;white-space:nowrap;z-index:5}
+.chart-axis{display:flex;justify-content:space-between;font-size:.75rem;color:var(--dim);margin-top:6px}
+.status-bars div{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:.92rem}
+.status-bars div:last-child{border:0}
+
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.toolbar .input{height:40px;width:auto}
+.toolbar .grow{flex:1;min-width:200px}
+.seg{display:flex;gap:4px;flex-wrap:wrap}
+.seg button{height:34px;padding:0 12px;border-radius:8px;border:1px solid var(--line2);font-size:.85rem;color:var(--muted)}
+.seg button.active{background:#fff;color:#000;border-color:#fff}
+.seg button .c{opacity:.6;margin-left:4px}
+
+.table-wrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:auto}
+table.t{width:100%;border-collapse:collapse;font-size:.92rem}
+table.t th{text-align:left;font-weight:600;font-size:.78rem;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;padding:12px 14px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--bg2)}
+table.t td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.t tr:last-child td{border-bottom:0}
+table.t tbody tr.click{cursor:pointer}
+table.t tbody tr.click:hover{background:var(--panel2)}
+table.t .num{text-align:right;white-space:nowrap}
+table.t .mono{font-family:ui-monospace,monospace;font-size:.85rem}
+.pager{display:flex;justify-content:space-between;align-items:center;margin-top:14px;color:var(--muted);font-size:.88rem}
+.pager div{display:flex;gap:8px}
+.thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--bg2)}
+.stock-in{width:80px;height:36px;text-align:center;padding:0 6px}
+.lowstock{color:var(--warn)}
+.zero{color:var(--danger)}
+.adm-det{width:min(560px,100vw)!important;overflow-y:auto}
+.adm-det .sec{padding:18px 22px;border-bottom:1px solid var(--line)}
+.adm-det .sec h4{font-family:var(--head);font-weight:700;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.kv{display:grid;grid-template-columns:120px 1fr;gap:6px 12px;font-size:.92rem}
+.kv span:nth-child(odd){color:var(--dim)}
+.adm-modal{max-width:640px!important;max-height:90vh;overflow-y:auto}
+.img-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin-top:8px}
+.img-pick button{aspect-ratio:1/1;border-radius:8px;overflow:hidden;border:2px solid var(--line)}
+.img-pick button.on{border-color:var(--red)}
+.img-pick img{width:100%;height:100%;object-fit:cover}
+.copy{cursor:pointer;border-bottom:1px dashed var(--dim)}
+
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.cols{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:800px){
+  .adm-shell{grid-template-columns:1fr}
+  .adm-side{position:fixed;left:0;top:0;bottom:0;width:250px;z-index:200;transform:translateX(-100%);transition:transform .25s}
+  .adm-side.open{transform:none;box-shadow:0 0 0 100vmax rgba(0,0,0,.5)}
+  .adm-menu{display:inline-flex}
+  .adm-top{padding:0 14px}
+  .adm-content{padding:16px}
+  .kpi b{font-size:1.5rem}
+}

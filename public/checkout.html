@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Finalizar compra — VARG</title>
+<meta name="theme-color" content="#0b0b0c">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/img/lobovinho-removebg-preview.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/varg.css">
+</head>
+<body>
+<div id="topo"></div>
+<main class="container">
+  <div class="checkout" id="wrap">
+    <div>
+      <div id="msg"></div>
+      <section class="box">
+        <h2><span class="n">1</span> Seus dados</h2>
+        <div class="field"><label for="nome">Nome completo</label><input class="input" id="nome" autocomplete="name"></div>
+        <div class="row row-2">
+          <div class="field"><label for="cpf">CPF</label><input class="input" id="cpf" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00"></div>
+          <div class="field"><label for="telefone">WhatsApp</label><input class="input" id="telefone" inputmode="tel" autocomplete="tel" placeholder="(00) 00000-0000"></div>
+        </div>
+        <p class="dim" style="font-size:.84rem">E-mail do pedido: <b id="emailConta" style="color:var(--text)"></b></p>
+      </section>
+
+      <section class="box">
+        <h2><span class="n">2</span> Entrega</h2>
+        <div class="row row-cep">
+          <div class="field"><label for="cep">CEP</label><input class="input" id="cep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000"></div>
+          <div class="field"><label>&nbsp;</label><a class="btn btn-ghost" href="https://buscacepinter.correios.com.br/" target="_blank" rel="noopener" style="height:46px">Não sei meu CEP</a></div>
+        </div>
+        <p class="dim" id="cepStatus" style="font-size:.84rem;margin:-6px 0 10px"></p>
+        <div class="row row-3">
+          <div class="field"><label for="rua">Rua</label><input class="input" id="rua" autocomplete="address-line1"></div>
+          <div class="field"><label for="numero">Número</label><input class="input" id="numero"></div>
+          <div class="field"><label for="complemento">Complemento</label><input class="input" id="complemento" placeholder="Opcional"></div>
+        </div>
+        <div class="row row-3">
+          <div class="field"><label for="bairro">Bairro</label><input class="input" id="bairro"></div>
+          <div class="field"><label for="estado">UF</label><input class="input" id="estado" maxlength="2" style="text-transform:uppercase"></div>
+          <div class="field"><label for="cidade">Cidade</label><input class="input" id="cidade" autocomplete="address-level2"></div>
+        </div>
+      </section>
+
+      <section class="box">
+        <h2><span class="n">3</span> Pagamento</h2>
+        <div class="pay-options" id="payOptions"></div>
+      </section>
+    </div>
+
+    <aside class="summary">
+      <section class="box">
+        <h2>Resumo</h2>
+        <div id="linhas"></div>
+        <div class="coupon">
+          <input class="input" id="cupom" placeholder="Cupom de desconto" style="text-transform:uppercase">
+          <button class="btn btn-ghost btn-sm" id="btnCupom" style="height:42px">Aplicar</button>
+        </div>
+        <p id="cupomMsg" style="font-size:.85rem;margin:-6px 0 12px"></p>
+        <div style="display:grid;gap:8px" id="totais"></div>
+        <button class="btn btn-primary btn-block" id="btnFinalizar" style="margin-top:18px;height:52px">Finalizar pedido</button>
+        <div class="secure" id="secure"></div>
+      </section>
+    </aside>
+  </div>
+</main>
+<div id="rodape"></div>
+<script src="/js/i18n.js"></script>
+<script src="/js/i18n-loja.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/i18n-init.js"></script>
+<script>
+(function () {
+  var V = VARG, esc = V.esc, $ = function (id) { return document.getElementById(id); };
+  if (!V.Sessao.exigir()) return;
+  if (!V.Carrinho.itens().length) {
+    $("wrap").innerHTML = '<div class="empty" style="grid-column:1/-1">' + V.ICON.bag + '<p>Seu carrinho está vazio.</p><p style="margin-top:18px"><a class="btn btn-primary" href="/#loja">Ir para a loja</a></p></div>';
+    return;
+  }
+  $("secure").innerHTML = V.ICON.lock + " Total conferido no servidor · dados protegidos";
+
+  var cotacao = null, cupomAplicado = "", metodo = "pix";
+
+  // ---------- Máscaras ----------
+  var mask = {
+    cpf: function (v) { v = v.replace(/\D/g, "").slice(0, 11); return v.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2"); },
+    telefone: function (v) { v = v.replace(/\D/g, "").slice(0, 11); return v.length > 10 ? v.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3") : v.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3").replace(/-$/, ""); },
+    cep: function (v) { v = v.replace(/\D/g, "").slice(0, 8); return v.replace(/(\d{5})(\d)/, "$1-$2"); },
+  };
+  ["cpf", "telefone", "cep"].forEach(function (k) { $(k).addEventListener("input", function () { this.value = mask[k](this.value); }); });
+
+  $("cep").addEventListener("input", function () {
+    var cep = this.value.replace(/\D/g, "");
+    if (cep.length !== 8) return;
+    $("cepStatus").textContent = "Buscando endereço...";
+    fetch("https://viacep.com.br/ws/" + cep + "/json/").then(function (r) { return r.json(); }).then(function (d) {
+      if (d.erro) { $("cepStatus").textContent = "CEP não encontrado. Preencha o endereço manualmente."; return; }
+      $("rua").value = d.logradouro || $("rua").value; $("bairro").value = d.bairro || $("bairro").value;
+      $("cidade").value = d.localidade || ""; $("estado").value = d.uf || "";
+      $("cepStatus").textContent = "";
+      (d.logradouro ? $("numero") : $("rua")).focus();
+    }).catch(function () { $("cepStatus").textContent = "Não foi possível buscar o CEP. Preencha manualmente."; });
+  });
+
+  // ---------- Dados da conta ----------
+  V.api("/api/conta").then(function (u) {
+    $("emailConta").textContent = u.email;
+    $("nome").value = u.nome || "";
+    if (u.cpf) $("cpf").value = mask.cpf(u.cpf);
+    if (u.telefone) $("telefone").value = mask.telefone(u.telefone);
+    var e = u.endereco;
+    if (e) {
+      $("cep").value = mask.cep(e.cep || ""); ["rua", "numero", "complemento", "bairro", "cidade", "estado"].forEach(function (k) { $(k).value = e[k] || ""; });
+    }
+  }).catch(function (e) { if (e.status === 401) V.Sessao.exigir(); });
+
+  // ---------- Formas de pagamento ----------
+  V.config().then(function (c) {
+    var ops = [];
+    if (c.pix_ativo) ops.push(["pix", "PIX", "Aprovação imediata. O QR Code aparece na próxima tela."]);
+    if (c.cripto_ativo) ops.push(["cripto", "Cripto (USDT)", "Envie USDT para nossa carteira. Confirmação manual em até 24h úteis."]);
+    if (c.whatsapp_ativo) ops.push(["whatsapp", "Combinar pelo WhatsApp", "Registramos o pedido e você combina o pagamento com a gente."]);
+    if (!ops.length) { $("payOptions").innerHTML = '<div class="alert alert-error">Nenhuma forma de pagamento disponível no momento.</div>'; $("btnFinalizar").disabled = true; return; }
+    metodo = ops[0][0];
+    $("payOptions").innerHTML = ops.map(function (o, i) {
+      return '<label class="pay-opt' + (i ? "" : " active") + '"><input type="radio" name="metodo" value="' + o[0] + '"' + (i ? "" : " checked") + '><div><b>' + o[1] + "</b><span>" + o[2] + "</span></div></label>";
+    }).join("");
+    document.querySelectorAll('input[name="metodo"]').forEach(function (r) {
+      r.onchange = function () {
+        metodo = r.value;
+        document.querySelectorAll(".pay-opt").forEach(function (l) { l.classList.toggle("active", l.contains(r)); });
+      };
+    });
+  });
+
+  // ---------- Resumo ----------
+  function itensEnvio() { return V.Carrinho.itens().map(function (i) { return { produto_id: i.produto_id, tamanho: i.tamanho, quantidade: i.quantidade }; }); }
+
+  function renderResumo() {
+    var c = cotacao;
+    $("linhas").innerHTML = c.itens.map(function (i) {
+      return '<div class="line"><img src="' + esc(i.imagem) + '" alt=""><div><div style="font-weight:600;font-size:.92rem;line-height:1.3">' + esc(i.nome) + '</div><div class="q">' + (i.tamanho ? "Tam. " + esc(i.tamanho) + " · " : "") + i.quantidade + "×</div></div><span class='price'>" + V.brl(i.preco * i.quantidade) + "</span></div>";
+    }).join("");
+    $("totais").innerHTML =
+      '<div class="sum-row"><span>Subtotal</span><span>' + V.brl(c.subtotal) + "</span></div>" +
+      (c.desconto > 0 ? '<div class="sum-row" style="color:var(--ok)"><span>Desconto (' + esc(c.cupom) + ')</span><span>− ' + V.brl(c.desconto) + "</span></div>" : "") +
+      '<div class="sum-row"><span>Frete</span><span>' + (c.frete > 0 ? V.brl(c.frete) : "Grátis") + "</span></div>" +
+      '<div class="sum-row total" style="padding-top:10px;border-top:1px solid var(--line)"><span>Total</span><span>' + V.brl(c.total) + "</span></div>";
+  }
+
+  function cotar(cupom) {
+    return V.api("/api/carrinho/cotacao", { body: { itens: itensEnvio(), cupom: cupom || undefined } }).then(function (c) {
+      cotacao = c; renderResumo();
+      var m = $("cupomMsg");
+      if (cupom && c.erroCupom) { m.style.color = "#fca5a5"; m.textContent = c.erroCupom; cupomAplicado = ""; }
+      else if (c.cupom) { m.style.color = "var(--ok)"; m.textContent = "Cupom " + c.cupom + " aplicado."; cupomAplicado = c.cupom; }
+      else m.textContent = "";
+      return c;
+    }).catch(function (e) {
+      $("msg").innerHTML = '<div class="alert alert-error">' + esc(e.message) + ' <a href="/#loja" style="text-decoration:underline">Ajustar carrinho</a></div>';
+      $("btnFinalizar").disabled = true;
+    });
+  }
+  cotar();
+  $("btnCupom").onclick = function () { var b = this; V.carregando(b, true); cotar($("cupom").value.trim()).finally(function () { V.carregando(b, false); }); };
+  $("cupom").addEventListener("keydown", function (e) { if (e.key === "Enter") $("btnCupom").click(); });
+
+  // ---------- Finalizar ----------
+  function erro(msg) { $("msg").innerHTML = '<div class="alert alert-error">' + esc(msg) + "</div>"; window.scrollTo({ top: 0, behavior: "smooth" }); }
+
+  $("btnFinalizar").onclick = function () {
+    var btn = this;
+    var dados = {
+      metodo: metodo, itens: itensEnvio(), cupom: cupomAplicado || undefined,
+      cliente: { nome: $("nome").value, cpf: $("cpf").value, telefone: $("telefone").value },
+      endereco: { cep: $("cep").value, rua: $("rua").value, numero: $("numero").value, complemento: $("complemento").value, bairro: $("bairro").value, cidade: $("cidade").value, estado: $("estado").value },
+    };
+    if (!dados.cliente.nome.trim() || !dados.cliente.cpf || !dados.cliente.telefone) return erro("Preencha seus dados (nome, CPF e WhatsApp).");
+    if (!dados.endereco.cep || !dados.endereco.rua || !dados.endereco.numero || !dados.endereco.cidade) return erro("Preencha o endereço de entrega.");
+    $("msg").innerHTML = "";
+    V.carregando(btn, true);
+    var janelaWa = metodo === "whatsapp" ? window.open("", "_blank") : null;
+    V.api("/api/pedidos", { body: dados }).then(function (r) {
+      V.Carrinho.limpar();
+      var p = r.pedido;
+      if (metodo === "whatsapp" && r.whatsapp) {
+        var txt = "Olá! Fiz o pedido *" + p.codigo + "* no site da VARG.\n\n" +
+          p.itens.map(function (i) { return "• " + i.quantidade + "x " + i.nome + (i.tamanho ? " (" + i.tamanho + ")" : ""); }).join("\n") +
+          "\n\n*Total: " + V.brl(p.total) + "*\nComo faço o pagamento?";
+        var url = "https://wa.me/" + r.whatsapp + "?text=" + encodeURIComponent(txt);
+        if (janelaWa) janelaWa.location = url; else window.open(url, "_blank");
+      }
+      location.href = "/pedido.html?codigo=" + encodeURIComponent(p.codigo) + "&novo=1";
+    }).catch(function (e) {
+      if (janelaWa) janelaWa.close();
+      V.carregando(btn, false);
+      if (e.status === 401) return V.Sessao.exigir();
+      erro(e.message);
+    });
+  };
+})();
+</script>
+</body>
+</html>

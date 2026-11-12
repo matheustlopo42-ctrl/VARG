@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Minha conta — VARG</title>
+<meta name="theme-color" content="#0b0b0c">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/img/lobovinho-removebg-preview.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/varg.css">
+</head>
+<body>
+<div id="topo"></div>
+<main class="container" style="padding:40px 20px 72px;max-width:980px">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px">
+    <div><p class="eyebrow">Minha conta</p><h1 class="section-title" id="ola">Olá</h1></div>
+    <button class="btn btn-ghost btn-sm" onclick="VARG.Sessao.sair()" data-i18n="l.acc.logout">Sair</button>
+  </div>
+  <div class="tabs">
+    <button class="active" data-tab="pedidos" data-i18n="l.acc.orders">Meus pedidos</button>
+    <button data-tab="dados" data-i18n="l.acc.profile">Meus dados</button>
+  </div>
+
+  <section id="tab-pedidos"><div id="pedidos" style="display:grid;gap:12px"><div class="skeleton" style="height:110px"></div></div></section>
+
+  <section id="tab-dados" class="hidden">
+    <div class="row row-2" style="align-items:start">
+      <form class="box" id="formDados">
+        <h2>Dados pessoais</h2>
+        <div id="msgDados"></div>
+        <div class="field"><label>Nome</label><input class="input" id="nome"></div>
+        <div class="field"><label>E-mail</label><input class="input" id="email" disabled></div>
+        <div class="row row-2">
+          <div class="field"><label>CPF</label><input class="input" id="cpf" inputmode="numeric"></div>
+          <div class="field"><label>WhatsApp</label><input class="input" id="telefone" inputmode="tel"></div>
+        </div>
+        <button class="btn btn-primary" id="btnDados">Salvar</button>
+      </form>
+      <form class="box" id="formSenha">
+        <h2>Alterar senha</h2>
+        <div id="msgSenha"></div>
+        <div class="field"><label>Senha atual</label><input class="input" type="password" id="atual" autocomplete="current-password"></div>
+        <div class="field"><label>Nova senha</label><input class="input" type="password" id="nova" autocomplete="new-password"></div>
+        <button class="btn btn-ghost" id="btnSenha">Alterar senha</button>
+      </form>
+    </div>
+  </section>
+</main>
+<div id="rodape"></div>
+<script src="/js/i18n.js"></script>
+<script src="/js/i18n-loja.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/i18n-init.js"></script>
+<script>
+(function () {
+  var V = VARG, esc = V.esc, $ = function (id) { return document.getElementById(id); };
+  if (!V.Sessao.exigir()) return;
+  var u = V.Sessao.usuario();
+  if (u) $("ola").textContent = "Olá, " + u.nome.split(" ")[0];
+
+  document.querySelectorAll(".tabs button").forEach(function (b) {
+    b.onclick = function () {
+      document.querySelectorAll(".tabs button").forEach(function (x) { x.classList.toggle("active", x === b); });
+      $("tab-pedidos").classList.toggle("hidden", b.dataset.tab !== "pedidos");
+      $("tab-dados").classList.toggle("hidden", b.dataset.tab !== "dados");
+      history.replaceState(null, "", "#" + b.dataset.tab);
+    };
+  });
+  if (location.hash === "#dados") document.querySelector('[data-tab="dados"]').click();
+
+  V.api("/api/conta/pedidos").then(function (lista) {
+    if (!lista.length) {
+      $("pedidos").innerHTML = '<div class="empty">' + V.ICON.bag + '<p>Você ainda não fez nenhum pedido.</p><p style="margin-top:18px"><a class="btn btn-primary" href="/#loja">Ir para a loja</a></p></div>';
+      return;
+    }
+    $("pedidos").innerHTML = lista.map(function (p) {
+      var n = p.itens.reduce(function (s, i) { return s + i.quantidade; }, 0);
+      return '<a class="order-card" href="/pedido.html?codigo=' + encodeURIComponent(p.codigo) + '">' +
+        '<div><div class="code">' + esc(p.codigo) + '</div><div class="dim" style="font-size:.85rem">' + new Date(p.criado_em).toLocaleDateString("pt-BR") + " · " + n + (n > 1 ? " itens" : " item") + "</div>" +
+        '<div class="thumbs">' + p.itens.slice(0, 5).map(function (i) { return '<img src="' + esc(i.imagem) + '" alt="">'; }).join("") + "</div></div>" +
+        '<div style="text-align:right"><span class="status st-' + p.status + '">' + esc(p.status_label) + '</span><div class="price" style="font-size:1.25rem;margin-top:10px">' + V.brl(p.total) + "</div>" +
+        (p.status === "aguardando_pagamento" ? '<div style="font-size:.8rem;color:var(--red);margin-top:4px">Concluir pagamento →</div>' : "") + "</div></a>";
+    }).join("");
+  }).catch(function (e) {
+    if (e.status === 401) return V.Sessao.exigir();
+    $("pedidos").innerHTML = '<div class="alert alert-error">' + esc(e.message) + "</div>";
+  });
+
+  var mcpf = function (v) { v = String(v || "").replace(/\D/g, "").slice(0, 11); return v.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2"); };
+  var mtel = function (v) { v = String(v || "").replace(/\D/g, "").slice(0, 11); return v.length > 10 ? v.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3") : v.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3").replace(/-$/, ""); };
+  $("cpf").oninput = function () { this.value = mcpf(this.value); };
+  $("telefone").oninput = function () { this.value = mtel(this.value); };
+
+  V.api("/api/conta").then(function (d) {
+    $("nome").value = d.nome; $("email").value = d.email; $("cpf").value = mcpf(d.cpf); $("telefone").value = mtel(d.telefone);
+  });
+  $("formDados").onsubmit = function (e) {
+    e.preventDefault(); var b = $("btnDados"); V.carregando(b, true);
+    V.api("/api/conta", { method: "PUT", body: { nome: $("nome").value, cpf: $("cpf").value, telefone: $("telefone").value } })
+      .then(function () {
+        $("msgDados").innerHTML = '<div class="alert alert-ok">Dados salvos.</div>';
+        var s = V.Sessao.usuario(); if (s) { s.nome = $("nome").value.trim(); localStorage.setItem("varg_usuario", JSON.stringify(s)); }
+      })
+      .catch(function (err) { $("msgDados").innerHTML = '<div class="alert alert-error">' + esc(err.message) + "</div>"; })
+      .finally(function () { V.carregando(b, false); });
+  };
+  $("formSenha").onsubmit = function (e) {
+    e.preventDefault(); var b = $("btnSenha"); V.carregando(b, true);
+    V.api("/api/conta/senha", { method: "PUT", body: { atual: $("atual").value, nova: $("nova").value } })
+      .then(function () { $("msgSenha").innerHTML = '<div class="alert alert-ok">Senha alterada.</div>'; $("atual").value = $("nova").value = ""; })
+      .catch(function (err) { $("msgSenha").innerHTML = '<div class="alert alert-error">' + esc(err.message) + "</div>"; })
+      .finally(function () { V.carregando(b, false); });
+  };
+})();
+</script>
+</body>
+</html>
