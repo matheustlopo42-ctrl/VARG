@@ -216,7 +216,7 @@
       '<div class="col"><h4 data-i18n="l.footer.help">' + t("l.footer.help") + '</h4><a href="/rastrear-pedido.html">' + t("l.nav.track") + '</a><a href="/duvidas-frequentes.html" data-i18n="footer.faq">Dúvidas frequentes</a><a href="/envio-e-prazos.html" data-i18n="footer.shipping">Envio e prazos</a><a href="/trocas-e-devolucoes.html" data-i18n="footer.returns">Trocas e devoluções</a></div>' +
       '<div class="col"><h4>VARG</h4><a href="/quem-somos.html" data-i18n="footer.about">Quem somos</a><a href="/termos-de-uso.html" data-i18n="footer.terms">Termos de uso</a><a href="/politica-privacidade.html" data-i18n="footer.privacy">Política de privacidade</a></div>' +
       "</div>" +
-      '<div class="container bottom"><span>© ' + ano + ' VARG — A Matilha. <span data-i18n="l.footer.rights">' + t("l.footer.rights") + '</span></span><div class="pay-badges"><span>PIX</span><span>USDT</span></div></div></footer>';
+      '<div class="container bottom"><span>© ' + ano + ' VARG — A Matilha. <span data-i18n="l.footer.rights">' + t("l.footer.rights") + '</span></span><div style="display:flex;align-items:center;gap:14px"><div class="pay-badges"><span>PIX</span><span>USDT</span></div><a class="admin-link" href="/admin/" data-i18n="footer.admin">Área do Administrador</a></div></div></footer>';
     var slot = document.getElementById("rodape");
     if (slot) slot.outerHTML = html;
     else document.body.insertAdjacentHTML("beforeend", html);

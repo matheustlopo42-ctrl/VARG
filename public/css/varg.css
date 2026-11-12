@@ -304,6 +304,8 @@ select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
 .site-footer .about-txt{color:var(--muted);font-size:.92rem;max-width:22rem;margin-top:14px}
 .site-footer .bottom{border-top:1px solid var(--line);padding:18px 20px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:.82rem;color:var(--dim)}
 .pay-badges{display:flex;gap:8px}
+.admin-link{font-size:.78rem;color:var(--dim);opacity:.7}
+.admin-link:hover{color:var(--text);opacity:1}
 .pay-badges span{border:1px solid var(--line2);border-radius:6px;padding:3px 8px;font-size:.74rem;font-weight:600;color:var(--muted)}
 
 /* ---------- Toast e modal ---------- */
